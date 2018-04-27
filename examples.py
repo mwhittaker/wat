@@ -2,13 +2,6 @@ from typing import List
 
 from wat import *
 
-# k = wat.kvs.Kvs()
-# trace = k.run([k.set('x', '1'), k.set('x', '2'), k.set('x', '1'), k.get('x')])
-# for trace in wat.wat.wat(k, trace, 3):
-#     for j, i, o in trace:
-#         print(f'{j}, {i}={o}')
-#     print()
-#
 def print_provenance(trace: Trace, provenance: List[EnumeratedTrace]) -> None:
     strings = [f'[{j}] {i}={o}' for j, (i, o) in enumerate(trace)]
     print('; '.join(strings))
