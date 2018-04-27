@@ -44,7 +44,7 @@ class Project(Query):
         self.indexes = indexes
 
     def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
-        return {[t[i] for i in self.indexes] for t in self.child.eval(db)}
+        return {tuple(t[i] for i in self.indexes) for t in self.child.eval(db)}
 
     def __str__(self) -> str:
         return f'Project({self.child}, {self.indexes})'

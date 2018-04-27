@@ -62,5 +62,27 @@ def main():
     ])
     print_provenance(trace, wat(db, trace, len(trace) - 1))
 
+    # See page 383 of "Provenance in Databases: Why, How, and Where".
+    def f(t):
+        a_name, a_based, a_phone, e_name, e_dest, e_type, e_price = t
+        return a_name == e_name and e_type == 'boat'
+    Agencies = Relation('Agencies')
+    ExternalTours = Relation('ExternalTours')
+    q = Project(Select(Cross(Agencies, ExternalTours), f), [0, 2])
+    trace = db.run([
+        db.create('Agencies', 3),
+        db.create('ExternalTours', 4),
+        db.insert('Agencies', ['BayTours',   'San Francisco', '415-1200']),
+        db.insert('Agencies', ['HarborCruz', 'Santa Cruz',    '831-3000']),
+        db.insert('ExternalTours', ['BayTours',   'San Francisco', 'cable car', '50']),
+        db.insert('ExternalTours', ['BayTours',   'Santa Cruz',    'bus',       '100']),
+        db.insert('ExternalTours', ['BayTours',   'Santa Cruz',    'boat',      '250']),
+        db.insert('ExternalTours', ['BayTours',   'Monterey',      'boat',      '400']),
+        db.insert('ExternalTours', ['HarborCruz', 'Monterey',      'boat',      '200']),
+        db.insert('ExternalTours', ['HarborCruz', 'Carmel',        'train',     '90']),
+        db.query(q),
+    ])
+    print_provenance(trace, wat(db, trace, len(trace) - 1))
+
 if __name__ == '__main__':
     main()
