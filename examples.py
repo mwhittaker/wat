@@ -21,6 +21,7 @@ def print_provenance(trace: Trace, provenance: List[EnumeratedTrace]) -> None:
 def main():
     k = Kvs()
     b = Bexpr()
+    db = Db()
 
     trace = k.run([k.set('x', 1), k.set('x', 2), k.get('x')])
     print_provenance(trace, wat(k, trace, len(trace) - 1))
@@ -49,6 +50,17 @@ def main():
     e = And([av, Or([cv, dv])])
     trace = b.run([b.set('a'), b.set('b'), b.set('c'), b.set('d'), b.eval(e)])
     print_provenance(trace, wat(b, trace, len(trace) - 1))
+
+    q = Diff(Relation('R'), Relation('S'))
+    trace = db.run([
+        db.create('R', 1),
+        db.create('S', 1),
+        db.insert('R', ['a']),
+        db.insert('R', ['b']),
+        db.insert('S', ['b']),
+        db.query(q),
+    ])
+    print_provenance(trace, wat(db, trace, len(trace) - 1))
 
 if __name__ == '__main__':
     main()
