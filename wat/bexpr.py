@@ -128,12 +128,11 @@ class BexprUnsetReply(NamedTuple):
     def __repr__(self) -> str:
         return str(self)
 
-State = Dict[str, bool]
 Input = Union[BexprEvalRequest, BexprSetRequest, BexprUnsetRequest]
 Output = Union[BexprEvalReply, BexprSetReply, BexprUnsetReply]
-class Bexpr(StateMachine[State, Input, Output]):
+class Bexpr(StateMachine[Input, Output]):
     def __init__(self):
-        self.env: State = dict()
+        self.env: Dict[str, bool] = dict()
 
     def eval(self, e: Expr) -> BexprEvalRequest:
         return BexprEvalRequest(e)
@@ -160,7 +159,3 @@ class Bexpr(StateMachine[State, Input, Output]):
             return BexprUnsetReply()
         else:
             raise ValueError(f'Unrecognized input "{i}".')
-
-    # override.
-    def state(self) -> State:
-        return self.env

@@ -59,12 +59,11 @@ class KvsAddReply(NamedTuple):
     def __repr__(self) -> str:
         return str(self)
 
-State = Dict[str, int]
 Input = Union[KvsGetRequest, KvsSetRequest]
 Output = Union[KvsGetReply, KvsSetReply]
-class Kvs(StateMachine[State, Input, Output]):
+class Kvs(StateMachine[Input, Output]):
     def __init__(self):
-        self.kvs: State = dict()
+        self.kvs: Dict[str, int] = dict()
 
     def get(self, k: str) -> KvsGetRequest:
         return KvsGetRequest(k)
@@ -94,7 +93,3 @@ class Kvs(StateMachine[State, Input, Output]):
                 return KvsAddReply(False)
         else:
             raise ValueError(f'Unrecognized input "{i}".')
-
-    # override.
-    def state(self) -> State:
-        return self.kvs

@@ -44,7 +44,7 @@ def main():
     trace = b.run([b.set('a'), b.set('b'), b.set('c'), b.set('d'), b.eval(e)])
     print_provenance(trace, wat(b, trace, len(trace) - 1))
 
-    q = Diff(Relation('R'), Relation('S'))
+    q = DbDiff(DbRelation('R'), DbRelation('S'))
     trace = db.run([
         db.create('R', 1),
         db.create('S', 1),
@@ -55,13 +55,44 @@ def main():
     ])
     print_provenance(trace, wat(db, trace, len(trace) - 1))
 
+    q = DbCup(DbRelation('R'), DbDiff(DbRelation('S'), DbRelation('T')))
+    trace = db.run([
+        db.create('R', 1),
+        db.create('S', 1),
+        db.create('T', 1),
+        db.insert('R', ['a']),
+        db.insert('S', ['a']),
+        db.insert('T', ['a']),
+        db.query(q),
+    ])
+    print_provenance(trace, wat(db, trace, len(trace) - 1))
+
+    def leq3(t):
+        x, = t
+        return int(x) <= 3
+    q = DbSelect(DbDiff(DbRelation('R'), DbRelation('S')), leq3)
+    trace = db.run([
+        db.create('R', 1),
+        db.create('S', 1),
+        db.insert('R', ['1']),
+        db.insert('R', ['3']),
+        db.insert('R', ['4']),
+        db.insert('R', ['6']),
+        db.insert('S', ['2']),
+        db.insert('S', ['3']),
+        db.insert('S', ['5']),
+        db.insert('S', ['6']),
+        db.query(q),
+    ])
+    print_provenance(trace, wat(db, trace, len(trace) - 1))
+
     # See page 383 of "Provenance in Databases: Why, How, and Where".
     def f(t):
         a_name, a_based, a_phone, e_name, e_dest, e_type, e_price = t
         return a_name == e_name and e_type == 'boat'
-    Agencies = Relation('Agencies')
-    ExternalTours = Relation('ExternalTours')
-    q = Project(Select(Cross(Agencies, ExternalTours), f), [0, 2])
+    Agencies = DbRelation('Agencies')
+    ExternalTours = DbRelation('ExternalTours')
+    q = DbProject(DbSelect(DbCross(Agencies, ExternalTours), f), [0, 2])
     trace = db.run([
         db.create('Agencies', 3),
         db.create('ExternalTours', 4),

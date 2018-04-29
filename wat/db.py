@@ -1,21 +1,24 @@
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Union
+from typing import (Callable, Dict, List, NamedTuple, Tuple, Optional, Set,
+                    Union)
 
 from .state_machine import StateMachine
 
-class QueryException(Exception):
+Record = Tuple[str, ...]
+
+class DbQueryException(Exception):
     pass
 
-class Query:
-    def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
+class DbQuery:
+    def eval(self, db: Dict[str, Set[Record]]) -> Set[Record]:
         raise NotImplementedError()
 
-class Relation(Query):
+class DbRelation(DbQuery):
     def __init__(self, r: str) -> None:
         self.r = r
 
-    def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
+    def eval(self, db: Dict[str, Set[Record]]) -> Set[Record]:
         if self.r not in db:
-            raise QueryException(f'{self.r} not in {db}.')
+            raise DbQueryException(f'{self.r} not in {db}.')
         return db[self.r]
 
     def __str__(self) -> str:
@@ -24,12 +27,12 @@ class Relation(Query):
     def __repr__(self) -> str:
         return str(self)
 
-class Select(Query):
-    def __init__(self, child: Query, f: Callable[[Any], bool]) -> None:
+class DbSelect(DbQuery):
+    def __init__(self, child: DbQuery, f: Callable[[Record], bool]) -> None:
         self.child = child
         self.f = f
 
-    def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
+    def eval(self, db: Dict[str, Set[Record]]) -> Set[Record]:
         return {t for t in self.child.eval(db) if self.f(t)}
 
     def __str__(self) -> str:
@@ -38,12 +41,12 @@ class Select(Query):
     def __repr__(self) -> str:
         return str(self)
 
-class Project(Query):
-    def __init__(self, child: Query, indexes: List[int]) -> None:
+class DbProject(DbQuery):
+    def __init__(self, child: DbQuery, indexes: List[int]) -> None:
         self.child = child
         self.indexes = indexes
 
-    def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
+    def eval(self, db: Dict[str, Set[Record]]) -> Set[Record]:
         return {tuple(t[i] for i in self.indexes) for t in self.child.eval(db)}
 
     def __str__(self) -> str:
@@ -52,12 +55,12 @@ class Project(Query):
     def __repr__(self) -> str:
         return str(self)
 
-class Cross(Query):
-    def __init__(self, lhs: Query, rhs: Query) -> None:
+class DbCross(DbQuery):
+    def __init__(self, lhs: DbQuery, rhs: DbQuery) -> None:
         self.lhs = lhs
         self.rhs = rhs
 
-    def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
+    def eval(self, db: Dict[str, Set[Record]]) -> Set[Record]:
         return {lhs + rhs
                 for lhs in self.lhs.eval(db)
                 for rhs in self.rhs.eval(db)}
@@ -68,12 +71,12 @@ class Cross(Query):
     def __repr__(self) -> str:
         return str(self)
 
-class Cup(Query):
-    def __init__(self, lhs: Query, rhs: Query) -> None:
+class DbCup(DbQuery):
+    def __init__(self, lhs: DbQuery, rhs: DbQuery) -> None:
         self.lhs = lhs
         self.rhs = rhs
 
-    def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
+    def eval(self, db: Dict[str, Set[Record]]) -> Set[Record]:
         return self.lhs.eval(db) | self.rhs.eval(db)
 
     def __str__(self) -> str:
@@ -82,12 +85,12 @@ class Cup(Query):
     def __repr__(self) -> str:
         return str(self)
 
-class Diff(Query):
-    def __init__(self, lhs: Query, rhs: Query) -> None:
+class DbDiff(DbQuery):
+    def __init__(self, lhs: DbQuery, rhs: DbQuery) -> None:
         self.lhs = lhs
         self.rhs = rhs
 
-    def eval(self, db: Dict[str, Set[Any]]) -> Set[Any]:
+    def eval(self, db: Dict[str, Set[Record]]) -> Set[Record]:
         return self.lhs.eval(db) - self.rhs.eval(db)
 
     def __str__(self) -> str:
@@ -154,7 +157,7 @@ class DbDeleteReply(NamedTuple):
         return str(self)
 
 class DbQueryRequest(NamedTuple):
-    q: Query
+    q: DbQuery
 
     def __str__(self) -> str:
         return f'q'
@@ -163,7 +166,7 @@ class DbQueryRequest(NamedTuple):
         return str(self)
 
 class DbQueryReply(NamedTuple):
-    result: Optional[Set[Any]]
+    result: Optional[Set[Record]]
 
     def __str__(self) -> str:
         return f'{self.result}'
@@ -171,12 +174,11 @@ class DbQueryReply(NamedTuple):
     def __repr__(self) -> str:
         return str(self)
 
-State = Dict[str, Set[Any]]
 Input = Union[DbCreateRequest, DbInsertRequest, DbDeleteRequest, DbQueryRequest]
 Output = Union[DbCreateReply, DbInsertReply, DbDeleteReply, DbQueryReply]
-class Db(StateMachine[State, Input, Output]):
+class Db(StateMachine[Input, Output]):
     def __init__(self):
-        self.db: State = dict()
+        self.db: Dict[str, Set[Record]] = dict()
 
     def create(self, r: str, arity: int) -> DbCreateRequest:
         return DbCreateRequest(r, arity)
@@ -187,7 +189,7 @@ class Db(StateMachine[State, Input, Output]):
     def delete(self, r: str, t: List[str]) -> DbDeleteRequest:
         return DbDeleteRequest(r, t)
 
-    def query(self, q: Query) -> DbQueryRequest:
+    def query(self, q: DbQuery) -> DbQueryRequest:
         return DbQueryRequest(q)
 
     # override.
@@ -217,11 +219,7 @@ class Db(StateMachine[State, Input, Output]):
         if isinstance(i, DbQueryRequest):
             try:
                 return DbQueryReply(i.q.eval(self.db))
-            except QueryException:
+            except DbQueryException:
                 return DbQueryReply(None)
         else:
             raise ValueError(f'Unrecognized input "{i}".')
-
-    # override.
-    def state(self) -> State:
-        return self.db

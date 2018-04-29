@@ -3,7 +3,6 @@ from typing import Generator, Generic, Iterable, List, Set, Tuple, TypeVar
 
 from .state_machine import StateMachine
 
-State = TypeVar('State')
 Input = TypeVar('Input')
 Output = TypeVar('Output')
 Trace = List[Tuple[Input, Output]]
@@ -45,7 +44,7 @@ def _trace_happens_before(a: EnumeratedTrace, b: EnumeratedTrace) -> bool:
     (k, _, _) = b[0]
     return j < k
 
-def _trace_satisfies_io(m: StateMachine[State, Input, Output],
+def _trace_satisfies_io(m: StateMachine[Input, Output],
                         trace: EnumeratedTrace,
                         io: Tuple[Input, Output]) \
                         -> bool:
@@ -53,7 +52,7 @@ def _trace_satisfies_io(m: StateMachine[State, Input, Output],
     m.run([i for (_, i, _) in trace])
     return o == m.transition(i)
 
-def _subtrace_closed_under_superset(m: StateMachine[State, Input, Output],
+def _subtrace_closed_under_superset(m: StateMachine[Input, Output],
                                     subtrace: EnumeratedTrace,
                                     trace: EnumeratedTrace,
                                     io: Tuple[Input, Output]) \
@@ -61,7 +60,7 @@ def _subtrace_closed_under_superset(m: StateMachine[State, Input, Output],
     return all(_trace_satisfies_io(m, supertrace, io) for
                supertrace in _supertraces(subtrace, trace))
 
-def _subtrace_is_witness(m: StateMachine[State, Input, Output],
+def _subtrace_is_witness(m: StateMachine[Input, Output],
                          subtrace: EnumeratedTrace,
                          trace: EnumeratedTrace,
                          io: Tuple[Input, Output]) \
@@ -73,7 +72,7 @@ def _subtrace_is_witness(m: StateMachine[State, Input, Output],
                not _subtrace_closed_under_superset(m, subsubtrace, trace, io)
                for subsubtrace in _subtraces(subtrace))
 
-def _enumerated_wat(m: StateMachine[State, Input, Output],
+def _enumerated_wat(m: StateMachine[Input, Output],
                     trace: EnumeratedTrace,
                     io: Tuple[Input, Output]) \
                     -> List[EnumeratedTrace]:
@@ -85,7 +84,7 @@ def _enumerated_wat(m: StateMachine[State, Input, Output],
             if not any(w != witness and _trace_happens_before(witness, w)
                        for w in witnesses)]
 
-def wat(m: StateMachine[State, Input, Output],
+def wat(m: StateMachine[Input, Output],
         trace: Trace,
         j: int) \
         -> List[EnumeratedTrace]:
