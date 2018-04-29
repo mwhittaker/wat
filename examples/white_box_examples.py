@@ -34,13 +34,19 @@ class Kvs(WhiteBox):
     def __init__(self) -> None:
         WhiteBox.__init__(self)
 
-        self.create_table('kvs', 2)     # kvs(k, v)
-        self.create_table('get_req', 1) # get_req(k)
-        self.create_table('set_req', 2) # set_req(k, v)
+        self.create_table('kvs', 2)            # kvs(k, v)
+        self.create_table('dont_clear', 1)     # dont_clear(_)
+        self.create_table('get_req', 1)        # get_req(k)
+        self.create_table('set_req', 2)        # set_req(k, v)
+        self.create_table('clear_req', 1)      # clear_req(_)
+        self.create_table('dont_clear_req', 1) # dont_clear_req(_)
 
         kvs = WbRelation('kvs')
+        dont_clear = WbRelation('dont_clear')
         get_req = WbRelation('get_req')
         set_req = WbRelation('set_req')
+        clear_req = WbRelation('clear_req')
+        dont_clear_req = WbRelation('dont_clear_req')
         self.register_rules('get_req', [
             Rule('get_rep', (kvs * get_req)
                              .select(lambda r: r[0] == r[2])
@@ -52,6 +58,14 @@ class Kvs(WhiteBox):
                                 .project([0, 1])),
             Rule('kvs', kvs + set_req),
             Rule('set_rep', WbRecord(('ok',))),
+        ])
+        self.register_rules('dont_clear_req', [
+            Rule('dont_clear', dont_clear_req),
+            Rule('dont_clear_rep', WbRecord(('ok', ))),
+        ])
+        self.register_rules('clear_req', [
+            Rule('kvs', (kvs * dont_clear).project([0, 1])),
+            Rule('clear_rep', WbRecord(('ok', ))),
         ])
 
 class Tours(WhiteBox):
@@ -93,6 +107,16 @@ def main() -> None:
         Input('set_req', ('x', '1')),
         Input('set_req', ('x', '2')),
         Input('set_req', ('x', '1')),
+        Input('get_req', ('x',)),
+    ])
+    print_provenance(trace,
+                     kvs.get_output_lineage(len(trace) - 1),
+                     wat(kvs, trace, len(trace) - 1))
+
+    trace = kvs.run([
+        Input('set_req', ('x', '1')),
+        Input('dont_clear_req', ('',)),
+        Input('clear_req', ('',)),
         Input('get_req', ('x',)),
     ])
     print_provenance(trace,
