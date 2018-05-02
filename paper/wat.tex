@@ -1,0 +1,50 @@
+\documentclass[sigconf, review, timestamp]{acmart}
+\setcopyright{none}
+\settopmatter{printacmref=false}
+\settopmatter{printccs=false}
+
+\usepackage{pervasives}
+
+\begin{document}
+\title{TODO}
+
+\author{Michael Whittaker}
+\affiliation{%
+  \institution{UC Berkeley}
+}
+\email{mjwhittaker@berkeley.edu}
+
+\author{Cristina Teodoropol}
+\affiliation{%
+  \institution{UC Berkeley}
+}
+\email{ct@berkeley.edu}
+
+\author{Peter Alvaro}
+\affiliation{%
+  \institution{UC Santa Cruz}
+}
+\email{palvaro@ucsc.edu}
+
+\author{Joseph M. Hellerstein}
+\affiliation{%
+  \institution{UC Berkeley}
+}
+\email{hellerstein@berkeley.edu}
+\renewcommand{\shortauthors}{M. Whittaker et al.}
+
+{\input{sections/abstract}}
+\maketitle
+{\input{sections/introduction}}
+{\input{sections/background}}
+{\input{sections/wat_provenance}}
+{\input{sections/white_boxes}}
+{\input{sections/black_boxes}}
+{\input{sections/heterogeneous_systems}}
+{\input{sections/evaluation}}
+{\input{sections/related_work}}
+{\input{sections/conclusion}}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{references}
+\end{document}
