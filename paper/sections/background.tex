@@ -1,3 +1,6 @@
+\newcommand{\ttt}[1]{\texttt{#1}}
+\newcommand{\Why}[1]{\textsf{Why}(#1)}
+
 \section{Background}
 We begin with a review of causality, data provenance, and state machines.
 
@@ -47,5 +50,63 @@ The set $\setst{b_j}{b_j \happensbefore a_i}$ is called the \defword{causal
 history} of $a_i$.
 
 \subsection{Data Provenance}
+Given a relational database instance $I$, a relational algebra query $Q$, and a
+tuple $t$ in the output of the query, it's natural to ask why $t$ appears in
+the output. For example, consider the relational database instance given in
+\figref{DataProvenance} which describes owners, their pets, and the things that
+their pets like. And, consider the relation algebra query
+\[
+  Q \defeq \pi_{\ttt{owner}}(
+             \sigma_{\ttt{likes} = \text{sunlight}}(
+               \ttt{Owners} \join \ttt{Pets}
+             )
+           )
+\]
+that returns the name of all owners who own a pet that likes sunlight.
+Evaluating $Q$ on $I$ produces the tuple $t = \text{(Ava)}$.
+
+{\input{figures/data_provenance.tex}}
+
+Intuitively, $t$ is present in the output $Q(I)$ for two reasons: (1) the
+existence of the (Ava, Mimi) and (Mimi, sunlight) tuples and (2) the existence
+of the (Mimi, Harry) and (Harry, sunlight) tuples.
+\defword{\Whyprovenance{}}~\cite{buneman2001and, cheney2009provenance} is a
+form of data provenance that formalizes this intuition. The
+\whyprovenance{}\footnote{
+  For a formal definition of \whyprovenance{}, we refer the reader to
+  \cite{cheney2009provenance}. For our purposes, an informal understanding of
+  \whyprovenance{} is sufficent.
+}
+of a tuple $t$ with respect to query $Q$ and database instance $I$, denoted
+$\Why{Q, I, t}$, is a set $J_1, \ldots, J_n$ of subinstances where each
+subinstance $J_i \subseteq I$ suffices to produce $t$ (i.e.\ $t \in Q(J_i)$).
+%
+Returning to our example above, the \whyprovenance{} of the (Ava) tuple is the
+set $\set{J_1, J_2}$ where
+\begin{align*}
+  J_1 &= \set{(\text{Ava}, \text{Mimi}), (\text{Mimi}, \text{sunlight})} \\
+  J_2 &= \set{(\text{Ava}, \text{Harry}), (\text{Harry}, \text{sunlight})}
+\end{align*}
+
+% The definition of \Whyprovenance{} for select ($\sigma$), project ($\pi$), join
+% ($\join$), union ($\cup$) queries taken from \cite{cheney2009provenance} is as
+% follows:
+% \begin{align*}
+%   \Why{\set{t}, I, u} &= \begin{cases}
+%     \set{\emptyset}, & \text{if $(t = u)$,} \\
+%     \emptyset, & \text{otherwise.} \\
+%   \end{cases} \\
+%   \Why{R, I, t} &= \begin{cases}
+%     \set{\set{t}}, & \text{if $t \in R(I)$,} \\
+%     \emptyset, & \text{otherwise.} \\
+%   \end{cases} \\
+%   \Why{\sigma_\theta(Q), I, t} &= \begin{cases}
+%     \Why{Q, I, t}, & \text{if $\theta(t)$,} \\
+%     \emptyset, & \text{otherwise.} \\
+%   \end{cases} \\
+%   \Why{\pi_U(Q), I, t} &= \bigcup_{\setst{u \in Q(I)}{t = u[U]}} \Why{Q, I, u} \\
+%   \Why{Q_1 \join Q_2} &= \Why{Q_1, I, t} \Cup \Why{Q_2, I, t} \\
+%   \Why{Q_1 \cup Q_2} &= \Why{Q_1, I, t} \cup \Why{Q_2, I, t} \\
+% \end{align*}
 
 \subsection{State Machines}
