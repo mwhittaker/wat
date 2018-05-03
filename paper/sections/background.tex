@@ -2,7 +2,6 @@
 \newcommand{\Why}[1]{\textsf{Why}(#1)}
 
 \section{Background}
-We begin with a review of causality, data provenance, and state machines.
 
 \subsection{Causality}
 Time is fundamental to our understanding of how events are ordered. It's clear,
@@ -110,3 +109,39 @@ set $\set{J_1, J_2}$ where
 % \end{align*}
 
 \subsection{State Machines}
+It's common to model servers---like FTP servers or key-value stores---as
+deterministic state machines that repeatedly receive requests, update their
+state, and send replies~\cite{schneider1990implementing, lamport1998part}. More
+precisely, a \defword{deterministic state machine} $M = (S, s_0, \Sigma,
+\Lambda, \delta, \epsilon)$ consists of
+  a (potentially infinite) set $S$ of states,
+  a start state $s_0 \in S$,
+  an input alphabet $\Sigma$,
+  an output alphabet $\Lambda$,
+  a transition function $\delta: S \times \Sigma \to S$, and
+  an output function $\epsilon: S \times \Sigma \to \Lambda$.
+A state machine $M$ begins in state $s_0$ and repeatedly receives inputs $a \in
+\Sigma$. Upon receiving an input $a$, $M$ transitions from state $s$ to state
+$\delta(s, a)$ and outputs $\epsilon(s, a)$.
+
+We refer to a sequence of inputs received by a state machine as a
+\defword{trace} $T = a_1 a_2 \ldots a_n \in \Sigma^*$. A \defword{subtrace}
+$T'$ of $T$ is a subsequence $T' = a_{i_1} a_{i_2} \ldots a_{i_m}$ where $i_1,
+i_2, \ldots, i_m$ are distinct elements of $1, 2, \ldots, n$ in ascending
+order. Note that a subsequence does \emph{not} have to be contiguous. For
+example, $T' = a_1 a_3$ is a subtrace of $T = a_1 a_2 a_3 a_4$. If $T'$ is a
+subtrace of $T$, then a \defword{supertrace of $T'$ in $T$} is a subtrace of
+$T$ that contains every element of $T'$. An illustrative example of the
+definition of subtraces and supertraces is given in \figref{Traces}.
+
+{\input{figures/traces.tex}}
+
+$\delta$ takes in a state $s \in \Sigma$ and a single input $a \in \Sigma$.
+It's convenient to extend $\delta$ to a function $\delta^*: S \times \Sigma^*
+\to S$ that takes in a state $s$ and a trace $T \in \Sigma^*$ and outputs the
+state reached after sequentially executing the inputs in $T$ starting in state
+$s$. Similarly, we can extend $\epsilon$ to a function $\epsilon: S \times
+\Sigma^+ \to \Lambda$ which takes in a state $s$ and a non-empty trace $T = a_1
+\ldots a_n \in \Sigma^+$ and returns $\epsilon(\delta^*(s, a_1 a_2 \ldots
+a_{n-1}), a_n)$: the final output produced from sequentially executing every
+input in $T$ starting in state $s$.
