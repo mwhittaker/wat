@@ -79,6 +79,9 @@ form of data provenance that formalizes this intuition. The
 of a tuple $t$ with respect to query $Q$ and database instance $I$, denoted
 $\Why{Q, I, t}$, is a set $J_1, \ldots, J_n$ of subinstances where each
 subinstance $J_i \subseteq I$ suffices to produce $t$ (i.e.\ $t \in Q(J_i)$).
+These subinstances are also called \defword{witnesses of $t$}, and a witness
+$J_i$ is called a \defword{minimal witness of $t$} if no proper subinstance of
+$J_i$ is also a witness of $t$.
 %
 Returning to our example above, the \whyprovenance{} of the (Ava) tuple is the
 set $\set{J_1, J_2}$ where
@@ -86,6 +89,7 @@ set $\set{J_1, J_2}$ where
   J_1 &= \set{(\text{Ava}, \text{Mimi}), (\text{Mimi}, \text{sunlight})} \\
   J_2 &= \set{(\text{Ava}, \text{Harry}), (\text{Harry}, \text{sunlight})}
 \end{align*}
+Both $J_1$ and $J_2$ are minimal witnesses.
 
 % The definition of \Whyprovenance{} for select ($\sigma$), project ($\pi$), join
 % ($\join$), union ($\cup$) queries taken from \cite{cheney2009provenance} is as
