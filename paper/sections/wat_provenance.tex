@@ -7,7 +7,7 @@ distributed system. To best understand why, let's look at a simple example.
 Consider the implementation of a Facebook-like social media application called
 \systemname{}, illustrated in \figref{MeanComment}. \systemname{} users can
 post statuses to their wall, and these status updates are only viewable by
-their friends on the site. Users send requests to a load balancer which
+their friends on the site. Users send requests to a load balancer that
 forwards the requests to one of three weakly consistent Redis-backed
 application servers: $s_1$, $s_2$, and $s_3$. These application servers store a
 cache of \systemname{}'s data in Redis, and periodically they synchronize their
@@ -102,6 +102,110 @@ Enter \watprovenance{}.
 
 
 \subsection{\WatProvenance{}}
+\Watprovenance{} is form of data provenance that integrates the benefits of
+both causality and \whyprovenance{}. Borrowing from causality, \watprovenance{}
+is a general purpose mechanism that can be applied to arbitrary state machines.
+Borrowing from \whyprovenance{}, \watprovenance{} incorporates system semantics
+to produce the actual causes of a particular event, rather than a conservative
+overapproximation.
+
+More formally, we consider a state machine $M = (S, s_0, \Sigma, \Lambda,
+\delta, \epsilon)$, a trace $T \in \Sigma^*$, and a particular input $i \in
+\Sigma$. The state machine begins in state $s_0$ and executes $T$,
+transitioning to state $s_T = \delta^*(s_0, T)$. It then executes input $i$
+producing output $o = \epsilon^*(s_0, Ti) = \epsilon(s_T, i)$. \Watprovenance{}
+aims to formalize an intuitive notion of \emph{why} the state machine $M$
+produces output $o$. We build this intuitive notion by way of a sequence of
+examples, ultimately leading to the definition of \watprovenance{}.
+
+\begin{example}
+  \newcommand{\kvset}{\text{set}}
+  \newcommand{\kvget}{\text{get}}
+  Consider a key-value server state machine $M$ with an input alphabet that
+  consists of sets and gets to integer-valued variables. Consider the trace
+  \[
+    T = \kvset(x, 1); \kvset(y, 2)
+  \]
+  that consists of two requests: one that sets the value of $x$ to $1$ and one
+  that sets the value of $y$ to $2$. Consider request $i = \kvget(x)$ which
+  requests the value of $x$. When $M$ processes trace $T$ and then input $i$,
+  it expectedly outputs $1$ (i.e.\ $\epsilon^*(s_0, Ti) = 1$).
+
+  Why did $M$ output $1$? Well, in this trivial example, the reason is
+  abundantly clear. $M$ returned $1$ as the value of $x$ because the first
+  request in $T$ set $x$'s value to $1$. More formally, the subtrace $T' =
+  \kvset(x, 1)$ of $T$ suffices to generate the output of $1$ (i.e.
+  $\epsilon^*(s_0, T'i) = o$). The lesson here is that \textbf{the cause of an
+  output $o$ is a subtrace of the input that is sufficient to generate $o$}. We
+  call such a subtrace a \defword{witness} of $o$.
+
+  However, the entire trace $T$ is also a witness. That is, $T$ also suffices
+  to generate an output of $1$. But, the $\kvset(y, 2)$ request is not relevant
+  to our $\kvget(x)$ request, so we shouldn't include it as a cause of our
+  output. Thus, we revise our earlier observation; \textbf{the cause of an
+  ouput $o$ is a \emph{minimal} subtrace of the input that is sufficient to
+  generate $o$}. We call such a subtrace a \defword{minimal witness} of $o$.
+\end{example}
+
+\begin{example}
+  \newcommand{\Mset}{\text{set}}
+  \newcommand{\Meval}{\text{eval}}
+  Consider a state machine $M$ that stores a set of boolean-valued variables.
+  Users can set variables to true or false and can request that $M$ evaluate
+  formulas over these variables. For example, consider the trace
+  \[
+    T = \Mset(a); \Mset(b); \Mset(c); \Mset(d)
+  \]
+  that sets variables $a, b, c, d$ to true. Further, consider the input $i =
+  \Meval((a \land d) \lor (b \land c))$ that requests $M$ evaluate the formula
+  $(a \land d) \lor (b \land c)$. $o = \epsilon^*(s_0, Ti)$ is expectedly true;
+  $a, b, c, d$ are all true, so the formula evaluates to true.
+
+  Why did $M$ output true? Well, there are two reasons. The first is the
+  subtrace $T_{ad} = \Mset(a); \Mset(d)$, and the second is the subtrace
+  $T_{bc} = \Mset(b); \Mset(c)$. Both of these subtraces are witnesses of $o$,
+  and both are minimal, so we should include both in an explanation of our
+  output. We again revise the lesson from our previous example; \textbf{the
+  cause of an output $o$ is a \emph{set} of minimal witnesses of $o$}.
+\end{example}
+
+\begin{example}
+  \newcommand{\Mset}{\text{set}}
+  \newcommand{\Meval}{\text{eval}}
+  Consider again the state machine $M$ from the previous example, and consider
+  the trace
+  \[
+    T = \Mset(a); \Mset(b); \Mset(c)
+  \]
+  and request $i = \Meval((a \land \lnot b) \lor c)$. $o = \epsilon^*(s_0, Ti)$
+  is true. $a \land \lnot b$ evaluates to false because $\lnot b$ is false, but
+  $c$ is true, so $(a \land \lnot b) \lor c$ is true.
+  %
+  Why did $M$ output true? Well, as we just explained $(a \land \lnot b) \lor
+  c$ is true solely because $c$ is true. Thus, the subtrace $T_c = \Mset(c)$
+  should be the only explanation. However, the subtrace $T_a = \Mset(a)$ is
+  also a witness! If $M$ executes $T_a$ and then $i$, $M$ will output true.
+
+  This is certainly not what we want. $\Mset(a)$ does not contribute to our
+  output, so it should be excluded. The problem here is that the subtrace $T_a$
+  does not include the $\Mset(b)$ request that ultimately nullifies the
+  $\Mset(a)$ request. From this, we see that in order for a minimal witness
+  $T'$ to be a good explanation of a particular output $o$, \textbf{it must be
+  that every supertrace of $T'$ in $T$ is also a witness of $o$}. $T_{ab} =
+  \Mset(a); \Mset(b)$ is a supertrace of $T_a$ in $T$, but $T_{ab}$ does not
+  suffice to generate $o$. Thus, $a$ is not a valid witness.
+\end{example}
+
+We have arrived at our definition of \watprovenance{}. Given a state machine
+$M$, an input trace $T$, an input $i$, and the corresponding output $o =
+\epsilon^*(s_0, Ti)$, we say that a subtrace $T'$ of $T$ is a \defword{witness}
+of $o$ if $\epsilon^*(s_0, T'i) = o$. We say that a witness $T'$ of $o$ is
+\defword{closed under supertrace in $T$} if every supertrace of $T'$ in $T$ is
+also a witness of $o$. We say a witness $T'$ of $o$ is a \defword{minimal
+witness} of $o$ if no subtrace of $T'$ is also a witness of $o$. Finally, the
+\defword{\watprovenance{}} of input $i$ and output $o$ with respect to $M$ and
+$T$, abbreviated $\Wat{M, T, o}$, is the set of minimal witnesses of $o$ that
+are closed under supertrace in $T$.
 
 \subsection{Properties}
 
