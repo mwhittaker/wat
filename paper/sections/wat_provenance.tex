@@ -129,7 +129,7 @@ examples, ultimately leading to the definition of \watprovenance{}.
   that consists of two requests: one that sets the value of $x$ to $1$ and one
   that sets the value of $y$ to $2$. Consider request $i = \kvget(x)$ which
   requests the value of $x$. When $M$ processes trace $T$ and then input $i$,
-  it expectedly outputs $1$ (i.e.\ $\epsilon^*(s_0, Ti) = 1$).
+  it expectedly outputs $1$ (i.e.\ $o = \epsilon^*(s_0, Ti) = 1$).
 
   Why did $M$ output $1$? Well, in this trivial example, the reason is
   abundantly clear. $M$ returned $1$ as the value of $x$ because the first
@@ -204,7 +204,7 @@ of $o$ if $\epsilon^*(s_0, T'i) = o$. We say that a witness $T'$ of $o$ is
 also a witness of $o$. We say a witness $T'$ of $o$ is a \defword{minimal
 witness} of $o$ if no subtrace of $T'$ is also a witness of $o$. Finally, the
 \defword{\watprovenance{}} of input $i$ and output $o$ with respect to $M$ and
-$T$, abbreviated $\Wat{M, T, o}$, is the set of minimal witnesses of $o$ that
+$T$, abbreviated $\Wat{M, T, i}$, is the set of minimal witnesses of $o$ that
 are closed under supertrace in $T$.
 
 \subsection{Properties}
