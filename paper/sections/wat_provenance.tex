@@ -1,6 +1,90 @@
 \section{\WatProvenance{}}\seclabel{WatProvenance}
 
 \subsection{A Motivating Example}\seclabel{WatProvenanceExample}
+\newcommand{\systemname}{ZardozBook} We claim that there is currently no
+\emph{principled} way to reason about the causes of events in a heterogenous
+distributed system. To best understand why, let's look at a simple example.
+Consider the implementation of a Facebook-like social media application called
+\systemname{}, illustrated in \figref{MeanComment}. \systemname{} users can
+post statuses to their wall, and these status updates are only viewable by
+their friends on the site. Users send requests to a load balancer which
+forwards the requests to one of three weakly consistent Redis-backed
+application servers: $s_1$, $s_2$, and $s_3$. These application servers store a
+cache of \systemname{}'s data in Redis, and periodically they synchronize their
+caches with a centralized Postgres database.
+
+Consider a scenario in which Ava, a \systemname{} user, has a falling out with
+Bob, a friend of hers on the site. Ava unfriends Bob and posts the status ``Bob
+is a big jerk!'' to her wall, thinking that Bob will not see the status because
+he is no longer her \systemname{} friend. Unfortunately, Bob later logs in to
+\systemname{} and sees Ava's mean comment!
+
+{\input{figures/mean_comment}}
+
+Why did this happen? Here's an informal account.
+\begin{itemize}
+  \item
+    Ava's request to unfriend Bob was forwarded to application server $s_1$ by
+    the load balancer.
+  \item
+    Then, Ava's request to post the mean comment about Bob was forwarded to
+    $s_2$.
+  \item
+    $s_2$ then pushed the comment to the Postgres repository.
+  \item
+    $s_3$ then issued a SQL query to the Postgres repository, pulling the
+    latest data into its Redis cache. In doing so, it pulled in Ava's mean
+    comment.
+  \item
+    Finally, when Bob logged in, his request was forwarded to $s_3$ which
+    returned the mean comment.
+\end{itemize}
+
+We argue that there is no \emph{principled} way to go about discovering this
+sequence of events. One possibility is to use causality, as described in
+\secref{Background}. We could instrument our distributed system to record the
+causal history of every event that takes place in the system. Then, we could
+examine the causal history of Bob's request in an attempt to diagnose why Bob
+was seeing Ava's mean comment. Unfortunately, this is not helpful. The causal
+history of Bob's request includes \emph{every} event that causally precedes it,
+whether or not the event is actually relevant. For example, the causal history
+of Bob's request would include every single message that was received by server
+$s_3$ prior to Bob sending his request, even those that do not involve Ava and
+Bob. The problem is that causality is too coarse-grained. It fails to
+incorporate any notion of a system's semantics as a means to filter out
+irrelevant messages.  Instead, it returns a vast overapproximation of all the
+events that \emph{might} cause an event instead of the events that
+\emph{actually do} cause an event.
+
+This might prompt us to try and apply ideas from data provenance. Unlike
+causality, \whyprovenance{} does incorporate system semantics in order to
+return the actual causes of a particular output of a query. Unfortunately,
+\whyprovenance{} has two fatal flaws. First, \whyprovenance{} can only be
+applied to relational algebra queries issued against a relation database. We
+might be able to use \whyprovenance{} to debug $s_3$'s SQL query that was sent
+to the Postgres database, but this is only one small piece of the puzzle.
+Understanding why Bob saw Ava's mean comment requires us to reason about
+messages that travel through our application servers, our redis servers, and
+our load balancer. But, these are not relational databases, so we cannot apply
+\whyprovenance{} to them. Second, \whyprovenance{} does not incorporate any
+notion of time. \Whyprovenance{} operates under the assumptions of a
+\emph{static} relational database, but our Postgres database, for example, is
+not static. Thus, we cannot properly apply \whyprovenance{}, even to our
+relational database.
+
+Causality and data provenance are both insufficient to diagnose why Bob saw
+Ava's mean comment. This leaves us with ad-hoc instrumentation as our only
+means of debugging. We can instrument our system to log the messages that flow
+through its components, and we can manually piece together the logs of every
+server in our system. Besides being laborious, this ad-hoc instrumentation also
+raises many questions. Which events should we log? And how do we identify the
+``cause'' of an event? What do we even mean by ``the cause of an event''? Can
+there be multiple ``causes'' or only one? Ideally, we would have a principled
+and systematic way to answer these questions.
+
+Enter \watprovenance{}.
+
+% {\input{figures/parameter_server}}
 % We claim that there is currently no \emph{principled} way to reason about the
 % causes of events in a heterogenous distributed system. To best understand why,
 % let's look at a simple example. Consider a distributed implementation of sparse
@@ -16,7 +100,6 @@
 %
 % {\input{figures/parameter_server}}
 
-{\input{figures/mean_comment}}
 
 \subsection{\WatProvenance{}}
 
