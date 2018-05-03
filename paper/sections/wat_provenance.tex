@@ -1,1 +1,37 @@
-\section{Wat Provenance}
+\section{\WatProvenance{}}\seclabel{WatProvenance}
+
+\subsection{A Motivating Example}\seclabel{WatProvenanceExample}
+% We claim that there is currently no \emph{principled} way to reason about the
+% causes of events in a heterogenous distributed system. To best understand why,
+% let's look at a simple example. Consider a distributed implementation of sparse
+% stochastic gradient descent (SGD) based on Hogwild!~\cite{recht2011hogwild}
+% coordinated via a parameter server~\cite{li2014scaling}, as illustrated in
+% \figref{ParameterServer}. We store our weight vector $x$ in a parameter server
+% with each entry $x_i$ keyed by index $i$. We have a set of worker servers that
+% periodically compute a gradient on a batch of the training data and push their
+% updates to $x$ back to the parameter server. As the SGD executes, a data
+% scientist's laptop periodically pulls the weights from the parameter server,
+% computes the training error, and displays it to the data scientist so that they
+% can monitor the progress of the SGD.
+%
+% {\input{figures/parameter_server}}
+
+{\input{figures/mean_comment}}
+
+\subsection{\WatProvenance{}}
+
+\subsection{Properties}
+
+Begin by critiquing causality and why provenance. Now that we know what they are, this should be clear.
+
+then state our objective. we would like to define provenance for arbitrary state machines.
+definitions are asserted, not proved. we'll have to look at examples to get a sense
+(1) sufficient and minimal
+(2) any superset is sufficient
+(3) set of witnesses, not just one thing
+
+this is wat provenance
+more examples
+
+existince of witness
+subsumption of why prov
