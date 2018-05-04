@@ -1,5 +1,4 @@
 \newcommand{\ttt}[1]{\texttt{#1}}
-\newcommand{\Why}[1]{\textsf{Why}(#1)}
 
 \section{Background}\seclabel{Background}
 
@@ -66,9 +65,9 @@ Evaluating $Q$ on $I$ produces the tuple $t = \text{(Ava)}$.
 
 {\input{figures/data_provenance.tex}}
 
-Intuitively, $t$ is present in the output $Q(I)$ for two reasons: (1) the
-existence of the (Ava, Mimi) and (Mimi, sunlight) tuples and (2) the existence
-of the (Mimi, Harry) and (Harry, sunlight) tuples.
+Intuitively, $t = \text{(Ava)}$ is present in the output $Q(I)$ for two
+reasons: (1) the existence of the (Ava, Mimi) and (Mimi, sunlight) tuples and
+(2) the existence of the (Mimi, Harry) and (Harry, sunlight) tuples.
 \defword{\Whyprovenance{}}~\cite{buneman2001and, cheney2009provenance} is a
 form of data provenance that formalizes this intuition. The
 \whyprovenance{}\footnote{
@@ -81,15 +80,19 @@ $\Why{Q, I, t}$, is a set $J_1, \ldots, J_n$ of subinstances where each
 subinstance $J_i \subseteq I$ suffices to produce $t$ (i.e.\ $t \in Q(J_i)$).
 These subinstances are also called \defword{witnesses of $t$}, and a witness
 $J_i$ is called a \defword{minimal witness of $t$} if no proper subinstance of
-$J_i$ is also a witness of $t$.
-%
+$J_i$ is also a witness of $t$. The \defword{minimal \whyprovenance{}} of $t$,
+denoted $\MWhy{Q, I, t}$, is the set of the minimal witnesses in $\Why{Q, I,
+t}$. It can be shown that $\MWhy{Q, I, t}$ is exactly the set of minimal
+witnesses of $t$~\cite{cheney2009provenance}.
+
 Returning to our example above, the \whyprovenance{} of the (Ava) tuple is the
 set $\set{J_1, J_2}$ where
 \begin{align*}
   J_1 &= \set{(\text{Ava}, \text{Mimi}), (\text{Mimi}, \text{sunlight})} \\
   J_2 &= \set{(\text{Ava}, \text{Harry}), (\text{Harry}, \text{sunlight})}
 \end{align*}
-Both $J_1$ and $J_2$ are minimal witnesses.
+Both $J_1$ and $J_2$ are minimal witnesses, so the \whyprovenance{} and minimal
+\whyprovenance{} of $t = \text{(Ava)}$ are the same.
 
 % The definition of \Whyprovenance{} for select ($\sigma$), project ($\pi$), join
 % ($\join$), union ($\cup$) queries taken from \cite{cheney2009provenance} is as

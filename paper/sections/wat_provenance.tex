@@ -304,19 +304,48 @@ realistic servers such as Redis, Zookeeper, and S3.
   T, i} = \set{a_1a_3, a_1a_2a_3}$, and $\Wat{M, T, i} = \set{a_1a_3}$.
 \end{example}
 
-\subsection{Properties}
+\subsection{\WatProvenance{} Properties}
+Definitions are asserted, not proven. A definition's correctness is axiomatic.
+Still, some definitions make more sense than others.
+\exampleref{WatExampleKvs} through \exampleref{WatExampleSetDiff} demonstrate
+that our definition of \watprovenance{} accurately models how we intuitively
+think about data provenance for state machines. We now prove two properties
+about \watprovenance{} that further demonstrate that our definition is sound.
 
+\begin{theorem}\thmlabel{Existence}
+  For every state machine $M$, trace $T$, and input $i$, $\Wat{M, T, i}$ is
+  non-empty.
+\end{theorem}
 
-Begin by critiquing causality and why provenance. Now that we know what they are, this should be clear.
+\thmref{Existence} is a simple sanity check for our definition of
+\watprovenance{}. It would be odd if something had no provenance at all! The
+proof is trivial. $T$ is always a witness of $o$ that is closed under
+supertrace in $T$. Thus, $\Wit{M, T, i}$ (and hence $\Wat{M, T, i}$) is
+non-empty.
 
-then state our objective. we would like to define provenance for arbitrary state machines.
-definitions are asserted, not proved. we'll have to look at examples to get a sense
-(1) sufficient and minimal
-(2) any superset is sufficient
-(3) set of witnesses, not just one thing
+\newcommand{\Min}{\text{in}}
+\begin{theorem}\thmlabel{WatSubsumesWhy}
+  Let $M$ be the relational database state machine from
+  \exampleref{WatExampleKvs}. Let $T$ be a trace which inserts every tuple in
+  database instance $I$. Let input $i = \Min(t, Q)$ be an input which returns
+  whether tuple $t$ is in $Q(I)$ for select, project, join, union relational
+  algebra query $Q$. Then, viewing a subtrace $T'$ as a subinstance $I'
+  \subseteq I$, $\Wat{M, T, i} = \MWhy{Q, I, t}$.
+\end{theorem}
 
-this is wat provenance
-more examples
+In short, \thmref{WatSubsumesWhy} says that \watprovenance{} subsumes
+minimal \whyprovenance{}. \Watprovenance{} is defined for an arbitrary state
+machine, and selecting a relational database state machine, we see that minimal
+\whyprovenance{} is just a special case of \watprovenance{}.
 
-existince of witness
-subsumption of why prov
+The proof is straightforward.
+%
+If $t \notin Q(I)$, then $o = \epsilon^*(s_0, Ti)$ is false and $\Wat{Q, I, t}$
+consists only of the empty trace, indicating that $\MWhy{Q, I, t}$ is empty.
+%
+Otherwise $t \in Q(I)$ and $o$ is true. Consider a witness $T' \in \Wat{M, T,
+i}$. $T'$ suffices to generate $o$, so the corresponding instance $I'$ suffices
+to generate $t$. Moreover, because $Q$ is monotone, every witness $T'$ is
+closed under supertrace in $T'$. Thus, $T'$ (and hence $I'$) is a minimal
+witness. The proof of the converse---showing that every $I' \in \MWhy{Q, I, t}$
+has a corresponding subtrace $T' \in \Wat{M, I, t}$---is almost identical.
