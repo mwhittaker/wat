@@ -100,7 +100,6 @@ Enter \watprovenance{}.
 %
 % {\input{figures/parameter_server}}
 
-
 \subsection{\WatProvenance{}}
 \Watprovenance{} is form of data provenance that integrates the benefits of
 both causality and \whyprovenance{}. Borrowing from causality, \watprovenance{}
@@ -118,7 +117,7 @@ aims to formalize an intuitive notion of \emph{why} the state machine $M$
 produces output $o$. We build this intuitive notion by way of a sequence of
 examples, ultimately leading to the definition of \watprovenance{}.
 
-\begin{example}
+\begin{example}\examplelabel{WatExampleKvs}
   \newcommand{\kvset}{\text{set}}
   \newcommand{\kvget}{\text{get}}
   Consider a key-value server state machine $M$ with an input alphabet that
@@ -143,11 +142,11 @@ examples, ultimately leading to the definition of \watprovenance{}.
   to generate an output of $1$. But, the $\kvset(y, 2)$ request is not relevant
   to our $\kvget(x)$ request, so we shouldn't include it as a cause of our
   output. Thus, we revise our earlier observation; \textbf{the cause of an
-  ouput $o$ is a \emph{minimal} subtrace of the input that is sufficient to
-  generate $o$}. We call such a subtrace a \defword{minimal witness} of $o$.
+  ouput $o$ is a subtrace of the input that is sufficient to generate $o$ and
+  also minimal}.
 \end{example}
 
-\begin{example}
+\begin{example}\examplelabel{WatExampleFormulas}
   \newcommand{\Mset}{\text{set}}
   \newcommand{\Meval}{\text{eval}}
   Consider a state machine $M$ that stores a set of boolean-valued variables.
@@ -164,12 +163,12 @@ examples, ultimately leading to the definition of \watprovenance{}.
   Why did $M$ output true? Well, there are two reasons. The first is the
   subtrace $T_{ad} = \Mset(a); \Mset(d)$, and the second is the subtrace
   $T_{bc} = \Mset(b); \Mset(c)$. Both of these subtraces are witnesses of $o$,
-  and both are minimal, so we should include both in an explanation of our
-  output. We again revise the lesson from our previous example; \textbf{the
-  cause of an output $o$ is a \emph{set} of minimal witnesses of $o$}.
+  so we should include both in an explanation of our output. We again revise
+  the lesson from our previous example; \textbf{the cause of an output $o$ is a
+  \emph{set} of witnesses of $o$}.
 \end{example}
 
-\begin{example}
+\begin{example}\examplelabel{WatExampleAnotbc}
   \newcommand{\Mset}{\text{set}}
   \newcommand{\Meval}{\text{eval}}
   Consider again the state machine $M$ from the previous example, and consider
@@ -189,25 +188,124 @@ examples, ultimately leading to the definition of \watprovenance{}.
   This is certainly not what we want. $\Mset(a)$ does not contribute to our
   output, so it should be excluded. The problem here is that the subtrace $T_a$
   does not include the $\Mset(b)$ request that ultimately nullifies the
-  $\Mset(a)$ request. From this, we see that in order for a minimal witness
-  $T'$ to be a good explanation of a particular output $o$, \textbf{it must be
-  that every supertrace of $T'$ in $T$ is also a witness of $o$}. $T_{ab} =
-  \Mset(a); \Mset(b)$ is a supertrace of $T_a$ in $T$, but $T_{ab}$ does not
-  suffice to generate $o$. Thus, $a$ is not a valid witness.
+  $\Mset(a)$ request. From this, we see that in order for a witness $T'$ to be
+  a good explanation of a particular output $o$, \textbf{it must be that every
+  supertrace of $T'$ in $T$ is also a witness of $o$}. $T_{ab} = \Mset(a);
+  \Mset(b)$ is a supertrace of $T_a$ in $T$, but $T_{ab}$ does not suffice to
+  generate $o$. Thus, $a$ is not a valid witness.
 \end{example}
 
-We have arrived at our definition of \watprovenance{}. Given a state machine
-$M$, an input trace $T$, an input $i$, and the corresponding output $o =
-\epsilon^*(s_0, Ti)$, we say that a subtrace $T'$ of $T$ is a \defword{witness}
-of $o$ if $\epsilon^*(s_0, T'i) = o$. We say that a witness $T'$ of $o$ is
+Combining our lessons from \exampleref{WatExampleKvs},
+\exampleref{WatExampleFormulas}, and \exampleref{WatExampleAnotbc}, we arrive
+at our definition of \watprovenance{}. Given a state machine $M$, an input
+trace $T$, an input $i$, and the corresponding output $o = \epsilon^*(s_0,
+Ti)$, we say that a subtrace $T'$ of $T$ is a \defword{witness} of $o$ if
+$\epsilon^*(s_0, T'i) = o$. We say that a witness $T'$ of $o$ is
 \defword{closed under supertrace in $T$} if every supertrace of $T'$ in $T$ is
-also a witness of $o$. We say a witness $T'$ of $o$ is a \defword{minimal
-witness} of $o$ if no subtrace of $T'$ is also a witness of $o$. Finally, the
-\defword{\watprovenance{}} of input $i$ and output $o$ with respect to $M$ and
-$T$, abbreviated $\Wat{M, T, i}$, is the set of minimal witnesses of $o$ that
-are closed under supertrace in $T$.
+also a witness of $o$. Let $\Wit{M, T, i}$ be the set of witnesses of $o$ that
+are closed under supertrace in $T$. The \defword{\watprovenance{}} of input $i$
+with respect to $M$ and $T$, abbreviated $\Wat{M, T, i}$, is the set of minimal
+elements of $\Wit{M, T, i}$. That is, $\Wat{M, T, i}$ consists of every witness
+$T'$ of $o$ such that (1) $T'$ is closed under supertrace in $T$, and (2) no
+proper subtrace of $T'$ is also a witness of $o$ that satisfies (1)\footnote{%
+  Note the subtlety that in order to compute $\Wat{M, T, i}$, we first compute
+  all the witnesses of $o$ that are closed under supertrace and then remove the
+  non-minimal elements. We do \emph{not} compute all the minimal witnesses and
+  then remove the ones that are not closed under supertrace in $T$. These two
+  are not the same. See \exampleref{WatExampleAdds}, for example.
+}.
+
+\subsection{Can I Get a Witness?}
+We now provide a few more simple examples of \watprovenance{} to illustrate the
+definition. In \secref{BlackBoxes}, we describe the \watprovenance{} of
+realistic servers such as Redis, Zookeeper, and S3.
+
+\begin{example}\examplelabel{WatExampleXyx}
+  \newcommand{\Mget}{\text{get}}
+  \newcommand{\Mset}{\text{set}}
+  Consider again the key-value server state machine from
+  \exampleref{WatExampleKvs}, the trace
+  \[
+    T = a_1 a_2 a_3 = \Mset(x, 1); \Mset(x, 2); \Mset(x, 1)
+  \]
+  and the input $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 1$. To compute
+  $\Wat{M, T, i}$ (the \watprovenance{} of $i$), we first compute $\Wit{M, T,
+  i}$ (the witnesses of $o$ that are closed under supertrace in $T$).
+
+
+  $T_3 = a_3 = \Mset(x, 1)$ suffices to generate $o$ and is closed under
+  supertrace in $T$ because the proper supertraces $a_1a_3$, $a_2a_3$, and
+  $a_1a_2a_3$ all generate $o$.  So, $T_3 \in \Wit{M, T, i}$. By a similar line
+  of reasoning, we also find that $a_1a_3$, $a_2a_3$, and $a_1a_2a_3$ are in
+  $\Wit{M, T, i}$.
+
+  The subtrace $T_1 = a_1 = \Mset(x, 1)$ is also a witness of $o$, but it is
+  not closed under supertrace in $T$ because the supertrace $a_1a_2 = \Mset(x,
+  1); \Mset(x, 2)$ does not generate $o$. Thus, $T_1$ is not in $\Wit{M, T, i}$
+  and therefore not in $\Wat{M, T, i}$.  Intuitively this is correct because it
+  is the second $\Mset(x, 1)$ command, not the first, that causes the value of
+  $x$ to ultimately be $1$.
+
+  All other subtraces of $T$ are not witnesses of $o$, so $\Wit{M, T, i} =
+  \set{a_3, a_1a_3, a_2a_3, a_1a_2a_3}$ which has unique minimal element $a_3$.
+  Thus, $\Wat{M, T, i} = \set{a_3}$.
+\end{example}
+
+\begin{example}\examplelabel{WatExampleAdds}
+  \newcommand{\Mget}{\text{get}}
+  \newcommand{\Mset}{\text{set}}
+  \newcommand{\Madd}{\text{add}}
+  \newcommand{\Msub}{\text{sub}}
+  Consider again the key-value server state machine from
+  \exampleref{WatExampleKvs} and \exampleref{WatExampleXyx} with the input
+  alphabet expanded to include additions and subtractions to a particular
+  variable. Consider the trace
+  \[
+    T = a_1 a_2 a_3 a_4 = \Mset(x, 42); \Madd(x, 1); \Madd(x, 2); \Msub(x, 3)
+  \]
+  and the request $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 42$.
+
+  Again, we compute $\Wit{M, T, i}$. $T$ suffices to generate $o$, and $T$
+  doesn't have any supertraces in $T$, so it is trivially closed under
+  supertrace in $T$. Thus, $T \in \Wit{M, T, i}$.
+  %
+  $T_1 = a_1 = \Mset(x, 42)$ is the only other witness of $o$, but $T_1$ is not
+  closed under supertrace in $T$. $T_{12} = \Mset(x, 42); \Madd(x, 1)$ is a
+  supertrace of $T_1$ but does not generate $o$.
+  %
+  Thus, $\Wit{M, T, i} = \Wat{M, T, i} = \set{T}$.
+
+  Note that we first compute the witnesses that are closed under supertrace in
+  $T$ and then remove the non-minimal elements. Imagine instead that we first
+  compute the minimal witnesses and then remove the elements that are not
+  closed under supertrace in $T$. We find that the sole minimal witness of $o$
+  is $T_1$. Then, we filter out $T_1$ because, as we just saw, it is not closed
+  under supertrace in $T$. This leaves us with an empty \watprovenance{}!
+\end{example}
+
+\begin{example}\examplelabel{WatExampleSetDiff}
+  \newcommand{\Mins}{\text{insert}}
+  \newcommand{\Mquery}{\text{query}}
+  Consider a relational database state machine $M$. The input alphabet of $M$
+  includes commands to insert a tuple into $M$ and to execute a relational
+  algebra query against $M$. Consider the trace
+  \[
+    T = a_1 a_2 a_3 = \Mins(R, t); \Mins(R, u); \Mins(S, u)
+  \]
+  that inserts tuple $t$ into relation $R$, inserts tuple $u$ into relation
+  $R$, and inserts tuple $u$ into relation $S$. Consider the request $i =
+  \Mquery(R - S)$ that queries the set difference $R - S$ of $R$ and $S$. $o =
+  \epsilon^*(s_0, Ti) = \set{t}$ is the set of only the tuple $t$.
+
+  We first compute $\Wit{M, T, i}$. There are only three witnesses of $o$:
+  $a_1$, $a_1a_3$, and $a_1a_2a_3$.  $a_1$ is not closed under supertrace in
+  $T$ because the supertrace $a_1a_2$ does not generate $o$. The other two
+  traces, $a_1a_3$ and $a_1a_2a_3$, are closed under supertrace. Thus, $\Wit{M,
+  T, i} = \set{a_1a_3, a_1a_2a_3}$, and $\Wat{M, T, i} = \set{a_1a_3}$.
+\end{example}
 
 \subsection{Properties}
+
 
 Begin by critiquing causality and why provenance. Now that we know what they are, this should be clear.
 
