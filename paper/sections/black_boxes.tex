@@ -19,7 +19,6 @@ body of code. Worse, we may not even have access to the source code of the
 black box!  For example, we don't have access to the source code of cloud
 services like Amazon S3 or Google Cloud Spanner.
 
-% given an arbitrary black box written in an arbitrary language, it is a near impossibility to efficiently extract the wat provenance in an efficient way. In order to do so, we would have take in an arbitrary piece of code and automatically infer a corresponding state machine. Then, given a trace, we would then have to perform a complex code analysis over a large body of code to infer the wat provenance. For example, Redis is over 50,000 lines of C code that we would have to analyze. Worse yet, we may not even have the source code! For example, if we use a service like S3 in the cloud, we don't even have access to the code to profile.
 \newcommand{\kvget}{\texttt{get}}
 \newcommand{\kvset}{\texttt{set}}
 
@@ -136,20 +135,65 @@ forwarding decision $s_i$ as the output of the load balancer, the
 recent heartbeat message from the least loaded server.
 
 \subsection{Discussion}
-from s3 to ..., we see that most apis are very simple and often overlapping. For example, zookeeper by being a file system lets us leverage ideas from previous specs. This is not just a coincidence though. Systems design their APIs to be simple and familiar, meaning that many are simple to specify and many overlap.
+These examples show that many popular black boxes have simple \watprovenance{}
+specifications and that many \watprovenance{} specifications are similar to one
+another. We posit that this is not a coincidence. System designers actively
+design their systems to be as simple and as familiar as possible. If a black
+box had a very complex API with very complex dependencies between requests,
+then it would be challenging for a user to become proficient in using the
+system. Take Zookeeper as an example. The implementation and use cases of
+Zookeeper are radically different than that of a traditional distributed file
+system like HDFS. However, by mimicking the API of a file system, Zookeeper's
+API is immediately familiar to developers. As a result, Zookeeper's
+\watprovenance{} specification is very similar to HDFS's \watprovenance{}
+specification, both of which are relatively simple.
 
-Moreover, only one person has to write the black box spec for a particular black box, not every dev. Thus, if someone wrote a redis spec, everyone could use it. Moreover, the spec is invariant to the implementation of Redis, we do not have to change the spec every time the implementation changes. in secref eval, we see that some approaches do require that. Also, the overhead of writing these specs is significantly, significantly lower than the overhead of other existing methods, as well see in the eval section
+However, not \emph{every} black box has a simple provenance specification. Take
+for example, a relational database where users can insert tuples, remove
+tuples, and issue queries (as with \exampleref{WatExampleSetDiff}). As
+\thmref{WatSubsumesWhy} shows, writing a \watprovenance{} specification for a
+particular query is tantamount to specifying the \whyprovenance{} of the query.
+Worse, if the query includes constructs like set difference or aggregation that
+are beyond the scope of \whyprovenance{}, the \watprovenance{} specification
+becomes even more challenging to write. Fortunately, the effort of writing a
+\watprovenance{} specification need not be duplicated. Black boxes like Redis
+are written by a handful of developers but used by thousands of others.
+Provenance specifications are no different. Once a single developer writes a
+provenance specification for a particular black box, all other users of the
+black box can leverage it.
 
-Even though specs are simple, it is still possible for a user to incorrectly write a spec. Fortunately, we can write simple unit tests for wat prov specs. The main idea is that given a simple implementation of a state machine and a trace, we can manually compute the wat provenance. Then, we can check this wat provenance against the wat provenance returned by the specification. just like unit tests, this allows to sometimes conclude that the wat provenance specification is incorrect, though it never allows to say the spec is definitely correct.
-
-An astute reader might note that this contradicts what we said earlier. We're saying we can automatically extract the wat provenance. This approach is useful for testing but not practical for getting the wat prov of a real system. The runtime of the algorithm is superexponential, meaning that for any realistically sized traces, this approach would simply not work. Still, it is useful for small unit tests.
+Furthermore, there is a simple yet effective way to unit test provenance
+specifications that we call \defword{exhaustive \watprovenance{} checking}.
+Given a state machine $M$ with start state $s_0$, a trace $T$, and an input
+$i$, we can automatically compute the \watprovenance{} of $i$ by exhaustively
+computing $\epsilon^*(s_0, T'i)$ for every subtrace $T'$ of $T$.  Doing so, we
+can automatically compute the \watprovenance{} of a particular request and
+verify that it matches the \watprovenance{} produced by a provenance
+specification.  Unfortunately, this technique runs in superexponential time
+with respect to the length of $T$, so it is effective for small unit tests but
+impractical for computing the \watprovenance{} of real-world traces.
 
 \subsection{Limitations}
-buggy black boxes:
-  - we have so far tacitly assumed that a black box faithfully implements its api. If a black box is buggy, then its actual wat provenance may not be the same as what we've specified. Still, bugs in large open source projects are rare and are often fixes after being found.
+Automatically inferring the \watprovenance{} of a black box is intractable, and
+while \watprovenance{} specifications work well in the common case, they are
+not a panacea. Here, we discuss two limitations of \watprovenance{}
+specifications.
 
-nondeterministic state machines:
-  - wat provenance assumes a deterministic state machine, but some state machines are nondeterministic. for example, consider a load balancer which randomly forwards traffic to servers. modelling such a thing as a deterministic state machine is impossible, so it doesn't fit our model of wat provenance very well. we think an interesting aveneue for future work will be to expand our notions of wat prov and wat prov specs to nondeterminsitic state machines
+\paragraph{Buggy Black Boxes}
+We have thus far tacitly assumed that common black boxes like Redis faithfully
+implement their advertised interfaces. However, if a black box is buggy and
+deviates from its expected behavior, then a \watprovenance{} specification will
+likely produce erroneous provenance. Fortunately, black box bugs are relatively
+rare (at least compared to the frequency of bugs in application-specific code
+written from scratch). Moreover, we can use exhaustive \watprovenance{}
+checking to identify potential bugs in a black box. If the \watprovenance{}
+computed by an exhaustive \watprovenance{} check differs from the
+\watprovenance{} returned by a specification, it's an indication that the black
+box might be deviating from its intended specification.
 
-nontrivial specifications:
-  - as we've noted, specifying the provenance for an arbitray black box is hard. As a contrived example, consider a server which takes in a series of programs as inputs and later returns whether one of the programs terminates. Writing a specification is tantamount to determining which of these programs terminate which is likely difficult, and undecidable in general. fortunately, many open source black boxes have simple apis, but some might be hard to specify.
+\paragraph{Nondeterministic Black Boxes}
+The definition of \watprovenance{} assumes a \emph{deterministic} state
+machine, yet some black boxes---e.g., a load balancer that forwards requests
+uniformly at random---are nondeterministic. We leave a generalization of
+\watprovenance{} and \watprovenance{} specifications to nondeterministic state
+machines as an interesting avenue for future work.
