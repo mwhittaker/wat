@@ -10,10 +10,10 @@ def print_provenance(trace: Trace, provenance: List[EnumeratedTrace]) -> None:
         strings = [f'[{j}] {i}' for j, i, _ in t]
         print(f'  - {"; ".join(strings)}')
     print()
-
 def main():
     k = Kvs()
     b = Bexpr()
+    l = Lists()
     db = Db()
 
     trace = k.run([k.set('x', 1), k.set('x', 2), k.get('x')])
@@ -35,6 +35,18 @@ def main():
     e = Or([And([av, dv]), And([bv, cv])])
     trace = b.run([b.set('a'), b.set('b'), b.set('c'), b.set('d'), b.eval(e)])
     print_provenance(trace, wat(b, trace, len(trace) - 1))
+
+    trace = l.run([
+        l.rpush('b'),
+        l.rpush('c'),
+        l.rpush('d'),
+        l.lpush('a'),
+        l.remove('c'),
+        l.rpop(),
+        l.lpop(),
+        l.index(0),
+    ])
+    print_provenance(trace, wat(l, trace, len(trace) - 1))
 
     e = Or([And([Not(bv), av, cv]), dv])
     trace = b.run([b.set('a'), b.set('b'), b.set('c'), b.set('d'), b.eval(e)])
