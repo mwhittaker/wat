@@ -1,12 +1,12 @@
 \section{Black Boxes}\seclabel{BlackBoxes}
 Now that we've defined \watprovenance{}, we turn to the matter of computing it.
 Real-world distributed systems are typically a composition of two types of
-components: (1) application specific services that are written from scratch,
-dubbed \defword{white boxes}, and (2) widely used open source services that are
-not written by the application developer, dubbed \defword{black boxes}, (e.g.,
-Redis, Postgres). In this section, we discuss how to compute the
-\watprovenance{} of black boxes. In \secref{WhiteBoxes}, we discuss white box
-\watprovenance{}.
+components: (1) application specific services that are written from scratch
+(i.e.\ ``business logic''), dubbed \defword{white boxes}, and (2) widely used
+open source services that are not written by the application developer, dubbed
+\defword{black boxes}, (e.g., Redis, Postgres). In this section, we discuss how
+to compute the \watprovenance{} of black boxes. In \secref{WhiteBoxes}, we
+discuss white box \watprovenance{}.
 
 \subsection{Provenance Specifications}
 Automatically computing the \watprovenance{} for an \emph{arbitrary} black box
@@ -26,21 +26,21 @@ services like Amazon S3 or Google Cloud Spanner.
 Though automatically computing the \watprovenance{} for an \emph{arbitrary}
 black is intractable, we can take advantage of the fact that most real-world
 black boxes are far from arbitrary. Many black boxes have complex
-implementations but are designed with very simple interfaces.  This allows to
-sidestep the issue of \emph{inferring} \watprovenance{} from an implementation
-and instead \emph{specify} \watprovenance{} directly from an interface. That
-is, we can write a \defword{\watprovenance{} specification}: a function
-that---given a trace $T$ and request $i$---directly returns the
+implementations but are designed with very simple interfaces.  This allows us
+to sidestep the issue of \emph{inferring} \watprovenance{} from an
+implementation and instead \emph{specify} \watprovenance{} directly from an
+interface. That is, we can write a \defword{\watprovenance{} specification}: a
+function that---given a trace $T$ and request $i$---directly returns the
 \watprovenance{} $\Wat{M, T, i}$ for a black box modeled as state machine $M$.
 
 For example, if we restrict our attention to the \kvget{} and \kvset{} API of
-Redis, then the \watprovenance{} specification of a \kvget{} request is
-trivial: \textbf{the \watprovenance{} of a \kvget{} request for key $k$
-includes only the most recent \kvset{} to $k$}. Redis is implemented in over
-50,000 lines of C, so automatically inferring the \watprovenance{} of a
-\kvget{} request is intractable. This \watprovenance{} specification avoids the
-intractability and instead specifies the \watprovenance{} in a single line of
-text.
+Redis (as with \exampleref{WatExampleXyx}), then the \watprovenance{}
+specification of a \kvget{} request is trivial: \textbf{the \watprovenance{} of
+a \kvget{} request for key $k$ includes only the most recent \kvset{} to
+$k$}. Redis is implemented in over 50,000 lines of C, so automatically
+inferring the \watprovenance{} of a \kvget{} request is intractable. This
+\watprovenance{} specification avoids the intractability and instead specifies
+the \watprovenance{} in a single line of text.
 
 Moreover, codifying this one line \watprovenance{} specification is expectedly
 straightforward. The programming language in which we write \watprovenance{}
@@ -52,10 +52,11 @@ type \texttt{Request} with subclasses \texttt{GetRequest} and
 \texttt{SetRequest}.  \texttt{get\_prov} iterates through the trace in reverse
 order, looking for a \kvset{} request to key $k$. If such a \kvset{} request is
 found, \texttt{get\_prov} returns it. Otherwise, \texttt{get\_prov} returns an
-empty witness. Recall that the \watprovenance{} of a request is a set of
-witnesses closed under supertrace in $T$, which is why \texttt{get\_prov}
-returns either a set of the singleton witness \texttt{[a]} or a set of the
-empty witness \texttt{[]}.
+empty witness.
+% Recall that the \watprovenance{} of a request is a set of witnesses closed
+% under supertrace in $T$, which is why \texttt{get\_prov} returns either a set
+% of the singleton witness \texttt{[a]} or a set of the empty witness
+% \texttt{[]}.
 
 {\input{figures/redis_prov_spec}}
 
@@ -66,27 +67,79 @@ describe the details of concretely how traces are collected and how
 details and focus on the concepts behind \watprovenance{} specifications.
 
 \subsection{Examples}
-Redis is a particularly simple example, but there are plenty of examples of systems that are simple too
+The \watprovenance{} specification of a Redis \kvget{} request is particularly
+simple, but this simplicity is the rule, not the exception. We now survey a
+variety of popular black boxes and demonstrate that their \watprovenance{}
+specifications are mostly very simple.
 
-- stateless services
-  - google cloud vision
-  - trivial wat prov
-- storage systems
-  - redis with fuller api
-  - most recent set plus following appends
-  - s3
-    - TODO: Remember
-  - HDFS name node:
-    - leave for alvaro to write
-- coordination services
-  - zookeeper
-    - TODO: Remember
+\paragraph{Stateless Services}
+A \defword{stateless service} is a service that can be modelled as a state
+machine with a single state. Given a request, a stateless service always
+produces the same reply, no matter what other requests it has already serviced.
+For example, a web server serving a static website is stateless; it replies to
+all requests with the same website. Similarly, cloud services like Google Cloud
+Vision API and Google Cloud Speech-to-Text are also stateless. Given an image
+or audio clip, these services deterministically return a description of the
+image or a transcription of the audio. \Watprovenance{} specifications of a
+stateless service are trivial. Requests are completely independent, so the
+\watprovenance{} of any request consists only of the empty witness.
 
+\paragraph{Key-Value Stores}
+We've already seen a \watprovenance{} specification for the \kvget{} and
+\kvset{} API of Redis. This specification works equally well for any other
+key-value store like Voldemort, Riak, or Memached. Moreover, we can easily
+extend our \watprovenance{} specification to handle more of Redis' API. For
+example, consider the operations \texttt{append}, \texttt{decr},
+\texttt{decrby}, \texttt{incr}, and \texttt{incrby} which all modify the value
+associated with a particular key. With these operations present in a trace, the
+\watprovenance{} specification for a \kvget{} request to key $k$ now includes
+the most recent set to $k$ and all subsequent modifying operations to key $k$.
+
+\paragraph{Object Stores}
+We can also write \watprovenance{} specifications for storage systems that are
+more complex than key-value stores. For example, consider an object store like
+Amazon S3 where users can create, move, copy, list, and get buckets and
+objects. The \watprovenance{} specification for the get of an object $o$ in
+bucket $b$ includes the most recent creation of the bucket $b$ (either by
+creation or moving) and the most recent creation of $o$ (again, either by
+creation or moving). The \watprovenance{} of a request to list the contents of
+a bucket includes the most recent creation of the bucket, the most recent
+creation of every object in the bucket, and the deletion of any object that was
+previously in the bucket.
+
+\paragraph{Distributed File Systems}
+We can also specify the \watprovenance{} of a distributed file system like NFS
+or HDFS. A \watprovenance{} specification of a request to read a byte range
+from a file includes the most recent creation of the file, the most recent
+creation of the parent directories of the file, and the most recent writes that
+overlap with the requested byte range.
+
+\paragraph{Coordination Services}
+Systems use coordination services like Apache
+Zookeeper~\cite{hunt2010zookeeper} and Chubby~\cite{burrows2006chubby} for
+leader election, mutual exclusion, etc. Take Zookeeper as an example.
+Zookeeper's API resembles that a of a file system; users can create, delete,
+write, and read file-like objects called znodes. Though the implementation of
+Zookeeper and HDFS are radically different, their APIs (and thus their
+\watprovenance{} specifications) are similar. For example, the \watprovenance{}
+specification of a request to read a znode includes the most recent creation of
+the znode and the most recent creations of all ancestor znodes.
+
+\paragraph{Load Balancers}
+Consider a load balancer, like HAProxy, that is balancing load across a set
+$s_1, \ldots, s_n$ of $n$ servers. Periodically, a server $s_i$ sends a
+heartbeat to the load balancer that includes $s_i$'s average load for the last
+five minutes. Whenever the load balancer receives a message from a client, it
+forwards the message to the server $s_i$ that is least loaded. Modelling the
+forwarding decision $s_i$ as the output of the load balancer, the
+\watprovenance{} specification for the forwarding decision includes the most
+recent heartbeat message from the least loaded server.
+
+\subsection{Discussion}
 from s3 to ..., we see that most apis are very simple and often overlapping. For example, zookeeper by being a file system lets us leverage ideas from previous specs. This is not just a coincidence though. Systems design their APIs to be simple and familiar, meaning that many are simple to specify and many overlap.
 
 Moreover, only one person has to write the black box spec for a particular black box, not every dev. Thus, if someone wrote a redis spec, everyone could use it. Moreover, the spec is invariant to the implementation of Redis, we do not have to change the spec every time the implementation changes. in secref eval, we see that some approaches do require that. Also, the overhead of writing these specs is significantly, significantly lower than the overhead of other existing methods, as well see in the eval section
 
-\subsection{Checking Provenance Specifications}
 Even though specs are simple, it is still possible for a user to incorrectly write a spec. Fortunately, we can write simple unit tests for wat prov specs. The main idea is that given a simple implementation of a state machine and a trace, we can manually compute the wat provenance. Then, we can check this wat provenance against the wat provenance returned by the specification. just like unit tests, this allows to sometimes conclude that the wat provenance specification is incorrect, though it never allows to say the spec is definitely correct.
 
 An astute reader might note that this contradicts what we said earlier. We're saying we can automatically extract the wat provenance. This approach is useful for testing but not practical for getting the wat prov of a real system. The runtime of the algorithm is superexponential, meaning that for any realistically sized traces, this approach would simply not work. Still, it is useful for small unit tests.
