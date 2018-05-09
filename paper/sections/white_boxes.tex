@@ -1,1 +1,16 @@
 \section{White Boxes}\seclabel{WhiteBoxes}
+now that we've defined wat provenacne, we turn the matter of computing what provenance. in a distributed system, there are two kinds of components. the ones you write called white boxes (examples) and the ones you dont called black boxes (examples). in this seciton, we discuss computing the wat provenance of white boxes; in the next section, we describe black boxes.
+
+- subsection: language
+
+More specifically, in this section we explore if there exists a programming language in which you can write state machines such that we can automatically and efficiently compute the state machine's wat provenance for a particular trace and input.
+
+- connection to dedalus
+- example with message posting server
+
+- subsection: discussion and limitations
+
+- theoretical, but not practical idea; not everything can be expressed here;
+negation makes things hard
+- give example of a program with negation for which this technique fails?
+- however, there are other substitutes for wat provenance in this case; one is network provenance; another is just straight up debugging. the thing is that debugging code you wrote is not too big of a deal since you wrote it, unlike black boxes which we discuss in the next section
