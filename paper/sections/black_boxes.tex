@@ -1,17 +1,69 @@
 \section{Black Boxes}\seclabel{BlackBoxes}
-now we've defined wat provenance, but how do we get it. there are two kinds of compnonents in a system: white box and black box, and the kind of thing will determine how we get the wat prove. in this section we focus on provenance specifications for getting wat prov for black boxes, in the next section we focus on wat proveannce for code you did write.
-
+Now that we've defined \watprovenance{}, we turn to the matter of computing it.
+Real-world distributed systems are typically a composition of two types of
+components: (1) application specific services that are written from scratch,
+dubbed \defword{white boxes}, and (2) widely used open source services that are
+not written by the application developer, dubbed \defword{black boxes}, (e.g.,
+Redis, Postgres). In this section, we discuss how to compute the
+\watprovenance{} of black boxes. In \secref{WhiteBoxes}, we discuss white box
+\watprovenance{}.
 
 \subsection{Provenance Specifications}
-given an arbitrary black box written in an arbitrary language, it is a near impossibility to efficiently extract the wat provenance in an efficient way. In order to do so, we would have take in an arbitrary piece of code and automatically infer a corresponding state machine. Then, given a trace, we would then have to perform a complex code analysis over a large body of code to infer the wat provenance. For example, Redis is over 50,000 lines of C code that we would have to analyze. Worse yet, we may not even have the source code! For example, if we use a service like S3 in the cloud, we don't even have access to the code to profile.
+Automatically computing the \watprovenance{} for an \emph{arbitrary} black box
+is more or less hopeless. In order to do so, we would have to analyze an
+arbitrary piece of code written in an arbitrary programming language and infer
+an abstract state machine that accurately models the black box. Then, to
+compute the \watprovenance{} of a particular request with respect to a given
+trace, we would have to perform some sort of complex code analysis over a large
+body of code. Worse, we may not even have access to the source code of the
+black box!  For example, we don't have access to the source code of cloud
+services like Amazon S3 or Google Cloud Spanner.
 
-So, getting wat provenance for \emph{arbitrary} black is hopeless. But, we can take advantage of the fact that realistic black boxes are far from arbitrary. Most of the black boxes that we use have complex implementations but are designed with very simple APIs. This makes it very simple, sometimes trivial, for us to write wat provenance specifications: a function which given a trace, directly returns the wat provenance. For example, if we restrict our attention to the get/set API of redis, then the wat provenance of a get includes only the most recent set.
+% given an arbitrary black box written in an arbitrary language, it is a near impossibility to efficiently extract the wat provenance in an efficient way. In order to do so, we would have take in an arbitrary piece of code and automatically infer a corresponding state machine. Then, given a trace, we would then have to perform a complex code analysis over a large body of code to infer the wat provenance. For example, Redis is over 50,000 lines of C code that we would have to analyze. Worse yet, we may not even have the source code! For example, if we use a service like S3 in the cloud, we don't even have access to the code to profile.
+\newcommand{\kvget}{\texttt{get}}
+\newcommand{\kvset}{\texttt{set}}
 
-Codifying this simple specification is more or less trivial. The language in which we specify the specs is unimportant. In figure below, we write a spec for redis in python. the function takes in a trace, which is a list of things of type request, and outputs a set of witnesses, where each witness is a subsequence of the input trace. It also takes in a request and repsonse. the function simply looks for the most recent set of the same key.
+Though automatically computing the \watprovenance{} for an \emph{arbitrary}
+black is intractable, we can take advantage of the fact that most real-world
+black boxes are far from arbitrary. Many black boxes have complex
+implementations but are designed with very simple interfaces.  This allows to
+sidestep the issue of \emph{inferring} \watprovenance{} from an implementation
+and instead \emph{specify} \watprovenance{} directly from an interface. That
+is, we can write a \defword{\watprovenance{} specification}: a function
+that---given a trace $T$ and request $i$---directly returns the
+\watprovenance{} $\Wat{M, T, i}$ for a black box modeled as state machine $M$.
 
-figure include indexes as well
+For example, if we restrict our attention to the \kvget{} and \kvset{} API of
+Redis, then the \watprovenance{} specification of a \kvget{} request is
+trivial: \textbf{the \watprovenance{} of a \kvget{} request for key $k$
+includes only the most recent \kvset{} to $k$}. Redis is implemented in over
+50,000 lines of C, so automatically inferring the \watprovenance{} of a
+\kvget{} request is intractable. This \watprovenance{} specification avoids the
+intractability and instead specifies the \watprovenance{} in a single line of
+text.
 
-in secref..., we describe a prototype implementation of a system for collecting traces and specifying wat provenance. There, we will discuss the concrete details of doing it.
+Moreover, codifying this one line \watprovenance{} specification is expectedly
+straightforward. The programming language in which we write \watprovenance{}
+specifications is unimportant. In \figref{RedisProvSpec}, we provide a simple
+implementation of the one line \watprovenance{} specification in Python. The
+specification, \texttt{get\_prov}, takes in a trace \texttt{T} and a \kvget{}
+request \texttt{i} for key $k$. Redis requests are represented as objects of
+type \texttt{Request} with subclasses \texttt{GetRequest} and
+\texttt{SetRequest}.  \texttt{get\_prov} iterates through the trace in reverse
+order, looking for a \kvset{} request to key $k$. If such a \kvset{} request is
+found, \texttt{get\_prov} returns it. Otherwise, \texttt{get\_prov} returns an
+empty witness. Recall that the \watprovenance{} of a request is a set of
+witnesses closed under supertrace in $T$, which is why \texttt{get\_prov}
+returns either a set of the singleton witness \texttt{[a]} or a set of the
+empty witness \texttt{[]}.
+
+{\input{figures/redis_prov_spec}}
+
+In \secref{DebuggingHeterogeneousSystems}, we present a prototype
+implementation of a system for writing \watprovenance{} specifications and
+describe the details of concretely how traces are collected and how
+\watprovenance{} specifications are written. In this section, we omit the
+details and focus on the concepts behind \watprovenance{} specifications.
 
 \subsection{Examples}
 Redis is a particularly simple example, but there are plenty of examples of systems that are simple too
