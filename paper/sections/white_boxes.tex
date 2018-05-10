@@ -13,10 +13,15 @@ extract \watprovenance{}.
 In this section, we propose one such programming language. However, we also see
 that this programming language is not very expressive and that making the
 language more expressive forfeits our ability to easily extract
-\watprovenance{}. The expressiveness of a language is fundamentally at odds
-with our ability to extract the \watprovenance{} of a program written in it.
+\watprovenance{}. Unfortunately, the expressiveness of a language is
+fundamentally at odds with our ability to extract the \watprovenance{} of a
+program written in it. Fortunately, there are some alternatives to
+\watprovenance{} that we can apply to white boxes, which we discuss at the end
+of this section.
 
 \subsection{\dedalusplus}
+{\input{figures/dedalus_twitter}}
+
 Dedalus is a variant of Datalog that introduces notions of time and mutable
 state~\cite{alvaro2011dedalus, marczak2012confluence, alvaro2013declarative}.
 Bloom is a concrete implementation of Dedalus that has been used to program a
@@ -24,19 +29,22 @@ variety of distributed systems, including key-value stores, state machine
 replication protocols, and distributed shopping
 carts~\cite{alvaro2011consistency, conway2012logic}. In this section, we
 describe how we can automatically extract the \watprovenance{} of a program
-written in \defword{\dedalusplus}: the variant of Dedalus without negation.
-
-{\input{figures/dedalus_twitter}}
+written in \defword{\dedalusplus}: the variant of Dedalus without negation or
+deletion.
 
 A \dedalusplus{} state machine stores its state in a collection of typed
 relations, much like a relational database. Upon receiving a request, a
 \dedalusplus{} state machine executes a sequence of relational expressions to
-(a) update its state and (b) compute a response for the request. For example,
-consider the simple Twitter clone shown in \figref{DedalusTwitter} that is
-written with a Python-like syntax of \dedalusplus{}. The program stores its
-state in two relations: (1) \texttt{Users} which records the Twitter handle and
-name of all users and (2) \texttt{Following} which records the handles that a
-particular user is following. The Twitter clone supports three types of
+(a) update its state and (b) compute a response for the request. Notably, a
+\dedalusplus{} program (unlike a Dedalus program) cannot include a relational
+expression with set difference and cannot remove tuples from an existing
+relation.
+
+For example, consider the simple Twitter clone shown in \figref{DedalusTwitter}
+that is written with a Python-like syntax of \dedalusplus{}. The program stores
+its state in two relations: (1) \texttt{Users} which records the Twitter handle
+and name of all users and (2) \texttt{Following} which records the handles that
+a particular user is following. The Twitter clone supports three types of
 requests:
 \begin{itemize}
   \item
@@ -93,19 +101,38 @@ walk backwards through the provenance graph rooted at the output and
 efficiently extract the corresponding \watprovenance{}.
 
 \subsection{Limitations and Alternatives}
-TODO:
-  - Admit that \dedalusplus{} is not the most expressive language in the world.
-    We can't really delete anything.
-  - Say that adding in negation to get the full power of Dedalus makes the
-    language to complication to get wat provenance out of in a nice way.
-    Negative provenance is not super well understood.
-  - Say that there are alternatives to wat provenance that are well suited to
-    more expressive languages like Dedalus. Mention network provenance as an
-    example.
-  - Say that even if you write a program in a normal programming language, it's
-    probably still ok. You can use normal debugging tools on it to walk through
-    what's going on. It's ad-hoc but if the program is simple, it's probably
-    ok.  Contrast this with black boxes, where this is very onerous because you
-    didn't write the code.
+Automatically extracting the \watprovenance{} of a state machine implemented in
+\dedalusplus{} is theoretically interesting but only marginally practical.
+While Dedalus can be used to implement a number of complex distributed systems,
+\dedalusplus{} is a very narrow restriction of Dedalus that is not expressive
+enough for many common programming idioms due to its lack of negation and
+deletion. For example, we are unable to add a request to our \dedalusplus{}
+Twitter clone that unfollows a particular user because we are unable to remove
+from the \texttt{Following} relation.
 
-Really emphasize that we're not suggesting that people write in dedalus+ programs; its more a proof of concept showing the most expressive language that it can be done for
+If we reintroduce negation and deletion into \dedalusplus{}, we get back the
+full expressive power of Dedalus. But, doing so makes it difficult to extract
+\watprovenance{}. In particular, there is no commonly accepted way to construct
+a provenance graph for a program that includes negation. As a result,
+constructing a provenance graph for a Dedalus program and extracting the
+\watprovenance{} from it becomes significantly more complicated.
+
+Fortunately, there are alternatives to \watprovenance{} that are well suited to
+programs written in Datalog variants like Dedalus. In particular, network
+provenance~\cite{zhou2010efficient, zhou2011secure, zhou2012distributed}
+formalizes a notion of time-varying provenance for distributed systems written
+in Datalog variants, and there is existing literature on how to compute network
+provenance efficiently~\cite{zhou2010efficient, zhou2012distributed} and with
+low space overheads~\cite{chen2017distributed}.
+
+Still, network provenance is only applicable to white boxes written in a
+variant of Datalog, and realistically most business logic is written in a more
+mainstream programming language like C++ or Java. For white boxes written in a
+more traditional programming language, an application developer has two options
+for extracting \watprovenance{}. The first is to treat the white box as a black
+box and write a \watprovenance{} specification, as detailed in
+\secref{BlackBoxes}. The second is to resort to ad-hoc debugging using a
+debugger like GDB. This second approach is not ideal, but because white boxes
+are written from scratch, the application developer has the benefit of being
+familiar with the code (unlike with a large black box, for which ad-hoc
+debugging is typically overwhelmingly onerous).
