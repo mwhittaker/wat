@@ -1,16 +1,60 @@
+\newcommand{\dedalusplus}{Dedalus$^+$}
+
 \section{White Boxes}\seclabel{WhiteBoxes}
-now that we've defined wat provenacne, we turn the matter of computing what provenance. in a distributed system, there are two kinds of components. the ones you write called white boxes (examples) and the ones you dont called black boxes (examples). in this seciton, we discuss computing the wat provenance of white boxes; in the next section, we describe black boxes.
+Recall from \secref{BlackBoxes} that real-world distributed systems are
+composed of commonly used open source services (i.e.\ black boxes) and
+application-specific business logic that is written from scratch (i.e.\ white
+boxes).  In \secref{BlackBoxes}, we saw that automatically inferring the
+\watprovenance{} of a black box is intractable. Is the same true for white
+boxes? Not quite. If we implement a white box from scratch, we have the
+opportunity to implement it in a programming language for which we \emph{can}
+automatically extract \watprovenance{}. In this section, we propose one such
+programming language. We also outline the drawbacks and limitations of the
+white box approach to computing \watprovenance{} and discuss alternatives.
 
-- subsection: language
+\subsection{\dedalusplus}
+Dedalus is a variant of Datalog that introduces notions of time and mutable
+state~\cite{alvaro2011dedalus, marczak2012confluence, alvaro2013declarative}.
+Bloom is a concrete implementation of Dedalus that has been used to program
+a variety of distributed systems, including key-value stores, state machine
+replication protocols, and distributed shopping
+carts.~\cite{alvaro2011consistency, conway2012logic}. In this section, we
+describe how we can automatically extract the \watprovenance{} of a program
+written in \dedalusplus: the variant of Dedalus without negation.
 
-More specifically, in this section we explore if there exists a programming language in which you can write state machines such that we can automatically and efficiently compute the state machine's wat provenance for a particular trace and input.
+A \dedalusplus{} state machine stores its state in a collection of typed
+relations, much like a relational database. Upon receiving a request, a
+\dedalusplus{} state machine executes a positive Datalog program to (a) update
+its state and (b) compute a response for the request. For example, consider the
+simple \dedalusplus{} Twitter clone shown in \figref{DedalusTwitter}. The
+program stores its state in two relations: (1) \texttt{Users} which records the
+Twitter handle and name of all users and (2) \texttt{Following} which records
+the handles that a particular user is following. The program supports three
+types of requests:
+\begin{itemize}
+  \item
+    \texttt{register\_user}
+\end{itemize}
 
-- connection to dedalus
-- example with message posting server
+TODO:
+  - briefly describe the Twitter clone
+  - show a provenance graph for a particular trace
+  - describe how we can extract the wat provenance
 
-- subsection: discussion and limitations
+{\input{figures/dedalus_twitter}}
 
-- theoretical, but not practical idea; not everything can be expressed here;
-negation makes things hard
-- give example of a program with negation for which this technique fails?
-- however, there are other substitutes for wat provenance in this case; one is network provenance; another is just straight up debugging. the thing is that debugging code you wrote is not too big of a deal since you wrote it, unlike black boxes which we discuss in the next section
+\subsection{Limitations and Alternatives}
+TODO:
+  - Admit that \dedalusplus{} is not the most expressive language in the world.
+    We can't really delete anything.
+  - Say that adding in negation to get the full power of Dedalus makes the
+    language to complication to get wat provenance out of in a nice way.
+    Negative provenance is not super well understood.
+  - Say that there are alternatives to wat provenance that are well suited to
+    more expressive languages like Dedalus. Mention network provenance as an
+    example.
+  - Say that even if you write a program in a normal programming language, it's
+    probably still ok. You can use normal debugging tools on it to walk through
+    what's going on. It's ad-hoc but if the program is simple, it's probably
+    ok.  Contrast this with black boxes, where this is very onerous because you
+    didn't write the code.

@@ -1,0 +1,23 @@
+\begin{figure}[ht]
+  \centering
+  {
+    \small
+    \begin{Python}[gobble=3]
+      Users(handle: str, name: str)
+      Following(follower: str, followee: str)
+
+      def register_user(handle: str, name: str):
+        Users += {(handle, name)}
+        return {("ok")}
+
+      def follow(me: str, them: str):
+        Following += {(me, them)}
+        return {("ok")}
+
+      def following(me: str):
+        return $\pi_{\texttt{name}}$($\sigma_{\texttt{follower=me}}$(Following) $\join_{\text{handle=followee}}$ Users)
+    \end{Python}
+  }
+  \caption{\dedalusplus{} Twitter}
+  \figlabel{DedalusTwitter}
+\end{figure}
