@@ -1,17 +1,18 @@
 \section{\WatProvenance{}}\seclabel{WatProvenance}
 
 \subsection{A Motivating Example}\seclabel{WatProvenanceExample}
-\newcommand{\systemname}{ZardozBook} We claim that there is currently no
-\emph{principled} way to reason about the causes of events in a heterogenous
-distributed system. To best understand why, let's look at a simple example.
-Consider the implementation of a Facebook-like social media application called
-\systemname{}, illustrated in \figref{MeanComment}. \systemname{} users can
-post statuses to their wall, and these status updates are only viewable by
-their friends on the site. Users send requests to a load balancer that
-forwards the requests to one of three weakly consistent Redis-backed
-application servers: $s_1$, $s_2$, and $s_3$. These application servers store a
-cache of \systemname{}'s data in Redis, and periodically they synchronize their
-caches with a centralized Postgres database.
+\newcommand{\systemname}{ZardozBook}
+We claim that there is currently no \emph{principled} way to reason about the
+causes of events in a heterogenous distributed system. To best understand why,
+let's look at a simple example.  Consider the implementation of a Facebook-like
+social media application called \systemname{}, illustrated in
+\figref{MeanComment}. \systemname{} users can post statuses to their wall, and
+these status updates are only viewable by their friends on the site. Users send
+requests to a load balancer that forwards the requests to one of three weakly
+consistent Redis-backed application servers: $s_1$, $s_2$, and $s_3$. These
+application servers store a cache of \systemname{}'s data in Redis, and
+periodically they synchronize their caches with a centralized Postgres
+database.
 
 Consider a scenario in which Ava, a \systemname{} user, has a falling out with
 Bob, a friend of hers on the site. Ava unfriends Bob and posts the status ``Bob

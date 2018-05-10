@@ -1,0 +1,116 @@
+\section{\fluent{}}\seclabel{Fluent}
+In this section, we turn theory to practice with \fluent{}: a prototype system
+that implements the ideas presented in \secref{BlackBoxes} and
+\secref{WhiteBoxes}. \fluent{} has two core components. First, \fluent{}
+includes a Dedalus-like C++ domain specific language for implementing white
+boxes for which we can automatically extract network provenance. Second,
+\fluent{} includes a mechanism with which to write black box \watprovenance{}
+specifications. We describe these two components and then return to our
+motivating example from \secref{WatProvenanceExample} to see how \fluent{}
+leverages \watprovenance{} to make debugging distributed systems significantly
+easier.
+
+\subsection{White Boxes}
+Fluent includes a Dedalus-like C++ domain specific language for implementing
+white box business logic and an accompanying browser-based debugger. Fluent
+programs represent their state as a collection of typed relations and express
+computation as a series of relational algebra expressions. Every tuple in a
+\fluent{} program is tagged with the logical timestamp at which it was created
+and deleted. This enables a developer to \emph{debug across time}. Using the
+debugger, a developer can walk forwards and backwards through the execution of
+a \fluent{} program inspecting the state of the program at every point in time.
+%
+For example, \figref{FluentHistory} illustrates the history of a relation
+across three logical points in time. As the developer walks forwards from
+logical time 10 to logical time 12, they can observe that the tuple
+\texttt{(data, base)} was inserted at logical time 11 and that the tuple
+\texttt{(foo, bar)} was deleted at logical time 12.
+
+{\input{figures/history}}
+
+When a developer notices a tuple $t$ of interest at a particular point in time,
+they can click on the tuple and view the network provenance graph rooted at $t$
+(like the one in \figref{TwitterCloneProvGraph}). Navigating the provenance
+graph, they can view the tuples that contributed to the creation of tuple $t$.
+These ancestor tuples in the provenance graph include other tuples that are
+colocated with tuple $t$, but they also include tuples on other \fluent{} white
+boxes in the distributed system. Thus, \fluent{} also enables a developer to
+\emph{debug across space}, similar to distributed tracing tools
+like Dapper~\cite{sigelman2010dapper} and X-Trace~\cite{fonseca2007x}.
+
+\subsection{Black Boxes}
+The provenance graph for a piece of data can be generated automatically if the
+data is produced by a \fluent{} white box. However, if the data is produced by
+a black box component, then \fluent{} relies on \watprovenance{} specifications
+to generate the provenance of the data. To write a \watprovenance{}
+specification for a black box, a developer first wraps the black box in a
+\fluent{} shim, as illustrated in \figref{FluentShim}. To send a request to a
+black box, a white box sends the request to the black box's shim. The shim
+forwards the request to the black box and relays the corresponding response
+back to the white box. The shim also persists the sequence of inputs that it
+receives in a relational database, forming a trace. A developer then registers
+a \watprovenance{} specification as a simple script that, given a particular
+input, queries the relational database for the corresponding \watprovenance{}.
+Currently, \fluent{} allows \watprovenance{} specifications to be written
+directly in SQL or written in Python. For example, the \watprovenance{}
+specification for Redis \texttt{get} requests is similar to the specification
+in \figref{RedisProvSpec}, except that the trace is stored in a relational
+database instead of materialized in a list.
+
+{\input{figures/shims}}
+
+\subsection{Our Motivating Example}
+\newcommand{\systemname}{ZardozBook}
+We now return to the motivating example from \secref{WatProvenanceExample} and
+explore how \fluent{} enables us to diagnose why Bob was able to see Ava's mean
+comment. We assume that Ava and Bob's \systemname{} clients, the load balancer,
+and the application servers are \fluent{} white boxes. We also assume that we
+have written \watprovenance{} specifications for the Redis and Postgres black
+boxes.
+
+\begin{itemize}
+  \item
+    We begin by inspecting the history of Bob's \systemname{} client. We find
+    the point at time in which he received Ava's mean comment. We select the
+    message and view it's provenance graph.
+  \item
+    The provenance graph---which is automatically generated from the white
+    boxes---shows that Bob received the message from the load balancer which in
+    turn forwarded the message from application server $s_3$ which in turn read
+    the message from its Redis cache.
+  \item
+    The \fluent{} debugger invokes Redis' \watprovenance{} specification. The
+    resulting \watprovenance{} indicates that the Redis instance returned the
+    mean comment because it was previously inserted by application server
+    $s_3$.
+  \item
+    Continuing along the provenance graph, we find that application server
+    $s_3$ inserted the mean message into its Redis cache because it received
+    the comment from the centralized Postgres database as part of a cache
+    refresh.
+  \item
+    The \fluent{} debugger invokes the \watprovenance{} specification of the
+    Postgres database and finds that it produced the mean comment because it
+    was previously inserted by application server $s_2$.
+  \item
+    Following the provenance graph further back through time, we find $s_2$
+    inserted the mean comment into the Postgres database because it previously
+    received the comment from the load balancer which in turn received the
+    comment from Ava's \systemname{} client.
+  \item
+    Inspecting the history of Ava's \systemname{} client, we see that Ava
+    unfriended Bob before posting this mean comment. If we follow this unfriend
+    request forwards through the provenance graph, we find it arrives at
+    application server $s_1$ (unlike the comment, which was sent to server
+    $s_2$). Then, jumping to the Postgres database's trace, we see that the
+    mean comment arrives before the unfriend request.
+\end{itemize}
+
+From this analysis, we discover that because the load balancer can forward
+requests from a single client to different application servers and because
+application servers lazily synchronize with the centralized Postgres
+repository, client requests can be effectively reordered. Using this insight, a
+\systemname{} engineer can enable sticky sessions in the load balancer,
+ensuring that the load balancer forwards requests within a single session to a
+single application server. This fixes the bug and prevents Bob from
+experiencing any future race condition woes.
