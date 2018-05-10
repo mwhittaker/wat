@@ -1,4 +1,4 @@
-\begin{figure}[ht]
+\begin{figure}[t]
   \centering
   {
     \small
@@ -6,7 +6,7 @@
       Users(handle: str, name: str)
       Following(follower: str, followee: str)
 
-      def register_user(handle: str, name: str):
+      def signup(handle: str, name: str):
         Users += {(handle, name)}
         return {("ok")}
 
@@ -15,9 +15,11 @@
         return {("ok")}
 
       def following(me: str):
-        return $\pi_{\texttt{name}}$($\sigma_{\texttt{follower=me}}$(Following) $\join_{\text{handle=followee}}$ Users)
+        return SELECT U.name
+               FROM Following F, Users U
+               WHERE F.follower=me AND U.handle=followee
     \end{Python}
   }
-  \caption{\dedalusplus{} Twitter}
+  \caption{\dedalusplus{} Twitter clone}
   \figlabel{DedalusTwitter}
 \end{figure}

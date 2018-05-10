@@ -1,0 +1,93 @@
+\begin{figure*}[ht]
+  \centering
+  \begin{subfigure}[c]{0.3\textwidth}
+    \small
+    \centering
+    \begin{tabular}{rcl}
+      $T$  & $=$ & $r_1$: \texttt{signup(dbguy, Codd)}; \\
+           &     & $r_2$: \texttt{signup(baller, Jordan)}; \\
+           &     & $r_3$: \texttt{signup(mldude, Jordan)}; \\
+           &     & $r_4$: \texttt{follow(dbguy, baller)}; \\
+           &     & $r_5$: \texttt{follow(dbguy, mldude)}; \\
+           &     & $r_6$: \texttt{following(dbguy)} \\
+    \end{tabular}
+    \caption{Trace}
+    \figlabel{TwitterCloneTrace}
+  \end{subfigure}%
+  %
+  \begin{subfigure}[c]{0.2\textwidth}
+    \centering
+    \small
+
+    \texttt{Users} \\
+    \begin{tabular}{l|l|l|}
+      \cline{2-3}
+             & \texttt{handle} & \texttt{name} \\\cline{2-3}
+      $t_1$: & \texttt{baller} & Jordan \\
+      $t_2$: & \texttt{mldude} & Jordan \\
+      $t_3$: & \texttt{dbguy}  & Codd \\\cline{2-3}
+    \end{tabular}
+
+    \vspace{3mm}
+
+    \texttt{Following} \\
+    \begin{tabular}{l|l|l|}
+      \cline{2-3}
+             & \texttt{follower} & \texttt{followee} \\\cline{2-3}
+      $t_4$: & \texttt{dbguy}    & \texttt{baller} \\
+      $t_5$: & \texttt{dbguy}    & \texttt{mldude} \\\cline{2-3}
+    \end{tabular}
+    \caption{Relations}
+    \figlabel{TwitterCloneRelations}
+  \end{subfigure}%
+  %
+  \begin{subfigure}[c]{0.5\textwidth}
+    \small
+    \centering
+
+    \tikzstyle{t}=[minimum width=2.3cm, draw, align=center, rectangle split,
+                   rectangle split parts=2, inner sep=1pt]
+    \tikzstyle{d}=[draw]
+    \tikzstyle{provedge}=[-latex]
+    \tikzstyle{label}=[inner sep=0, circle, fill=white, fill=flatgray!50]
+    \newcommand{\twoparts}[2]{\texttt{#1}\nodepart{second}\texttt{#2}}
+
+    \begin{tikzpicture}[yscale=0.8, xscale=2.75]
+      % Nodes.
+      \node[t] (a1) at (0, 1) {\twoparts{follow}{(dbguy, baller)}};
+      \node[t] (a2) at ($(a1) + (1, 0)$) {\twoparts{Following}{(dbguy, baller)}};
+      \node[t] (b1) at ($(a1) - (0, 1)$) {\twoparts{signup}{(baller, Jordan)}};
+      \node[t] (b2) at ($(b1) + (1, 0)$) {\twoparts{Users}{(baller, Jordan)}};
+      \node[t] (d1) at ($(b1) - (0, 1)$) {\twoparts{signup}{(mldude, Jordan)}};
+      \node[t] (d2) at ($(d1) + (1, 0)$) {\twoparts{Users}{(mldude, Jordan)}};
+      \node[t] (e1) at ($(d1) - (0, 1)$) {\twoparts{follow}{(dbguy, mldude)}};
+      \node[t] (e2) at ($(e1) + (1, 0)$) {\twoparts{Following}{(dbguy, mldude)}};
+      \node[d] (f1) at ($(b2) + (0.75, 0.5)$) {};
+      \node[d] (f2) at ($(e2) + (0.75, 0.5)$) {};
+      \node[draw] (out) at ($(d2) + (1.25, 0.5)$) {\texttt{(Jordan)}};
+
+      % Labels.
+      \node[label] (t1label) at (b2.north west) {$t_1$};
+      \node[label] (t2label) at (d2.north west) {$t_2$};
+      \node[label] (t4label) at (a2.north west) {$t_4$};
+      \node[label] (t5label) at (e2.north west) {$t_5$};
+      \node[label] (r2label) at (b1.north west) {$r_2$};
+      \node[label] (r3label) at (d1.north west) {$r_3$};
+      \node[label] (r4label) at (a1.north west) {$r_4$};
+      \node[label] (r5label) at (e1.north west) {$r_5$};
+
+      % Edges.
+      \draw[provedge] (out) edge (f1) (f1) edge (a2.east) (a2) edge (a1);
+      \draw[provedge]                 (f1) edge (b2.east) (b2) edge (b1);
+      \draw[provedge] (out) edge (f2) (f2) edge (d2.east) (d2) edge (d1);
+      \draw[provedge]                 (f2) edge (e2.east) (e2) edge (e1);
+    \end{tikzpicture}
+
+    \caption{Provenance graph}
+    \figlabel{TwitterCloneProvGraph}
+  \end{subfigure}
+  \caption{%
+    An example execution of the Twitter clone from \figref{DedalusTwitter}
+  }
+  \figlabel{TwitterCloneExample}
+\end{figure*}

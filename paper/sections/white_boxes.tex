@@ -1,47 +1,96 @@
 \newcommand{\dedalusplus}{Dedalus$^+$}
 
 \section{White Boxes}\seclabel{WhiteBoxes}
-Recall from \secref{BlackBoxes} that real-world distributed systems are
-composed of commonly used open source services (i.e.\ black boxes) and
-application-specific business logic that is written from scratch (i.e.\ white
-boxes).  In \secref{BlackBoxes}, we saw that automatically inferring the
-\watprovenance{} of a black box is intractable. Is the same true for white
-boxes? Not quite. If we implement a white box from scratch, we have the
-opportunity to implement it in a programming language for which we \emph{can}
-automatically extract \watprovenance{}. In this section, we propose one such
-programming language. We also outline the drawbacks and limitations of the
-white box approach to computing \watprovenance{} and discuss alternatives.
+Recall that real-world distributed systems are composed of (a) widely used
+black boxes that are developed and maintained by a handful of developers and
+(b) application-specific white boxes that are written from scratch. In
+\secref{BlackBoxes}, we saw that automatically inferring the \watprovenance{}
+of a black box is intractable. Is the same true for white boxes? Almost, but
+not quite. If we implement a white box from scratch, we have the opportunity to
+implement it in a programming language for which we \emph{can} automatically
+extract \watprovenance{}.
+
+In this section, we propose one such programming language. However, we also see
+that this programming language is not very expressive and that making the
+language more expressive forfeits our ability to easily extract
+\watprovenance{}. The expressiveness of a language is fundamentally at odds
+with our ability to extract the \watprovenance{} of a program written in it.
 
 \subsection{\dedalusplus}
 Dedalus is a variant of Datalog that introduces notions of time and mutable
 state~\cite{alvaro2011dedalus, marczak2012confluence, alvaro2013declarative}.
-Bloom is a concrete implementation of Dedalus that has been used to program
-a variety of distributed systems, including key-value stores, state machine
+Bloom is a concrete implementation of Dedalus that has been used to program a
+variety of distributed systems, including key-value stores, state machine
 replication protocols, and distributed shopping
-carts.~\cite{alvaro2011consistency, conway2012logic}. In this section, we
+carts~\cite{alvaro2011consistency, conway2012logic}. In this section, we
 describe how we can automatically extract the \watprovenance{} of a program
-written in \dedalusplus: the variant of Dedalus without negation.
+written in \defword{\dedalusplus}: the variant of Dedalus without negation.
+
+{\input{figures/dedalus_twitter}}
 
 A \dedalusplus{} state machine stores its state in a collection of typed
 relations, much like a relational database. Upon receiving a request, a
-\dedalusplus{} state machine executes a positive Datalog program to (a) update
-its state and (b) compute a response for the request. For example, consider the
-simple \dedalusplus{} Twitter clone shown in \figref{DedalusTwitter}. The
-program stores its state in two relations: (1) \texttt{Users} which records the
-Twitter handle and name of all users and (2) \texttt{Following} which records
-the handles that a particular user is following. The program supports three
-types of requests:
+\dedalusplus{} state machine executes a sequence of relational expressions to
+(a) update its state and (b) compute a response for the request. For example,
+consider the simple Twitter clone shown in \figref{DedalusTwitter} that is
+written with a Python-like syntax of \dedalusplus{}. The program stores its
+state in two relations: (1) \texttt{Users} which records the Twitter handle and
+name of all users and (2) \texttt{Following} which records the handles that a
+particular user is following. The Twitter clone supports three types of
+requests:
 \begin{itemize}
   \item
-    \texttt{register\_user}
+    A \texttt{signup(handle, name)} request creates an account with handle
+    \texttt{handle} for a user named \texttt{name}.  Concretely,
+    \texttt{signup} adds the tuple \texttt{(handle, name)} to the
+    \texttt{Users} relation and returns an acknowledgement tuple
+    \texttt{("ok")}. For example, \texttt{signup("dbguy", "Edgar Codd")}
+    registers a user named Edgar Codd with handle \texttt{dbguy}.
+  \item
+    A \texttt{follow(me, them)} request requests that the user with handle
+    \texttt{me} follows the user with handle \texttt{them}. It adds the tuple
+    \texttt{(me, them)} to the \texttt{Following} relation and returns an
+    acknowledgement tuple \texttt{("ok")}.
+  \item
+    A \texttt{following(me)} request executes a SQL query to return the names
+    of every user that is being followed by the user with handle \texttt{me}.
 \end{itemize}
 
-TODO:
-  - briefly describe the Twitter clone
-  - show a provenance graph for a particular trace
-  - describe how we can extract the wat provenance
+For any execution of a \dedalusplus{} program, like the Twitter clone in
+\figref{DedalusTwitter}, we can generate an accompanying \defword{provenance
+graph}~\cite{alvaro2015lineage}. A provenance graph records the data
+dependencies for every tuple that is created during the execution of the
+program.
 
-{\input{figures/dedalus_twitter}}
+{\input{figures/twitter_clone_example}}
+
+For example, consider the trace, relations, and provenance graph illustrated in
+\figref{TwitterCloneExample}. The trace $T$ in \figref{TwitterCloneTrace}
+consists of six requests: $r_1$ through $r_6$. Requests $r_1$ through $r_3$
+register three users: Edgar Codd (\texttt{@dbguy}), Michael Jordan
+(\texttt{@baller}), and Michael Jordan (\texttt{@mldude}). Requests $r_4$ and
+$r_5$ are requests from Edgar Codd to follow both the Michael Jordans.  The
+contents of the \texttt{Users} and \texttt{Following} relations after requests
+$r_1$ through $r_5$ have been executed are shown in
+\figref{TwitterCloneRelations}. Finally, the trace $T$ includes a request $r_6$
+from Edgar Codd to list the names of everyone he is following. This request
+returns a single tuple \texttt{(Jordan)}, and the corresponding provenance
+graph for this tuple in shown in \figref{TwitterCloneProvGraph}.
+
+The provenance graph indicates that the \texttt{(Jordan)} tuple is produced
+twice: once from the join of tuples $t_4$ and $t_1$ and once from the join of
+tuples $t_2$ and $t_5$. Moreover, the provenance graph indicates the request
+that created each of these tuples. For example, the $r_4$ request created tuple
+$t_4$, the $r_2$ request created tuple $t_1$, etc.
+
+The \watprovenance{} of the \texttt{following(dbguy)} request is the set
+$\set{T_{24}, T_{35}}$ of two witnesses $T_{24} = r_2r_4$ and $T_{35} =
+r_3r_5$. These two witnesses are exactly the two witnesses that we get if we
+walk backwards through the provenance graph in \figref{TwitterCloneProvGraph}
+beginning at our output tuple \texttt{Jordan}. This is not a coincidence. Given
+any output produced by a state machine written in \dedalusplus{}, we can always
+walk backwards through the provenance graph rooted at the output and
+efficiently extract the corresponding \watprovenance{}.
 
 \subsection{Limitations and Alternatives}
 TODO:
@@ -58,3 +107,5 @@ TODO:
     what's going on. It's ad-hoc but if the program is simple, it's probably
     ok.  Contrast this with black boxes, where this is very onerous because you
     didn't write the code.
+
+Really emphasize that we're not suggesting that people write in dedalus+ programs; its more a proof of concept showing the most expressive language that it can be done for
