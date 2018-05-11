@@ -1,2 +1,24 @@
 \begin{abstract}
+  There is currently no rigorous way to reason about the causes of events in a
+  real-world distributed system. Causality, from the distributed systems
+  literature, can be used to compute the causal history of an arbitrary event
+  in a distributed system, but the causal history of an event is a vast
+  overapproximation of the true causes. Data provenance, from the database
+  literature, describes precisely the cause of a particular output of a
+  relational query, but data provenance is limited to the domain of static
+  relational databases. In this paper, we present \defword{\watprovenance{}}: a
+  novel form of provenance that unifies causality and data provenance. Given an
+  arbitrary time-varying state machine, \watprovenance{} describes precisely
+  why the state machine produces a particular output when given a particular
+  input. This enables system developers to systematically reason about the
+  causes of events in real-world distributed systems. We find that
+  automatically extracting the \watprovenance{} of an arbitrary state machine
+  is often intractible and sometimes impossible due to their complex
+  implementations. Fortunately, many distributed systems components have simple
+  interfaces from which we can directly compute their \watprovenance{} using a
+  technique we call \defword{\watprovenance{} specifications}. Using the
+  theoretical foundations of \watprovenance{}, we implement a prototype
+  distributed debugging framework called \fluent{} and empirically determine
+  that \watprovenance{} makes debugging distributed systems significantly
+  easier than what is possible with existing techniques.
 \end{abstract}
