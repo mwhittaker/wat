@@ -44,6 +44,25 @@ distributed systems are not implemented in pure NDLog, and \watprovenance{}
 provides a formalism for reasoning about the provenance of these non-NDLog
 components.
 
+\paragraph{Data-Dependent Process Provenance}
+A data-dependent process (DDP) is a finite state machine in which certain
+transitions are determined by the result of evaluating a query against an
+accompanying relational database while other transitions are triggered by
+external requests~\cite{deutch2014provenance, deutch2015provenance}. In
+\cite{deutch2014provenance} and \cite{deutch2015provenance}, Deutch et al.\
+extend provenance semirings~\cite{green2007provenance} to linear temporal logic
+formulas issued against a DDP.
+%
+Both DDP provenance and \watprovenance{} aim to extend traditional data
+provenance to state machines, but they do so in very different ways. DDP
+provenance is used to explain how particular execution traces may arise. For
+example, DDP provenance might inform us about the database contents under which
+a particular state in the DDP can be reached. \Watprovenance{}, on the other
+hand, aims to explain why a particular output was generated with respect to a
+particular trace of inputs. DDPs are also assumed to be finite and backed by
+relational databases, while \watprovenance{} targets arbitrary (even infinite)
+state machines.
+
 \paragraph{Scientific Workflow Systems}
 Scientific workflow systems like Taverna~\cite{wolstencroft2013taverna},
 Kepler~\cite{altintas2006provenance}, Pegasus~\cite{kim2008provenance}, and
