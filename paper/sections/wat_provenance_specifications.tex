@@ -1,30 +1,24 @@
 \section{\WatProvenance{} Specifications}\seclabel{WatProvSpecs}
 Now that we've defined \watprovenance{}, we turn to the matter of computing it.
-Real-world distributed systems are typically a composition of two types of
-components: (1) application specific services that are written from scratch
-(i.e.\ ``business logic''), dubbed \defword{white boxes}, and (2) widely used
-open source services that are not written by the application developer, dubbed
-\defword{black boxes}, (e.g., Redis, Postgres). In this section, we discuss how
-to compute the \watprovenance{} of black boxes. In \secref{WhiteBoxes}, we
-discuss white box \watprovenance{}.
 
 \subsection{Provenance Specifications}
-Automatically computing the \watprovenance{} for an \emph{arbitrary} black box
-is more or less hopeless. In order to do so, we would have to analyze an
-arbitrary piece of code written in an arbitrary programming language and infer
-an abstract state machine that accurately models the black box. Then, to
-compute the \watprovenance{} of a particular request with respect to a given
-trace, we would have to perform some sort of complex code analysis over a large
-body of code. Worse, we may not even have access to the source code of the
-black box!  For example, we don't have access to the source code of cloud
-services like Amazon S3 or Google Cloud Spanner.
+Automatically computing the \watprovenance{} for an \emph{arbitrary}
+distributed system component, which we dub a \defword{black box}, is often
+intractable and sometimes impossible. Computing the \watprovenance{} of a black
+box requires that we analyze the black box's implementation in order to extract
+the relationships between the inputs and outputs of the black box. Because
+black box implementations can be large and complex, this program analysis is
+almost always intractable. Worse, we may not have access to the source code of
+the black box at all. For example, cloud services like Amazon S3 or Google
+Cloud Spanner have closed-source proprietary implementations. In this case,
+automatically computing \watprovenance{} is impossible.
 
 \newcommand{\kvget}{\texttt{get}}
 \newcommand{\kvset}{\texttt{set}}
 
 Though automatically computing the \watprovenance{} for an \emph{arbitrary}
-black is intractable, we can take advantage of the fact that most real-world
-black boxes are far from arbitrary. Many black boxes have complex
+black box is intractable, we can take advantage of the fact that most
+real-world black boxes are far from arbitrary. Many black boxes have complex
 implementations but are designed with very simple interfaces.  This allows us
 to sidestep the issue of \emph{inferring} \watprovenance{} from an
 implementation and instead \emph{specify} \watprovenance{} directly from an
@@ -36,15 +30,16 @@ For example, if we restrict our attention to the \kvget{} and \kvset{} API of
 Redis (as with \exampleref{WatExampleXyx}), then the \watprovenance{}
 specification of a \kvget{} request is trivial: \textbf{the \watprovenance{} of
 a \kvget{} request for key $k$ includes only the most recent \kvset{} to
-$k$}. Redis is implemented in over 50,000 lines of C, so automatically
-inferring the \watprovenance{} of a \kvget{} request is intractable. This
-\watprovenance{} specification avoids the intractability and instead specifies
-the \watprovenance{} in a single line of text.
+$k$}. Redis is implemented in over 50,000 lines of C. Analyzing this body of
+code and inferring the \watprovenance{} of a \kvget{} request is infeasible
+using modern program analysis techniques. This \watprovenance{} specification
+avoids this issue entirely and instead specifies the \watprovenance{} in a
+single line of text.
 
 Moreover, codifying this one line \watprovenance{} specification is expectedly
-straightforward. The programming language in which we write \watprovenance{}
-specifications is unimportant. In \figref{RedisProvSpec}, we provide a simple
-implementation of the one line \watprovenance{} specification in Python. The
+straightforward. \Watprovenance{} specifications can be written in any
+programming language. As a simple example, we provide a Python implementation
+of the one line \watprovenance{} specification In \figref{RedisProvSpec}.  The
 specification, \texttt{get\_prov}, takes in a trace \texttt{T} and a \kvget{}
 request \texttt{i} for key $k$. Redis requests are represented as objects of
 type \texttt{Request} with subclasses \texttt{GetRequest} and
@@ -133,6 +128,8 @@ forwards the message to the server $s_i$ that is least loaded. Modelling the
 forwarding decision $s_i$ as the output of the load balancer, the
 \watprovenance{} specification for the forwarding decision includes the most
 recent heartbeat message from the least loaded server.
+
+\todo{Peter, can you insert the name node example here?}
 
 \subsection{Discussion}
 These examples show that many popular black boxes have simple \watprovenance{}
