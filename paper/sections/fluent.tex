@@ -39,7 +39,7 @@ shims provide two key pieces of functionality:
 
 After a user has written a black box's shim, they can write the black box's
 \watprovenance{} specification. \fluent{} \watprovenance{} specifications are
-simple scripts written in either SQL or Python. Given a particular black box
+simple scripts written in a developer's choice of either SQL or Python. Given a particular black box
 request, a \watprovenance{}  script computes the corresponding \watprovenance{}
 with respect to the black box's trace (which is persisted in a relational
 database by the black box's shim). For example, a SQL \watprovenance{}
@@ -53,11 +53,12 @@ set requests.
 
 \begin{figure}[ht]
   \begin{Verbatim}
+    -- return the most recent relevant set request
     SELECT *
-    FROM redis_set_req
-    WHERE key = $KEY AND time <= $TIME
-    ORDER BY time DESC
-    LIMIT 1
+      FROM redis_set_req
+     WHERE key = $KEY AND time <= $TIME
+     ORDER BY time DESC
+     LIMIT 1
   \end{Verbatim}
   \caption{\Watprovenance{} specification for Redis get requests}
   \figlabel{ConcreteRedisProvSpec}
@@ -68,7 +69,7 @@ set requests.
 We now return to the motivating example from \secref{WatProvenanceExample} and
 explore how \fluent{} enables us to diagnose why Bob was able to see Ava's mean
 comment. We assume that we have already written \fluent{} shims and
-\watprovenance{} specifications all the components in \figref{MeanComment}.
+\watprovenance{} specifications for all the components in \figref{MeanComment}. \jmh{Can you prove that writing those is reasonable? E.g. did you do it, and can you say how many lines it was or something?}
 
 \begin{itemize}
   \item
@@ -80,7 +81,7 @@ comment. We assume that we have already written \fluent{} shims and
     We then examine the load balancer's trace. The load balancer's
     \watprovenance{} specification informs us that the load balancer sent Ava's
     mean comment to Bob's \systemname{} client as a response to receiving the
-    mean comment from application server $s_3$.
+    mean comment from application server $s_3$. \jmh{shouldn't the load balancer depend on a previous load report from an application server? where did that dependency go in this trace?}
   \item
     We then look at the application server $s_3$'s trace. The application
     server sent the mean comment to the load balancer as a reply to a
@@ -94,7 +95,7 @@ comment. We assume that we have already written \fluent{} shims and
     cache refresh request that was previously sent to the Postgres database by
     application server $s_3$. The \watprovenance{} of the Postgres database
     reveals that the Postgres database produced the mean comment because it was
-    previously inserted into the database by application server $s_3$.
+    previously inserted into the database by application server $s_3$. \jmh{$s_2$??}
   \item
     We then review application server $s_2$'s trace. $s_2$'s \watprovenance{}
     specification shows that $s_2$ sent the mean comment to the Postgres

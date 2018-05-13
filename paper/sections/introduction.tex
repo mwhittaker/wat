@@ -1,38 +1,45 @@
 \section{Introduction}\seclabel{Introduction}
 Debugging distributed systems is hard. Traditional debugging techniques are
 poorly suited to distributed systems in which bugs arise due to chains of logic
-that often span multiple nodes connected by an unreliable network that can
+that often span multiple \jmh{concurrent} nodes connected by an unreliable network that can
 drop, duplicate, and reorder messages. Distributed debugging tools (like
 distributed tracing frameworks~\cite{sigelman2010dapper, fonseca2007x}) do
 exist but are largely in their infancy. They help tame some of the complexities
 of distributed debugging, but have limited applicability to real-world
 distributed systems that are made up of components written in a variety of
-different programming languages by a variety of different developers.
+different programming languages by a variety of different developers. 
+\jmh{I tried to fix the previous sentence to be more straightforward, but ran into trouble. You are critiquing all tools by critiquing tracing tools, which seems dodgy. Then you say that tracing tools fail because of polyglot systems? That doesn't sound right. What's the real critique of tracing? Remember, you will need to win over reviewers from the community that wrote those tools. Are there other approaches you're lumping in unfairly into that critique?}
 Consequently, developers are often forced to perform ad-hoc root cause analysis
 in order to find the source of a bug, stitching together the logs of multiple
-concurrently executing nodes.
+concurrently executing nodes. 
+\jmh{Again, be careful here ... that's the outcome if they abandon the tools entirely ... are you saying they're useless? I think this is needlessly aggressive.}
 
 Worse yet, not only are distributed debugging tools still in their infancy, but
-so are the formal foundations upon which they rest. We argue that existing
+so are the formal foundations upon which they rest. 
+\jmh{too strong .. you could just drop that sentence and the rest stands on its own.} We argue that existing
 formalisms are inadequate to handle the complexities of debugging real-world
 distributed systems. For example, consider causality~\cite{lamport1978time}.
 Causality is a general-purpose formalism that specifies the \emph{causal
 history} of a particular event in an arbitrary distributed system. However,
-causality is too general-purpose. It fails to incorporate any semantics of the
-underlying distributed system. As a consequence, the causal history of an event
+causality is too general-purpose as it fails to incorporate any semantics of the
+underlying distributed system beyond opaque message-passing~\cite{bailis2012potential}. As a consequence, the causal history of an event
 is an overapproximation of the cause of the event. It includes all the events
 that \emph{might} have caused a particular event instead of the events that
 \emph{actually do} cause it.
 
 Alternatively, consider data provenance in the form of
-\whyprovenance{}~\cite{cheney2009provenance, buneman2001and}. Given a
+\emph{\whyprovenance{}}~\cite{cheney2009provenance, buneman2001and}. Given a
 relational database, a query issued against the database, and a tuple in the
-output of the query, the \whyprovenance{} of the output describes why the
-output tuple was produced. In contrast to causality, data provenance heavily
+output of the query, the \whyprovenance{} of the output explains     why the
+output tuple was produced: it shows input tuples which, if passed through the relational operators of the query, would produce the output. In contrast to causality, data provenance heavily
 incorporates the semantics of relational databases and queries in order to
-describes \emph{precisely} the cause of a particular output. However, while
+describe \emph{precisely} the cause of a particular output. 
+\jmh{Just thinking...one nice aspect of why provenance in the absence of negation/aggregation is that it is correct in the presence or absence of any additional data and computation. Is this a criterion to hold up as a definition of ``precise'' provenance?} 
+However, while
 causality is too general, data provenance is too specific. It makes the
-critical assumption that the underlying relational database is static. It
+critical assumption that the underlying relational database is static. 
+\jmh{I think you're muddling the notion of specificity here. I'd argue it's laser-precise, at least for SPJ queries. But it relies on over-strong assumptions as you say next.}
+It
 cannot handle the time-varying nature of stateful distributed systems.
 Moreover, data provenance is limited to the domain of relational data and
 cannot easily be applied to other system components (e.g., load balancers, file
@@ -42,6 +49,7 @@ In short, \textbf{causality lacks a notion of data dependence, and data
 provenance lacks a notion of time}. In this paper, we present
 \defword{\watprovenance{}} (why-across-time provenance): a novel form of data
 provenance that unifies the two. \Watprovenance{} generalizes \whyprovenance{}
+\jmh{it doesn't really generalize, does it.  It's inspired by.}
 from the domain of relational queries issued against a static database to the
 domain of arbitrary time-varying state machines in a distributed system. More
 specifically, given a deterministic state machine, the sequence of inputs that
@@ -52,20 +60,24 @@ that are both necessary and sufficient to generate the output in question.
 Borrowing from causality, \watprovenance{} can be applied to time-varying state
 machines.  Borrowing from \whyprovenance{}, \watprovenance{} incorporates state
 machine semantics to avoid overapproximating provenance and instead returns
+\jmh{in many cases returns?}
 \emph{precisely} the inputs that cause a particular output.
 
-After we define \watprovenance{}, we turn the matter of computing it. We find
+After we define \watprovenance{}, we turn to the matter of computing it. We find
 that automatically extracting the \watprovenance{} of an arbitrary state
 machine is intractable (at best) or impossible (at worst). In the best case,
 computing the \watprovenance{} of a state machine is tantamount to inferring
 the state machine's data dependencies using a very complex code analysis of the
-state machine's source code. Black boxes can be both large and complex---Redis
+state machine's source code. Black boxes 
+\jmh{do you want to expunge that term or define it? Also, seems odd to bring up Redis out of the blue, it's not even that big.}
+can be both large and complex---Redis
 for example is over 50,000 lines of C---which makes this code analysis
 intractable. In the worst case, we cannot access the state machine's source
 code at all! For example, many distributed systems leverage cloud services,
 like Amazon S3 or Google Cloud Spanner, that have closed-source proprietary
 implementations.
 
+\jmh{I think the first half of this paragraph is labored. This is not ``optimizing'' for the common case, in any traditional sense. You're going to do two things here. First, you're going to argue that many important systems have simple APIs with simple lineage relationships. I'd lean on examples there more than refutable justifications. Second, you're going to suggest that programmers do the ``hard'' part that computers can't: specifying the provenance among the APIs. I think there's probably a third argument about low-fidelity specification of components being adequate for debugging \emph{across} components -- the discussion we had on Friday.}
 Fortunately, we can pull from our bag of systems tricks and optimize for the
 common case. Automatically extracting the \watprovenance{} of an
 \emph{arbitrary} state machine might be hard or even impossible, but most
@@ -95,7 +107,9 @@ specification. We use \fluent{} to measure the complexity of writing
 \watprovenance{} specifications and also compare \fluent{} to existing
 distributed debugging frameworks. For a trivial Redis workload, we find that
 \fluent{} generates provenance output that is four orders of magnitude more
-succinct than an existing debugging tool that vastly overapproximates the
+succinct than an existing 
+\jmh{state-of-the-art?}
+debugging tool that vastly overapproximates the
 provenance of a simple get request.
 
 In summary, this paper presents the following contributions:
@@ -105,11 +119,11 @@ In summary, this paper presents the following contributions:
     provenance to the realm of state machines in a distributed system. We also
     prove a handful of properties demonstrating the formalism's soundness.
   \item
-    We present \watprovenance{} specifications a mechanism to compute the
+    We present \watprovenance{} specifications: a mechanism to compute the
     \watprovenance{} of distributed system components for which automatically
     extracting the \watprovenance{} is otherwise intractable or impractical. We
     also describe the \watprovenance{} specification of a number of widely used
-    distributed systems components, highlighting that \watprovenance{}
+    distributed systems components, illustrating that \watprovenance{}
     specifications are straightforward to write in the common case.
   \item
     We implement the theoretical foundations of \watprovenance{} in a system

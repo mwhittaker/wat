@@ -1,4 +1,8 @@
 \section{Related Work}\seclabel{RelatedWork}
+\jmh{Adrian Colyer did a week on distributed tracing back in 10/6/2015. See https://blog.acolyer.org/2015/10/page/2/}
+
+\jmh{Would be good to give a nod to Bailis' SoCC paper and also the refs in it on explicit causality~\cite{bailis2012potential}}
+
 Provenance is a broad and far-reaching concept that has been researched by the
 database, distributed systems, and scientific workflow communities. In this
 section, we summarize the most relevant research from these fields.
@@ -68,13 +72,16 @@ Scientific workflow systems like Taverna~\cite{wolstencroft2013taverna},
 Kepler~\cite{altintas2006provenance}, Pegasus~\cite{kim2008provenance}, and
 Swift~\cite{wozniak2013swift} can be used to structure complex computational
 tasks as a graph, composing tasks by connecting the outputs of one task to the
-inputs of another. These systems are limited to \emph{static} computations that
+inputs of another. 
+\jmh{I'm a bit confused here. In discussing relational provenance we talked about a static input database. Here you're talking somehow about a static computation. The analogy doesn't work. I think the analogy is to relational algebra, not staticness: these folks do lineage w.r.t. their workflow langauges, but those are not typical programming models for distributed systems.}
+These systems are limited to \emph{static} computations that
 can be expressed as directed graphs. \watprovenance{} formalizes provenance for
 \emph{time-varying} state machines that can perform arbitrary computation.
 Similarly, \fluent{} targets the domain of distributed systems, rather than
 scientific workflows.
 
 \paragraph{DISC Provenance}
+\jmh{I'd say this is (a) limited language and (b) fixed input. Basically the same worries as relational, but with different DSLs than SQL.}
 Data intensive scalable computing (DISC) frameworks like Apache
 Hadoop~\cite{shvachko2010hadoop} and Apache Spark~\cite{zaharia2010spark} can
 execute data-parallel programs on massive amounts of data both efficiently and
@@ -101,11 +108,12 @@ fundamental distinction between distributed traces and provenance graphs is
 that distributed traces do not carry historical information which causally
 links prior inputs to present outputs. For example, traces may show you which
 clients contacted a key-value store and when, but they won't show you which
-requests wrote the values that later requests read back.
+requests wrote the values that later requests read back. \jmh{Really? Dapper can't give you causal traces??}
 
-\paragraph{Asynchronous Dataflow Programming Languages}
+\paragraph{Asynchronous Declarative Programming Languages}
+\jmh{If we decide that we need to keep this section, it needs work.}
 \fluent{}'s white box programming framework is inspired by the
 Dedalus~\cite{alvaro2011dedalus}, Bloom~\cite{alvaro2011consistency,
 conway2012logic}, Overlog~\cite{loo2005implementing}, and
-NDLog~\cite{loo2009declarative} programming languages which implement the
-asychronous dataflow programming paradigm.
+NDLog~\cite{loo2009declarative} programming languages which implement a
+asychronous declarative programming paradigm.

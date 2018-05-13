@@ -49,10 +49,12 @@ history} of $a_i$.
 
 \subsection{Data Provenance}
 Given a relational database instance $I$, a relational algebra query $Q$, and a
-tuple $t$ in the output of the query, it's natural to ask why $t$ appears in
+tuple $t$ in the output of the query, it is natural to ask why $t$ appears in
 the output. For example, consider the relational database instance given in
 \figref{DataProvenance} which describes owners, their pets, and the things that
-their pets like. And, consider the relation algebra query
+their pets like. 
+\jmh{Let's pick a schema/example that fits distributed debugging--maybe one of the scenarios later in the paper like ZardozBook. }
+And, consider the relational algebra query
 \[
   Q \defeq \pi_{\ttt{owner}}(
              \sigma_{\ttt{likes} = \text{sunlight}}(
@@ -131,6 +133,7 @@ A state machine $M$ begins in state $s_0$ and repeatedly receives inputs $a \in
 \Sigma$. Upon receiving an input $a$, $M$ transitions from state $s$ to state
 $\delta(s, a)$ and outputs $\epsilon(s, a)$.
 
+In our work we will need to reason about specific sub-inputs to a state machine, in the spirit of \whyprovenance{}, so we introduce some new notation here.
 We refer to a sequence of inputs received by a state machine as a
 \defword{trace} $T = a_1 a_2 \ldots a_n \in \Sigma^*$. A \defword{subtrace}
 $T'$ of $T$ is a subsequence $T' = a_{i_1} a_{i_2} \ldots a_{i_m}$ where $i_1,
@@ -147,7 +150,7 @@ the definition of subtraces and supertraces is given in \figref{Traces}.
 {\input{figures/traces.tex}}
 
 $\delta$ takes in a state $s \in \Sigma$ and a single input $a \in \Sigma$.
-It's convenient to extend $\delta$ to a function $\delta^*: S \times \Sigma^*
+It is convenient to extend $\delta$ to a function $\delta^*: S \times \Sigma^*
 \to S$ that takes in a state $s$ and a trace $T \in \Sigma^*$ and outputs the
 state reached after sequentially executing the inputs in $T$ starting in state
 $s$. Similarly, we can extend $\epsilon$ to a function $\epsilon: S \times

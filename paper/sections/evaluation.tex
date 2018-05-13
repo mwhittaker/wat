@@ -20,6 +20,7 @@ magnitude more succinct than the provenance produced by SPADE.
 {\input{figures/spade}}
 
 \paragraph{SPADE (Kernel Auditing)}
+\jmh{Im confused how this auditing subsystem relates to Redis, and whether this comparison is apples-to-apples.}
 The Linux kernel includes an auditing subsystem that records security related
 events that take place on a system. For example, the auditing subsystem can
 intercept and record the syscalls that are issued by processess running on the
@@ -57,11 +58,12 @@ processed a modest ten transactions per second for one minute, it would produce
 over half a \emph{billion} combined vertices and edges. Worse, interpreting
 this provenance requires a deep understanding of the underlying Redis
 implementation. Second, when an executable is compiled with LLVM
-instrumentation, it's execution is significantly slowed because every function
+instrumentation, it's \jmh{its} execution is significantly slowed because every function
 invocation requires the executable to report provenance information to the
 SPADE server.
 
 \paragraph{\fluent{}}
+\jmh{You really need to describe your shims and specs here!!}
 Finally, we ran our workload with \fluent{}. \fluent{} produced eight data
 entries: a get and set request and response on both the Redis client and the
 Redis server. This is four orders of magnitude more succinct that the SPADE
@@ -83,7 +85,9 @@ example, compile-time instrumentation is a technique that can be applied to any
 executable.  Unfortunately, the generality of these approaches causes them to
 produce provenance that is too voluminous and too low-level. \Watprovenance{}
 specifications sidestep this generality and take advantage of the common case
-of black boxes with complex implementations but simple interfaces. As a result,
+of black boxes with complex implementations but simple interfaces. 
+\jmh{Well, i dunno about ``taking advantage''. They impose a programmer burden, but in many cases that burden is modest due to...}
+As a result,
 \watprovenance{} specifications can produce much higher-level provenance that
 is significantly more succinct.
 
@@ -114,6 +118,7 @@ we found that writing the specifications was straightforward.
 \end{table}
 
 \subsection{Shim Overheads}
+\jmh{What about shim LOC?}
 We now measure the performance overheads of \fluent{} shims. \fluent{} shims
 increase the latency and reduce throughput of black boxes for two reasons.
 First, there is a latency overhead in proxying messages to and from a black
