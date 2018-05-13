@@ -18,7 +18,6 @@ trivial workload, \fluent{} produces \watprovenance{} that is orders of
 magnitude more succinct than the provenance produced by SPADE.
 
 {\input{figures/spade}}
-{\input{figures/prov_sizes}}
 
 \paragraph{SPADE (Kernel Auditing)}
 The Linux kernel includes an auditing subsystem that records security related
@@ -70,11 +69,49 @@ provenance produced by LLVM instrumentation. Moreover, applying Redis'
 \watprovenance{} specification to the get request, it returns the previous set
 request and nothing else. We summarize these findings in \tabref{ProvSizes}
 
+The provenance produced by \fluent{} improves upon the provenance produced by
+SPADE in two ways. First, \fluent{}'s provenance is based on the theoretical
+foundations of \watprovenance{}. While kernel audits and function traces
+provide low-level explanations of particular events in a system,
+\watprovenance{} directly encodes our high-level understanding of \emph{why}
+certain outputs are produced. Second, SPADE and similar frameworks, like
+RDataTracker~\cite{lerner2014collecting} and
+noWorkflow~\cite{murta2014noworkflow}, aim to produce provenance for arbitrary
+black boxes. In this quest for generality, they adopt general-purpose
+provenance tracing mechanisms that can be applied to any black box. For
+example, compile-time instrumentation is a technique that can be applied to any
+executable.  Unfortunately, the generality of these approaches causes them to
+produce provenance that is too voluminous and too low-level. \Watprovenance{}
+specifications sidestep this generality and take advantage of the common case
+of black boxes with complex implementations but simple interfaces. As a result,
+\watprovenance{} specifications can produce much higher-level provenance that
+is significantly more succinct.
+
+{\input{figures/prov_sizes}}
+
 \subsection{\WatProvenance{} Specifications}
-% file system , read and write byte ranges, 88 python
-% redis, set, del, append, incr, decr, incrby, decrby, strlen, get 30 lines sql;
-% s3, cp, cat, ls, rm, rb, 200 lines python
-% zookeeper, get set create ls, 70 lines sql
+In \secref{WatProvSpecs}, we described the \watprovenance{} specifications for
+a number of commonly used distributed systems components such as Redis, Amazon
+Z3, etc. We implemented \fluent{} \watprovenance{} specifications for Redis, a
+file system, Amazon S3, and Zookeeper. In \tabref{ProvSpecLengths}, we list the
+language in which each provenance specification is written, the lines of code
+required to write each specification, and the API supported by each
+specification. All of the provenance specifications are relatively short, and
+we found that writing the specifications was straightforward.
+
+\begin{table}[t]
+  \caption{\fluent{} \watprovenance{} specifications}
+  \tablabel{ProvSpecLengths}
+  \begin{tabular}{lllp{3.9cm}}
+    \toprule
+    System      & Language & LOC & Supported API                                                         \\\midrule
+    Redis       & SQL      & 30  & set, del, append, incr, decr, incrby, decrby, strlen                  \\
+    File system & Python   & 88  & reads and writes of byte ranges                                       \\
+    Amazon S3   & Python   & 200 & creating, copying, catting, removing, and listing objects and buckets \\
+    Zookeeper   & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 \subsection{Shim Overheads}
 We now measure the performance overheads of \fluent{} shims. \fluent{} shims
@@ -113,7 +150,7 @@ but otherwise place clients and black boxes on different instances within the
 same availability zone. We repeat each throughput measurement twenty times.
 Box plots of these throughput measurements are shown in \figref{Shims}.
 
-\begin{figure}[ht]
+\begin{figure}[t]
   \centering
   \begin{subfigure}[b]{\columnwidth}
     \centering
