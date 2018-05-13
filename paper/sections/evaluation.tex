@@ -1,8 +1,80 @@
 \section{Evaluation}\seclabel{Evaluation}
 
+\subsection{A Simple Case Study}
+SPADE~\cite{gehani2012spade} is a framework for collecting provenance
+information in distributed systems composed of arbitrary black boxes. SPADE
+collects provenance information from a variety of sources including operating
+system audit logs, network artifacts, LLVM instrumented applications, and
+applications dynamically instrumented for taint analysis. These techniques are
+the current state of the art in extracting the provenance of arbitrary black
+boxes.
+
+In this section, we compare the provenance information produced by SPADE (using
+kernel auditing and using LLVM instrumentation) against the provenance
+information produced by \fluent{}. To do so, we apply SPADE and \fluent{} to a
+trivial workload that consists of a single get request and a single set request
+issued against a Redis database. Momentarily, we will see that even for this
+trivial workload, \fluent{} produces \watprovenance{} that is orders of
+magnitude more succinct than the provenance produced by SPADE.
+
+{\input{figures/spade}}
+{\input{figures/prov_sizes}}
+
+\paragraph{SPADE (Kernel Auditing)}
+The Linux kernel includes an auditing subsystem that records security related
+events that take place on a system. For example, the auditing subsystem can
+intercept and record the syscalls that are issued by processess running on the
+system. Thus, the auditing subsystem can record when sockets are opened, when
+files are read from or written to, when processes are launched, etc. We
+configured SPADE to capture the information produced by this auditing subsystem
+and ran our trivial get and set workload. SPADE produced a provenance graph
+with 191 vertices and 896 edges. A small sample of the information stored in
+the vertices is shown in \figref{SyscallProv}.
+
+This type of kernel audit provenance has two major flaws. The first and most
+notable is that it includes a large amount of low-level information that is
+difficult to understand. Before a developer can debug with the kernel audit
+provenance, they must first have a strong understanding of the various Linux
+syscalls. Then, they must understand when and why Redis issues these syscalls,
+which requires a deep understanding of Redis' implementation. Second, the
+kernel audit provenance doesn't include some vital pieces of information that
+are required to understand the workload. Notably, syscalls do not capture
+writes to memory, so they do not provide visibility into the fact that our get
+request reads from the same memory location as the previous set request.
+
+\paragraph{SPADE (LLVM Instrumentation)}
+SPADE can trace the function calls of certain LLVM instrumented executables. We
+compiled the Redis server with LLVM instrumentation and integrated it with
+SPADE. We did \emph{not} compile the Redis client with LLVM instrumentation, so
+SPADE did \emph{not} trace the function calls of the client. We then ran our
+simple Redis workload. SPADE produced a provenance graph with 399,916 vertices
+and 718,848 edges! A sample of the information stored in these vertices is
+shown in \figref{SyscallProv}.
+
+This provenance has two shortcomings. The first is immediate; the provenance
+includes an overwhelming amount of information. A single set and get request
+produced over a million combined vertices and edges. If the Redis server
+processed a modest ten transactions per second for one minute, it would produce
+over half a \emph{billion} combined vertices and edges. Worse, interpreting
+this provenance requires a deep understanding of the underlying Redis
+implementation. Second, when an executable is compiled with LLVM
+instrumentation, it's execution is significantly slowed because every function
+invocation requires the executable to report provenance information to the
+SPADE server.
+
+\paragraph{\fluent{}}
+Finally, we ran our workload with \fluent{}. \fluent{} produced eight data
+entries: a get and set request and response on both the Redis client and the
+Redis server. This is four orders of magnitude more succinct that the SPADE
+provenance produced by LLVM instrumentation. Moreover, applying Redis'
+\watprovenance{} specification to the get request, it returns the previous set
+request and nothing else. We summarize these findings in \tabref{ProvSizes}
 
 \subsection{\WatProvenance{} Specifications}
-\subsection{A Case Study}
+% file system , read and write byte ranges, 88 python
+% redis, set, del, append, incr, decr, incrby, decrby, strlen, get 30 lines sql;
+% s3, cp, cat, ls, rm, rb, 200 lines python
+% zookeeper, get set create ls, 70 lines sql
 
 \subsection{Shim Overheads}
 We now measure the performance overheads of \fluent{} shims. \fluent{} shims
