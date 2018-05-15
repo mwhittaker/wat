@@ -130,6 +130,9 @@ forwarding decision $s_i$ as the output of the load balancer, the
 recent heartbeat message from the least loaded server.
 
 \todo{Peter, can you insert the name node example here?}
+\todo{on closer inspection, this too is a random policy: pick three random replicas
+satisfying (one on the closest rack, two on different nodes on a remote rack.
+given that the policy is random, is it worth writing up?}
 
 \subsection{Discussion}
 These examples show that many popular black boxes have simple \watprovenance{}
