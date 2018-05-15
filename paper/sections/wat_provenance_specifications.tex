@@ -10,9 +10,7 @@ the relationships between the inputs and outputs of the black box. Because
 black box implementations can be large and complex, this program analysis is
 almost always intractable. Worse, we may not have access to the source code of
 the black box at all. For example, cloud services like Amazon S3 or Google
-Cloud Spanner have closed-source proprietary implementations. 
-\jmh{redundant}
-In this case,
+Cloud Spanner have proprietary implementations. In this case,
 automatically computing \watprovenance{} is impossible.
 
 \newcommand{\kvget}{\texttt{get}}
@@ -65,55 +63,49 @@ In this section, we omit the details and focus on the concepts behind
 
 \subsection{Examples}
 The \watprovenance{} specification of a Redis \kvget{} request is particularly
-simple, but 
-\jmh{in our experience}
-this simplicity is the rule, not the exception. We now survey a
-variety of popular black boxes and demonstrate that their \watprovenance{}
-specifications are mostly very simple.
+simple, but in our experience this simplicity is the rule, not the exception.
+We now survey a variety of popular black boxes and demonstrate that their
+\watprovenance{} specifications are mostly very simple.
 
 \paragraph{Stateless Services}
 A \defword{stateless service} is a service that can be modelled as a state
 machine with a single state. Given a request, a stateless service always
 produces the same reply, no matter what other requests it has already serviced.
 For example, a web server serving a static website is stateless; it replies to
-all requests with the same website. Similarly, cloud services like Google Cloud
-Vision API and Google Cloud Speech-to-Text are also stateless. Given an image
-or audio clip, these services deterministically return a description of the
-image or a transcription of the audio. \Watprovenance{} specifications of a
+all requests with the same website. \Watprovenance{} specifications of a
 stateless service are trivial. Requests are completely independent, so the
-\watprovenance{} of any request consists only of the empty witness. \jmh{The AI examples are problematic ... answers vary over time because model training incorporates feedback. Today this is typically at a long timescale via offline training software like tensorflow embedded in some workflow for model updates. But I think everybody knows that AI software ``learns over time'' and they'll critique you for this.}
+\watprovenance{} of any request consists only of the empty witness.
 
 \paragraph{Key-Value Stores}
 We've already seen a \watprovenance{} specification for the \kvget{} and
-\kvset{} API of Redis. This specification works equally well for any other
-key-value store like Voldemort, Riak, or Memached. 
-\jmh{Here you may get critiques about distributed systems: the non-determinism of eventual consistency, or alternative semantics to last-writer-wins. At minimum you have yet to tell us how to think about distributed state machines. I *think* you want to tell us that each node is a black box of its own .. but let's talk.}
-Moreover, we can easily
-extend our \watprovenance{} specification to handle more of Redis' API. For
-example, consider the operations \texttt{append}, \texttt{decr},
-\texttt{decrby}, \texttt{incr}, and \texttt{incrby} which all modify the value
-associated with a particular key. With these operations present in a trace, the
-\watprovenance{} specification for a \kvget{} request to key $k$ now includes
-the most recent set to $k$ and all subsequent modifying operations to key $k$.
+\kvset{} API of Redis. We can easily extend our \watprovenance{} specification
+to handle more of Redis' API. For example, consider the operations
+\texttt{append}, \texttt{decr}, \texttt{decrby}, \texttt{incr}, and
+\texttt{incrby} which all modify the value associated with a particular key.
+With these operations present in a trace, the \watprovenance{} specification
+for a \kvget{} request to key $k$ now includes the most recent set to $k$ and
+all subsequent modifying operations to key $k$.
 
 \paragraph{Object Stores}
 We can also write \watprovenance{} specifications for storage systems that are
 more complex than key-value stores. For example, consider an object store like
 Amazon S3 where users can create, move, copy, list, and get buckets and
 objects. The \watprovenance{} specification for the get of an object $o$ in
-bucket $b$ includes the most recent creation of the bucket $b$ (either by
-creation or moving) and the most recent creation of $o$ (again, either by
-creation or moving). The \watprovenance{} of a request to list the contents of
-a bucket includes the most recent creation of the bucket, the most recent
-creation of every object in the bucket, and the deletion of any object that was
-previously in the bucket. \jmh{I think you need to be more careful discussing move.}
+bucket $b$ includes the most recent creation of the bucket $b$ and the most
+recent creation of $o$. If a bucket or object was created by a move, then the
+provenance also includes the provenance of the moved bucket or object. The
+\watprovenance{} of a request to list the contents of a bucket includes the
+most recent creation of the bucket, the most recent creation of every object in
+the bucket, and the deletion of any object that was previously in the bucket.
 
 \paragraph{Distributed File Systems}
 We can also specify the \watprovenance{} of a distributed file system like NFS
 or HDFS. A \watprovenance{} specification of a request to read a byte range
 from a file includes the most recent creation of the file, the most recent
 creation of the parent directories of the file, and the most recent writes that
-overlap with the requested byte range.  \jmh{I think you need to be more careful discussing rename/mv. Also links. And then there's the replica consistency issues mentioned above.}
+overlap with the requested byte range. If the file was created by moving
+another file, then the \watprovenance{} specification may also include writes
+to the moved file.
 
 \paragraph{Coordination Services}
 Systems use coordination services like Apache
@@ -124,7 +116,7 @@ write, and read file-like objects called znodes. Though the implementation of
 Zookeeper and HDFS are radically different, their APIs (and thus their
 \watprovenance{} specifications) are similar. For example, the \watprovenance{}
 specification of a request to read a znode includes the most recent creation of
-the znode and the most recent creations of all ancestor znodes. \jmh{It's important that Zookeeper has linearizable write semantics (doesn't it?) so you can use your sequential trace reasoning.}
+the znode and the most recent creations of all ancestor znodes.
 
 \paragraph{Load Balancers}
 Consider a load balancer, like HAProxy, that is balancing load across a set
@@ -139,33 +131,25 @@ recent heartbeat message from the least loaded server.
 \todo{Peter, can you insert the name node example here?}
 
 \subsection{Discussion}
-\jmh{I like this. Let's keep this discussion here, and any uses of this reasoning should be references to this section.}
 These examples show that many popular black boxes have simple \watprovenance{}
 specifications and that many \watprovenance{} specifications are similar to one
-another. We posit that this is not a coincidence. System designers actively
+another. We posit that this is not a coincidence. System designers
 design their systems to be as simple and as familiar as possible. If a black
 box had a very complex API with very complex dependencies between requests,
 then it would be challenging for a user to become proficient in using the
-system. 
-\jmh{I think the below is a red herring. The filesystem abstraction of Zookeeper has very little to do with the important causality and data-dependency assumptions a user is likely to make. If it were a KV API users would probably make the same assumptions.}
-Take Zookeeper as an example. The implementation and use cases of
-Zookeeper are radically different than that of a traditional distributed file
-system like HDFS. However, by mimicking the API of a file system, Zookeeper's
-API is immediately familiar to developers. As a result, Zookeeper's
-\watprovenance{} specification is very similar to HDFS's \watprovenance{}
-specification, both of which are relatively simple.
+system.
 
 However, not \emph{every} black box has a simple provenance specification. Take
-for example, a relational database where users can insert tuples, remove
-tuples, and issue queries (as with \exampleref{WatExampleSetDiff}). As
-\thmref{WatSubsumesWhy} shows, writing a \watprovenance{} specification for a
-particular query is tantamount to specifying the \whyprovenance{} of the query.
-\jmh{Careful! You snuck delete in here, which you ignored in the theorem. I think you could add it to the theorem BTW.}
-Worse, if the query includes constructs like set difference or aggregation that
-are beyond the scope of \whyprovenance{}, the \watprovenance{} specification
-becomes even more challenging to write. 
-\jmh{I don't see how the following is a response to the preceding. DSL APIs like SQL are just too expressive to admit simple specs, even by an expert. Instead, we probably want to push the task of writing specs a level up -- in the service/application that is creating specific SQL expressions.}
-Fortunately, the effort of writing a
+for example, a relational database where users can insert tuples and issue
+queries (as with \exampleref{WatExampleSetDiff}). As \thmref{WatSubsumesWhy}
+shows, writing a \watprovenance{} specification for a particular query is
+tantamount to specifying the \whyprovenance{} of the query. Worse, if the
+query includes constructs like set difference or aggregation that are beyond
+the scope of \whyprovenance{}, the \watprovenance{} specification becomes even
+more challenging to write.
+
+Fortunately, we can take some steps to mitigate the difficulty of writing
+complex \watprovenance{} specifications.  First, the effort of writing a
 \watprovenance{} specification need not be duplicated. Black boxes like Redis
 are written by a handful of developers but used by thousands of others.
 Provenance specifications are no different. Once a single developer writes a
@@ -174,15 +158,18 @@ black box can leverage it.
 
 Furthermore, there is a simple yet effective way to unit test provenance
 specifications that we call \defword{exhaustive \watprovenance{} checking}.
-\jmh{You express this in terms of a formalism but I think you want the reader to think about it in terms of a practical system. Consider rewording.}
-Given a state machine $M$ with start state $s_0$, a trace $T$, and an input
-$i$, we can automatically compute the \watprovenance{} of $i$ by exhaustively
-computing $\epsilon^*(s_0, T'i)$ for every subtrace $T'$ of $T$.  Doing so, we
-can automatically compute the \watprovenance{} of a particular request and
-verify that it matches the \watprovenance{} produced by a provenance
-specification.  Unfortunately, this technique runs in superexponential time
-with respect to the length of $T$, so it is effective for small unit tests but
-impractical for computing the \watprovenance{} of real-world traces. \jmh{Perhaps reference the ``small-scope hypothesis''?}
+Informally, we can compute the \watprovenance{} for a particular request by
+exhaustively enumerating every possible subtrace and checking if it is a
+witness. Formally, given a state machine $M$ with start state $s_0$, a trace
+$T$, and an input $i$, we can automatically compute the \watprovenance{} of $i$
+by exhaustively computing $\epsilon^*(s_0, T'i)$ for every subtrace $T'$ of
+$T$. Doing so, we can automatically compute the \watprovenance{} of a
+particular request and verify that it matches the \watprovenance{} produced by
+a provenance specification. Unfortunately, this technique runs in
+superexponential time with respect to the length of $T$, so it is effective for
+small unit tests but impractical for computing the \watprovenance{} of
+real-world traces.
+% \jmh{Perhaps reference the ``small-scope hypothesis''?}
 
 \subsection{Limitations}
 Automatically inferring the \watprovenance{} of a black box is intractable, and
@@ -190,24 +177,31 @@ while \watprovenance{} specifications work well in the common case, they are
 not a panacea. Here, we discuss two limitations of \watprovenance{}
 specifications.
 
+\paragraph{Nondeterministic Black Boxes}
+The definition of \watprovenance{} assumes a \emph{deterministic} state
+machine, yet some black boxes are nondeterministic. For example, the behavior
+of many weakly consistent distributed systems depend on the non-deterministic
+ordering of messages in the network. \watprovenance{} specifications cannot be
+applied to nondeterministic distributed systems like this.  We leave a
+generalization of \watprovenance{} and \watprovenance{} specifications to
+nondeterministic state machines as an interesting avenue for future work.
+
 \paragraph{Buggy Black Boxes}
-\jmh{This strikes me odd. There's an implicit assumption that the spec is correct but the box is buggy. Be more explicit on that front here.  Maybe organize this entire section to have three ways that spec and implementation diverge: (a) limitations of the spec in capturing the semantics of the box, (b) bugs in a box that was intended to meet the spec, or (c) non-determinism in the box makes any single spec insufficient (could we write a disjunctive spec??).  We should discuss.}
 We have thus far tacitly assumed that common black boxes like Redis faithfully
 implement their advertised interfaces. However, if a black box is buggy and
 deviates from its expected behavior, then a \watprovenance{} specification will
 likely produce erroneous provenance. Fortunately, black box bugs are relatively
 rare (at least compared to the frequency of bugs in application-specific code
-written from scratch). Moreover, we can use exhaustive \watprovenance{}
-checking to identify potential bugs in a black box. 
-\jmh{You just finished telling us this was impractical.}
-If the \watprovenance{}
+written from scratch).
+%
+Moreover, if we have confidence in the correctness of a \watprovenance{}
+specification, then we can use exhaustive \watprovenance{} checking on small
+inputs to identify potential bugs in a black box.  If the \watprovenance{}
 computed by an exhaustive \watprovenance{} check differs from the
 \watprovenance{} returned by a specification, it's an indication that the black
-box might be deviating from its intended specification.
-
-\paragraph{Nondeterministic Black Boxes}
-The definition of \watprovenance{} assumes a \emph{deterministic} state
-machine, yet some black boxes---e.g., a load balancer that forwards requests
-uniformly at random---are nondeterministic. We leave a generalization of
-\watprovenance{} and \watprovenance{} specifications to nondeterministic state
-machines as an interesting avenue for future work.
+box might be deviating from its intended specification. Note that if we are
+confident that the black box implementation is correct, then we can use
+exhaustive \watprovenance{} checking to find bugs in a \watprovenance{}
+specification, and if if we have confidence that the \watprovenance{}
+specification is correct, then we can use exhaustive \watprovenance{} checking
+to find bugs in the black box implementation.

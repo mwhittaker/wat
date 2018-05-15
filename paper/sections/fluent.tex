@@ -69,7 +69,7 @@ set requests.
 We now return to the motivating example from \secref{WatProvenanceExample} and
 explore how \fluent{} enables us to diagnose why Bob was able to see Ava's mean
 comment. We assume that we have already written \fluent{} shims and
-\watprovenance{} specifications for all the components in \figref{MeanComment}. \jmh{Can you prove that writing those is reasonable? E.g. did you do it, and can you say how many lines it was or something?}
+\watprovenance{} specifications for all the components in \figref{MeanComment}.
 
 \begin{itemize}
   \item
@@ -81,7 +81,7 @@ comment. We assume that we have already written \fluent{} shims and
     We then examine the load balancer's trace. The load balancer's
     \watprovenance{} specification informs us that the load balancer sent Ava's
     mean comment to Bob's \systemname{} client as a response to receiving the
-    mean comment from application server $s_3$. \jmh{shouldn't the load balancer depend on a previous load report from an application server? where did that dependency go in this trace?}
+    mean comment from application server $s_3$.
   \item
     We then look at the application server $s_3$'s trace. The application
     server sent the mean comment to the load balancer as a reply to a
