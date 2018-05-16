@@ -11,19 +11,18 @@ section, we summarize the most relevant research from these fields.
 RDataTracker~\cite{lerner2014collecting},
 noWorkflow~\cite{murta2014noworkflow}, and SPADE~\cite{gehani2012spade} are
 frameworks that attempt to record the provenance of data through an
-\emph{arbitrary} black box using general purpose low-level provenance
-tracing techniques. RDataTracker and noWorkflow use reflection and runtime
-information to track the provenance of data through minimally annotated R and
-Python scripts. SPADE collects provenance information from a variety of sources
-including operating system audit logs, network artifacts, LLVM instrumented
-applications, and applications dynamically instrumented for taint analysis. The
-benefit of these frameworks is their generality. They can be applied to
-\emph{any} piece of code. However, their generality is also their undoing. As
-we saw in \secref{Evaluation}, these provenance frameworks produce an
-overwhelming amount of very low-level implementation-specific provenance
-information that is challenging to interpret. \watprovenance{} specifications
-sidestep these low-level details and directly specify the relevant
-\watprovenance{} of a black box.
+\emph{arbitrary} black box using general purpose low-level provenance tracing
+techniques. RDataTracker and noWorkflow use reflection and runtime information
+to track the provenance of data through minimally annotated R and Python
+scripts. SPADE collects provenance information from operating system audit
+logs, network artifacts, LLVM instrumented applications, and applications
+dynamically instrumented for taint analysis. The benefit of these frameworks is
+their generality. They can be applied to \emph{any} piece of code. However,
+their generality is also their undoing. As we saw in \secref{Evaluation}, these
+provenance frameworks produce an overwhelming amount of very low-level
+implementation-specific provenance information that is challenging to
+interpret. \watprovenance{} specifications sidestep these low-level details and
+directly specify the relevant \watprovenance{} of a black box.
 
 \paragraph{Network Provenance}
 Network provenance was originally introduced in~\cite{zhou2010efficient} as a
