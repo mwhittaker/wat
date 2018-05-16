@@ -2,23 +2,23 @@
 
 \subsection{A Motivating Example}\seclabel{WatProvenanceExample}
 \newcommand{\systemname}{ZardozBook}
-We claim that there is currently no \emph{principled} way to reason about the
+We claim that there is currently no \emph{precise} way to reason about the
 causes of events in a heterogenous distributed system. To best understand why,
 let's look at a simple example.  Consider the implementation of a Facebook-like
 social media application called \systemname{}, illustrated in
-\figref{MeanComment}. \systemname{} users can post statuses to their wall, and
-these status updates are only viewable by their friends on the site. Users send
-requests to a load balancer that forwards the requests to one of three weakly
-consistent Redis-backed application servers: $s_1$, $s_2$, and $s_3$. These
-application servers store a cache of \systemname{}'s data in Redis, and
+\figref{MeanComment}. \systemname{} users can post status updates to their
+wall, and these updates are only viewable by their friends on the site. Users
+send requests to a load balancer that forwards the requests to one of three
+weakly consistent Redis-backed application servers: $s_1$, $s_2$, and $s_3$.
+These application servers store a cache of \systemname{}'s data in Redis, and
 periodically they synchronize their caches with a centralized Postgres
 database.
 
 Consider a scenario in which Ava, a \systemname{} user, has a falling out with
-Bob, a friend of hers on the site. Ava unfriends Bob and posts the status ``Bob
-is a big jerk!'' to her wall, thinking that Bob will not see the status because
-he is no longer her \systemname{} friend. Unfortunately, Bob later logs in to
-\systemname{} and sees Ava's mean comment!
+Bob, a friend of hers on the site. Ava unfriends Bob and then posts the status
+``Bob is a big jerk!'' to her wall, thinking that Bob will not see the status
+because he is no longer her \systemname{} friend. Unfortunately, Bob later logs
+in to \systemname{} and sees Ava's mean comment!
 
 {\input{figures/mean_comment}}
 
@@ -41,7 +41,7 @@ Why did this happen? Here's an informal account.
     returned the mean comment.
 \end{itemize}
 
-We argue that there is no \emph{principled} way to go about discovering this
+We argue that there is no \emph{systematic} way to go about discovering this
 sequence of events. One possibility is to use causality, as described in
 \secref{Background}. We could instrument our distributed system to record the
 causal history of every event that takes place in the system. Then, we could
@@ -59,55 +59,34 @@ events that \emph{might} cause an event instead of the events that
 
 This might prompt us to try and apply ideas from data provenance. Unlike
 causality, \whyprovenance{} does incorporate system semantics in order to
-return the actual causes of a particular output of a query. Unfortunately,
-\whyprovenance{} has two fatal flaws. First, \whyprovenance{} can only be
-applied to relational algebra queries issued against a relation database. We
-might be able to use \whyprovenance{} to debug $s_3$'s SQL query that was sent
-to the Postgres database, but this is only one small piece of the puzzle.
-Understanding why Bob saw Ava's mean comment requires us to reason about
-messages that travel through our application servers, our redis servers, and
-our load balancer. But, these are not relational databases, so we cannot apply
-\whyprovenance{} to them. Second, \whyprovenance{} does not incorporate any
-notion of time. \Whyprovenance{} operates under the assumptions of a
-\emph{static} relational database, but our Postgres database, for example, is
-not static. Thus, we cannot properly apply \whyprovenance{}, even to our
-relational database.
-
-Causality and data provenance are both insufficient to diagnose why Bob saw
-Ava's mean comment. This leaves us with ad-hoc instrumentation as our only
-means of debugging. We can instrument our system to log the messages that flow
-through its components, and we can manually piece together the logs of every
-server in our system. Besides being laborious, this ad-hoc instrumentation also
-raises many questions. Which events should we log? And how do we identify the
-``cause'' of an event? What do we even mean by ``the cause of an event''? Can
-there be multiple ``causes'' or only one? Ideally, we would have a principled
-and systematic way to answer these questions.
-
-Enter \watprovenance{}.
-
-% {\input{figures/parameter_server}}
-% We claim that there is currently no \emph{principled} way to reason about the
-% causes of events in a heterogenous distributed system. To best understand why,
-% let's look at a simple example. Consider a distributed implementation of sparse
-% stochastic gradient descent (SGD) based on Hogwild!~\cite{recht2011hogwild}
-% coordinated via a parameter server~\cite{li2014scaling}, as illustrated in
-% \figref{ParameterServer}. We store our weight vector $x$ in a parameter server
-% with each entry $x_i$ keyed by index $i$. We have a set of worker servers that
-% periodically compute a gradient on a batch of the training data and push their
-% updates to $x$ back to the parameter server. As the SGD executes, a data
-% scientist's laptop periodically pulls the weights from the parameter server,
-% computes the training error, and displays it to the data scientist so that they
-% can monitor the progress of the SGD.
-%
-% {\input{figures/parameter_server}}
+return the actual causes of a particular output of a query. As discussed
+above, \whyprovenance{} has two fatal flaws.  First is \whyprovenance{}'s
+restriction to relational queries: while we might be able to use
+\whyprovenance{} to debug $s_3$'s SQL query that was sent to the Postgres
+database, that is only one small piece of the puzzle.  Understanding why Bob
+saw Ava's mean comment requires us to reason about messages that travel through
+our application servers, our redis servers, and our load balancer. But, these
+are not relational databases, so we cannot apply \whyprovenance{} to them.
+Second and more fundamental is \whyprovenance{}'s inability to reflect any
+notion of state change over time.  In particular, the real ``why'' question we
+want to answer here is ``why was the provenance of Bob's query unaffected by
+Ava's unfriend request?'' The \whyprovenance{} of Bob's query has no answer to
+this question: it knows nothing about updates or the order in which they
+happen.
 
 \subsection{\WatProvenance{}}
-\Watprovenance{} is form of data provenance that integrates the benefits of
-both causality and \whyprovenance{}. Borrowing from causality, \watprovenance{}
-is a general purpose mechanism that can be applied to arbitrary state machines.
-Borrowing from \whyprovenance{}, \watprovenance{} incorporates system semantics
-to produce the actual causes of a particular event, rather than a conservative
-overapproximation.
+In isolation, causality and data provenance are both insufficient to diagnose
+why Bob saw Ava's mean comment. Understanding the root cause of this anomalous
+behavior requires us to reason about the ordering of events within the network
+(as with causality) \emph{and} the precise data dependencies between different
+requests (as with data provenance).
+%
+\defword{\Watprovenance{}} is a novel form of data provenance that unifies the
+benefits of causality and data provenance. Borrowing from causality,
+\watprovenance{} is a general-purpose mechanism that can be applied to
+arbitrary state machines. Borrowing from \whyprovenance{}, \watprovenance{}
+incorporates system semantics to produce the actual causes of a particular
+event, rather than a conservative overapproximation.
 
 More formally, we consider a state machine $M = (S, s_0, \Sigma, \Lambda,
 \delta, \epsilon)$, a trace $T \in \Sigma^*$, and a particular input $i \in
@@ -144,7 +123,8 @@ examples, ultimately leading to the definition of \watprovenance{}.
   to our $\kvget(x)$ request, so we shouldn't include it as a cause of our
   output. Thus, we revise our earlier observation; \textbf{the cause of an
   ouput $o$ is a subtrace of the input that is sufficient to generate $o$ and
-  also minimal}.
+  is also in some sense minimal}. We will define minimality more carefully
+  below.
 \end{example}
 
 \begin{example}\examplelabel{WatExampleFormulas}
@@ -188,12 +168,12 @@ examples, ultimately leading to the definition of \watprovenance{}.
 
   This is certainly not what we want. $\Mset(a)$ does not contribute to our
   output, so it should be excluded. The problem here is that the subtrace $T_a$
-  does not include the $\Mset(b)$ request that ultimately nullifies the
-  $\Mset(a)$ request. From this, we see that in order for a witness $T'$ to be
-  a good explanation of a particular output $o$, \textbf{it must be that every
-  supertrace of $T'$ in $T$ is also a witness of $o$}. $T_{ab} = \Mset(a);
-  \Mset(b)$ is a supertrace of $T_a$ in $T$, but $T_{ab}$ does not suffice to
-  generate $o$. Thus, $a$ is not a valid witness.
+  does not include the $\Mset(b)$ request that ultimately keeps the $\Mset(a)$
+  request from satisfying the formula. From this, we see that in order for a
+  witness $T'$ to be a good explanation of a particular output $o$, \textbf{it
+    must be that every supertrace of $T'$ in $T$ is also a witness of $o$}.
+    $T_{ab} = \Mset(a); \Mset(b)$ is a supertrace of $T_a$ in $T$, but $T_{ab}$
+    does not suffice to generate $o$. Thus, $a$ is not a valid witness.
 \end{example}
 
 Combining our lessons from \exampleref{WatExampleKvs},
@@ -212,13 +192,17 @@ proper subtrace of $T'$ is also a witness of $o$ that satisfies (1)\footnote{%
   Note the subtlety that in order to compute $\Wat{M, T, i}$, we first compute
   all the witnesses of $o$ that are closed under supertrace and then remove the
   non-minimal elements. We do \emph{not} compute all the minimal witnesses and
-  then remove the ones that are not closed under supertrace in $T$. These two
-  are not the same. See \exampleref{WatExampleAdds}, for example.
-}.
+  then remove the ones that are not closed under supertrace in $T$.
+  Informally, we compute minimal(closed\_under\_supertrace(witnesses)), not
+  closed\_under\_supertrace(minimal(witnesses)).
+  These two are not the same. See \exampleref{WatExampleAdds}, for example.
+}. Note that we formally define \watprovenance{} with respect to an input $i$,
+but colloquially discuss \watprovenance{} with respect to the corresponding
+output $o$.
 
 \subsection{Can I Get a Witness?}
-We now provide a few more simple examples of \watprovenance{} to illustrate the
-definition. In \secref{BlackBoxes}, we describe the \watprovenance{} of
+We now provide a few more simple examples of \watprovenance{} to illustrate
+the definition. In \secref{WatProvSpecs}, we describe the \watprovenance{} of
 realistic servers such as Redis, Zookeeper, and S3.
 
 \begin{example}\examplelabel{WatExampleXyx}
@@ -230,7 +214,7 @@ realistic servers such as Redis, Zookeeper, and S3.
     T = a_1 a_2 a_3 = \Mset(x, 1); \Mset(x, 2); \Mset(x, 1)
   \]
   and the input $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 1$. To compute
-  $\Wat{M, T, i}$ (the \watprovenance{} of $i$), we first compute $\Wit{M, T,
+  $\Wat{M, T, i}$ (the \watprovenance{} of $o$), we first compute $\Wit{M, T,
   i}$ (the witnesses of $o$ that are closed under supertrace in $T$).
 
 
@@ -267,7 +251,7 @@ realistic servers such as Redis, Zookeeper, and S3.
   and the request $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 42$.
 
   Again, we compute $\Wit{M, T, i}$. $T$ suffices to generate $o$, and $T$
-  doesn't have any supertraces in $T$, so it is trivially closed under
+  doesn't have any proper supertraces in $T$, so it is trivially closed under
   supertrace in $T$. Thus, $T \in \Wit{M, T, i}$.
   %
   $T_1 = a_1 = \Mset(x, 42)$ is the only other witness of $o$, but $T_1$ is not
@@ -277,11 +261,12 @@ realistic servers such as Redis, Zookeeper, and S3.
   Thus, $\Wit{M, T, i} = \Wat{M, T, i} = \set{T}$.
 
   Note that we first compute the witnesses that are closed under supertrace in
-  $T$ and then remove the non-minimal elements. Imagine instead that we first
-  compute the minimal witnesses and then remove the elements that are not
-  closed under supertrace in $T$. We find that the sole minimal witness of $o$
-  is $T_1$. Then, we filter out $T_1$ because, as we just saw, it is not closed
-  under supertrace in $T$. This leaves us with an empty \watprovenance{}!
+  $T$ and then remove the non-minimal elements. Imagine instead if we had first
+  computed the minimal witnesses and then removed the elements that were not
+  closed under supertrace in $T$. We would have found that the sole minimal
+  witness of $o$ was $T_1$. Then, we would have filtered out $T_1$ because, as
+  we just saw, it is not closed under supertrace in $T$. This would leave us
+  with an empty \watprovenance{}!
 \end{example}
 
 \begin{example}\examplelabel{WatExampleSetDiff}
@@ -306,12 +291,11 @@ realistic servers such as Redis, Zookeeper, and S3.
 \end{example}
 
 \subsection{\WatProvenance{} Properties}
-Definitions are asserted, not proven. A definition's correctness is axiomatic.
-Still, some definitions make more sense than others.
 \exampleref{WatExampleKvs} through \exampleref{WatExampleSetDiff} demonstrate
 that our definition of \watprovenance{} accurately models how we intuitively
-think about data provenance for state machines. We now prove two properties
-about \watprovenance{} that further demonstrate that our definition is sound.
+think about data provenance for state machines.  We now discuss some additional
+properties about \watprovenance{}. In particular, we discuss how
+\watprovenance{} provenance relates to \whyprovenance{} and causality.
 
 \begin{theorem}\thmlabel{Existence}
   For every state machine $M$, trace $T$, and input $i$, $\Wat{M, T, i}$ is
@@ -326,12 +310,14 @@ non-empty.
 
 \newcommand{\Min}{\text{in}}
 \begin{theorem}\thmlabel{WatSubsumesWhy}
-  Let $M$ be the relational database state machine from
-  \exampleref{WatExampleKvs}. Let $T$ be a trace which inserts every tuple in
-  database instance $I$. Let input $i = \Min(t, Q)$ be an input which returns
-  whether tuple $t$ is in $Q(I)$ for select, project, join, union relational
-  algebra query $Q$. Then, viewing a subtrace $T'$ as a subinstance $I'
-  \subseteq I$, $\Wat{M, T, i} = \MWhy{Q, I, t}$.
+  Let $M$ be a general relational database state machine (first introduced in
+  \exampleref{WatExampleKvs}) that allows for the insertions of tuples and the
+  execution of relational queries. Let $I$ be an arbitrary database instance,
+  and let $T$ be a trace which inserts every tuple in $I$. Let input $i =
+  \Min(t, Q)$ be an input which returns a boolean that indicates whether tuple
+  $t$ is in $Q(I)$ for select, project, join, union relational algebra query
+  $Q$. Then, viewing a subtrace $T'$ as a subinstance $I' \subseteq I$,
+  $\Wat{M, T, i} = \MWhy{Q, I, t}$.
 \end{theorem}
 
 In short, \thmref{WatSubsumesWhy} says that \watprovenance{} subsumes
@@ -341,14 +327,26 @@ machine, and selecting a relational database state machine, we see that minimal
 
 The proof is straightforward.
 %
-If $t \notin Q(I)$, then $o = \epsilon^*(s_0, Ti)$ is false and $\Wat{Q, I, t}$
-consists only of the empty trace, indicating that $\MWhy{Q, I, t}$ is empty.
+If $t \notin Q(I)$, then $o = \epsilon^*(s_0, Ti)$ returns false and $\Wat{Q,
+I, t}$ consists only of the empty trace, indicating that $\MWhy{Q, I, t}$ is
+empty.
 %
-Otherwise $t \in Q(I)$ and $o$ is true. Consider a witness $T' \in \Wat{M, T,
-i}$. $T'$ suffices to generate $o$, so the corresponding instance $I'$ suffices
-to generate $t$. Moreover, because $Q$ is monotone, every witness $T'$ is
-closed under supertrace in $T'$. Thus, $T'$ (and hence $I'$) is a minimal
-witness. The proof of the converse---showing that every $I' \in \MWhy{Q, I, t}$
-has a corresponding subtrace $T' \in \Wat{M, I, t}$---is almost identical.
+Otherwise $t \in Q(I)$ and $o$ returns true. Consider a witness $T' \in \Wat{M,
+T, i}$. $T'$ suffices to generate $o$, so the corresponding instance $I'$
+suffices to generate $t$. Moreover, because $Q$ is monotone and $T$ does not
+contain any deletions, every witness $T'$ is closed under supertrace in $T$.
+Thus, $T'$ (and hence $I'$) is a minimal witness. The proof of the
+converse---showing that every $I' \in \MWhy{Q, I, t}$ has a corresponding
+subtrace $T' \in \Wat{M, I, t}$---is almost identical.
 
-\todo{Insert claim/proof saying that we subsume causality.}
+While \watprovenance{} \emph{generalizes} \whyprovenance{}, it \emph{refines}
+causality in the following sense. Consider a state machine $M$ that executes a
+trace $T$ and then an input request $i$. The causal history of $i$ includes
+every single request in $T$ (and the causal history of every request in $T$)
+whether or not the request in $T$ actually did influence the output of
+executing request $i$. \Watprovenance{} instead returns the subtraces of $T$
+that are actual causes. Note that \watprovenance{} returns a set of witnesses
+that are local to a particular node. On its own, \watprovenance{} does not
+return the causal history of these witnesses, which includes messages sent by
+other nodes in the distributed system. In \secref{Fluent}, we see how to enrich
+\watprovenance{} with this information.

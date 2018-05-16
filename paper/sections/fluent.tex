@@ -39,25 +39,26 @@ shims provide two key pieces of functionality:
 
 After a user has written a black box's shim, they can write the black box's
 \watprovenance{} specification. \fluent{} \watprovenance{} specifications are
-simple scripts written in either SQL or Python. Given a particular black box
-request, a \watprovenance{}  script computes the corresponding \watprovenance{}
-with respect to the black box's trace (which is persisted in a relational
-database by the black box's shim). For example, a SQL \watprovenance{}
-specification for Redis get requests is listed in
+simple scripts written in a developer's choice of either SQL or Python. Given a
+particular black box request, a \watprovenance{}  script computes the
+corresponding \watprovenance{} with respect to the black box's trace (which is
+persisted in a relational database by the black box's shim). For example, a SQL
+\watprovenance{} specification for Redis get requests is listed in
 \figref{ConcreteRedisProvSpec}. The \watprovenance{} specification consists of
-a single SQL query parameterized by the request's key \texttt{KEY} and logical
-time \texttt{TIME}. As with \figref{RedisProvSpec}, this \watprovenance{}
-specification returns the most recent set to the key \texttt{KEY}. The
-\texttt{redis\_set\_req} relation is a view over the trace that only includes
-set requests.
+a single SQL query parameterized by the get request's key \texttt{KEY} and
+logical time \texttt{TIME}. As with \figref{RedisProvSpec}, this
+\watprovenance{} specification returns the most recent set to the key
+\texttt{KEY}. The \texttt{redis\_set\_req} relation is a view over the trace
+that only includes set requests.
 
 \begin{figure}[ht]
   \begin{Verbatim}
+    -- Return the most recent set to key $KEY.
     SELECT *
-    FROM redis_set_req
-    WHERE key = $KEY AND time <= $TIME
-    ORDER BY time DESC
-    LIMIT 1
+      FROM redis_set_req
+     WHERE key = $KEY AND time <= $TIME
+     ORDER BY time DESC
+     LIMIT 1
   \end{Verbatim}
   \caption{\Watprovenance{} specification for Redis get requests}
   \figlabel{ConcreteRedisProvSpec}
@@ -68,7 +69,7 @@ set requests.
 We now return to the motivating example from \secref{WatProvenanceExample} and
 explore how \fluent{} enables us to diagnose why Bob was able to see Ava's mean
 comment. We assume that we have already written \fluent{} shims and
-\watprovenance{} specifications all the components in \figref{MeanComment}.
+\watprovenance{} specifications for all the components in \figref{MeanComment}.
 
 \begin{itemize}
   \item
@@ -80,7 +81,10 @@ comment. We assume that we have already written \fluent{} shims and
     We then examine the load balancer's trace. The load balancer's
     \watprovenance{} specification informs us that the load balancer sent Ava's
     mean comment to Bob's \systemname{} client as a response to receiving the
-    mean comment from application server $s_3$.
+    mean comment from application server $s_3$. Note that the load balancer's
+    \watprovenance{} may also include other requests (e.g., load reports from
+    the application servers) that caused the load balancer to forward to $s_3$,
+    but they are not important for debugging this scenario.
   \item
     We then look at the application server $s_3$'s trace. The application
     server sent the mean comment to the load balancer as a reply to a
@@ -94,7 +98,7 @@ comment. We assume that we have already written \fluent{} shims and
     cache refresh request that was previously sent to the Postgres database by
     application server $s_3$. The \watprovenance{} of the Postgres database
     reveals that the Postgres database produced the mean comment because it was
-    previously inserted into the database by application server $s_3$.
+    previously inserted into the database by application server $s_2$.
   \item
     We then review application server $s_2$'s trace. $s_2$'s \watprovenance{}
     specification shows that $s_2$ sent the mean comment to the Postgres
@@ -105,10 +109,10 @@ comment. We assume that we have already written \fluent{} shims and
     to Ava's \systemname{} trace.
   \item
     Ava's trace shows that Ava issued a request to unfriend Bob before she
-    posted the mean comment. Following the trace of the unfriend request, we
-    find that it was forwarded to application server $s_1$ by the load
-    balancer and that application server $s_1$ later propagated the request to
-    Postgres.
+    posted the mean comment. Following the network trace of the unfriend
+    request, we find that it was forwarded to application server $s_1$ by the
+    load balancer and that application server $s_1$ later propagated the
+    request to Postgres.
   \item
     Examining the Postgres trace, we find that it received the unfriend request
     \emph{after} the mean comment, even though Ava issued the unfriend request
