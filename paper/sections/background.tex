@@ -49,27 +49,28 @@ history} of $a_i$.
 
 \subsection{Data Provenance}
 Given a relational database instance $I$, a relational algebra query $Q$, and a
-tuple $t$ in the output of the query, it's natural to ask why $t$ appears in
+tuple $t$ in the output of the query, it is natural to ask why $t$ appears in
 the output. For example, consider the relational database instance given in
-\figref{DataProvenance} which describes owners, their pets, and the things that
-their pets like. And, consider the relation algebra query
+\figref{DataProvenance} which describes users and friends in a social media
+application.  And, consider the relational algebra query
 \[
-  Q \defeq \pi_{\ttt{owner}}(
-             \sigma_{\ttt{likes} = \text{sunlight}}(
-               \ttt{Owners} \join \ttt{Pets}
+  Q \defeq \pi_{\ttt{name}}(
+             \sigma_{\ttt{friend1} = \ttt{ecodd}}(
+                \ttt{Users} \join_{\ttt{username} = \ttt{friend2}} \ttt{Friends}
              )
            )
 \]
-that returns the name of all owners who own a pet that likes sunlight.
-Evaluating $Q$ on $I$ produces the tuple $t = \text{(Ava)}$.
+that returns the name of all of Edgar Codd's friends. Evaluating $Q$ on $I$
+produces the tuple $t = \text{(Michael Jordan)}$.
 
 {\input{figures/data_provenance.tex}}
 
-Intuitively, $t = \text{(Ava)}$ is present in the output $Q(I)$ for two
-reasons: (1) the existence of the (Ava, Mimi) and (Mimi, sunlight) tuples and
-(2) the existence of the (Mimi, Harry) and (Harry, sunlight) tuples.
-\defword{\Whyprovenance{}}~\cite{buneman2001and, cheney2009provenance} is a
-form of data provenance that formalizes this intuition. The
+Intuitively, $t = \text{(Michael Jordan)}$ is present in the output $Q(I)$ for
+two reasons: (1) the existence of the (ecodd, jumpman) and (jumpman, Michael
+Jordan) tuples and (2) the existence of the (ecodd, mlpro) and (mlpro, Michael
+Jordan) tuples.  \defword{\Whyprovenance{}}~\cite{buneman2001and,
+cheney2009provenance} is a form of data provenance that formalizes this
+intuition. The
 \whyprovenance{}\footnote{
   For a formal definition of \whyprovenance{}, we refer the reader to
   \cite{cheney2009provenance}. For our purposes, an informal understanding of
@@ -85,14 +86,14 @@ denoted $\MWhy{Q, I, t}$, is the set of the minimal witnesses in $\Why{Q, I,
 t}$. It can be shown that $\MWhy{Q, I, t}$ is exactly the set of minimal
 witnesses of $t$~\cite{cheney2009provenance}.
 
-Returning to our example above, the \whyprovenance{} of the (Ava) tuple is the
-set $\set{J_1, J_2}$ where
+Returning to our example above, the \whyprovenance{} of the (Michael Jordan)
+tuple is the set $\set{J_1, J_2}$ where
 \begin{align*}
-  J_1 &= \set{(\text{Ava}, \text{Mimi}), (\text{Mimi}, \text{sunlight})} \\
-  J_2 &= \set{(\text{Ava}, \text{Harry}), (\text{Harry}, \text{sunlight})}
+  J_1 &= \set{(\text{ecodd}, \text{jumpman}), (\text{jumpman}, \text{Michael Jordan})} \\
+  J_2 &= \set{(\text{ecodd}, \text{mlpro}), (\text{mlpro}, \text{Michael Jordan})}
 \end{align*}
 Both $J_1$ and $J_2$ are minimal witnesses, so the \whyprovenance{} and minimal
-\whyprovenance{} of $t = \text{(Ava)}$ are the same.
+\whyprovenance{} of $t = \text{(Michael Jordan)}$ are the same.
 
 % The definition of \Whyprovenance{} for select ($\sigma$), project ($\pi$), join
 % ($\join$), union ($\cup$) queries taken from \cite{cheney2009provenance} is as
@@ -131,23 +132,25 @@ A state machine $M$ begins in state $s_0$ and repeatedly receives inputs $a \in
 \Sigma$. Upon receiving an input $a$, $M$ transitions from state $s$ to state
 $\delta(s, a)$ and outputs $\epsilon(s, a)$.
 
-We refer to a sequence of inputs received by a state machine as a
-\defword{trace} $T = a_1 a_2 \ldots a_n \in \Sigma^*$. A \defword{subtrace}
-$T'$ of $T$ is a subsequence $T' = a_{i_1} a_{i_2} \ldots a_{i_m}$ where $i_1,
-i_2, \ldots, i_m$ are distinct elements of $1, 2, \ldots, n$ in ascending
-order. Note that a subsequence does \emph{not} have to be contiguous. For
-example, $T' = a_1 a_3$ is a subtrace of $T = a_1 a_2 a_3 a_4$. If $T'$ is a
-subtrace of $T$, then a \defword{supertrace of $T'$ in $T$} is a subtrace of
-$T$ that contains every element of $T'$. If $T_1$ and $T_2$ are two traces, we
-write the concatenation of $T_1$ and $T_2$ as $T_1T_2$. Similarly, if $T \in
-\Sigma^*$ is a trace, and $a \in \Sigma$ is an input, we let $Ta$ denote the
-trace produced by appending $a$ to the end of $T$. An illustrative example of
-the definition of subtraces and supertraces is given in \figref{Traces}.
+In our work, we need to reason about specific sub-inputs to a state machine, in
+the spirit of \whyprovenance{}, so we introduce some notation here. We refer to
+a sequence of inputs received by a state machine as a \defword{trace} $T = a_1
+a_2 \ldots a_n \in \Sigma^*$. A \defword{subtrace} $T'$ of $T$ is a subsequence
+$T' = a_{i_1} a_{i_2} \ldots a_{i_m}$ where $i_1, i_2, \ldots, i_m$ are
+distinct elements of $1, 2, \ldots, n$ in ascending order. Note that a
+subsequence does \emph{not} have to be contiguous. For example, $T' = a_1 a_3$
+is a subtrace of $T = a_1 a_2 a_3 a_4$. If $T'$ is a subtrace of $T$, then a
+\defword{supertrace of $T'$ in $T$} is a subtrace of $T$ that contains every
+element of $T'$. If $T_1$ and $T_2$ are two traces, we write the concatenation
+of $T_1$ and $T_2$ as $T_1T_2$. Similarly, if $T \in \Sigma^*$ is a trace, and
+$a \in \Sigma$ is an input, we let $Ta$ denote the trace produced by appending
+$a$ to the end of $T$. An illustrative example of the definition of subtraces
+and supertraces is given in \figref{Traces}.
 
 {\input{figures/traces.tex}}
 
 $\delta$ takes in a state $s \in \Sigma$ and a single input $a \in \Sigma$.
-It's convenient to extend $\delta$ to a function $\delta^*: S \times \Sigma^*
+It is convenient to extend $\delta$ to a function $\delta^*: S \times \Sigma^*
 \to S$ that takes in a state $s$ and a trace $T \in \Sigma^*$ and outputs the
 state reached after sequentially executing the inputs in $T$ starting in state
 $s$. Similarly, we can extend $\epsilon$ to a function $\epsilon: S \times

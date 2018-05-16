@@ -1,4 +1,8 @@
 \section{Related Work}\seclabel{RelatedWork}
+\jmh{Adrian Colyer did a week on distributed tracing back in 10/6/2015. See https://blog.acolyer.org/2015/10/page/2/}
+
+\jmh{Would be good to give a nod to Bailis' SoCC paper and also the refs in it on explicit causality~\cite{bailis2012potential}}
+
 Provenance is a broad and far-reaching concept that has been researched by the
 database, distributed systems, and scientific workflow communities. In this
 section, we summarize the most relevant research from these fields.
@@ -68,11 +72,11 @@ Scientific workflow systems like Taverna~\cite{wolstencroft2013taverna},
 Kepler~\cite{altintas2006provenance}, Pegasus~\cite{kim2008provenance}, and
 Swift~\cite{wozniak2013swift} can be used to structure complex computational
 tasks as a graph, composing tasks by connecting the outputs of one task to the
-inputs of another. These systems are limited to \emph{static} computations that
-can be expressed as directed graphs. \watprovenance{} formalizes provenance for
-\emph{time-varying} state machines that can perform arbitrary computation.
-Similarly, \fluent{} targets the domain of distributed systems, rather than
-scientific workflows.
+inputs of another. These systems are limited to the workflow languages that
+they support, but these languages are not typical programming models for
+distributed systems. They also assume that the inputs to a workflow are
+static.  \watprovenance{} formalizes provenance for arbitrary distributed
+systems composed of time-varying state machines.
 
 \paragraph{DISC Provenance}
 Data intensive scalable computing (DISC) frameworks like Apache
@@ -84,10 +88,11 @@ input data triggered some buggy behaviour. In efforts to reduce this burden,
 work on GMRW provenance~\cite{ikeda2011provenance} and systems like
 BigDebug~\cite{gulzar2016bigdebug}, Titian~\cite{interlandi2015titian}, and
 RAMP~\cite{park2011ramp} augment DISC frameworks like Hadoop and Spark with
-data provenance. Similar to scientific workflow systems, DISC provenance is
-restricted to the domain of data intensive computations over static data.
-Unlike \watprovenance{}, it cannot be applied to other distributed systems
-components like storage systems, coordination services, load balancers, etc.
+data provenance. DISK provenance is similar to the provenance produced by
+scientific workflow systems. It is restricted to the domain of data intensive
+computations over static data.  Unlike \watprovenance{}, it cannot be applied
+to other distributed systems components like storage systems, coordination
+services, load balancers, etc.
 
 \paragraph{Distributed Tracing Tools}
 Distributed tracing tools like Dapper~\cite{sigelman2010dapper},
@@ -103,9 +108,10 @@ links prior inputs to present outputs. For example, traces may show you which
 clients contacted a key-value store and when, but they won't show you which
 requests wrote the values that later requests read back.
 
-\paragraph{Asynchronous Dataflow Programming Languages}
+\paragraph{Asynchronous Declarative Programming Languages}
+\jmh{If we decide that we need to keep this section, it needs work.}
 \fluent{}'s white box programming framework is inspired by the
 Dedalus~\cite{alvaro2011dedalus}, Bloom~\cite{alvaro2011consistency,
 conway2012logic}, Overlog~\cite{loo2005implementing}, and
-NDLog~\cite{loo2009declarative} programming languages which implement the
-asychronous dataflow programming paradigm.
+NDLog~\cite{loo2009declarative} programming languages which implement a
+asychronous declarative programming paradigm.
