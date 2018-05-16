@@ -1,6 +1,6 @@
 \section{Discussion}\seclabel{Discussion}
 
-In Section~\secref{WatProvSpects}, we showed how easy it was to write shims 
+In \secref{WatProvSpecs}, we showed how easy it was to write shims 
 for a variety of common black box components.  In return for this modest 
 investment, \fluent{}  allowed programmers to ask and answer debugging questions 
 that span node boundaries and involve mutable state that changes over time. 
@@ -30,7 +30,7 @@ the database research community.
 \newcommand{\freeze}{\text{freeze}}
 \newcommand{\trunc}{\text{trunc}}
 
-Consider the KVS state machine presented in Example\exampleref{WatExampleKVS}, extended to support two new calls.   \texttt{freeze} makes the existing set of keys and values immutable, while \texttt{trunc} deletes all of the keys and values (provided that \texttt{freeze} has not been called.)  Now consider the trace 
+Consider the KVS state machine presented in \exampleref{WatExampleKvs}, extended to support two new calls.   \texttt{freeze} makes the existing set of keys and values immutable, while \texttt{trunc} deletes all of the keys and values (provided that \texttt{freeze} has not been called.)  Now consider the trace 
 
 \[
   T = a_1 a_2 a_3 = \kvset(x,1), \freeze, \trunc
