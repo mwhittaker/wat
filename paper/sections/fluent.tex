@@ -81,7 +81,10 @@ comment. We assume that we have already written \fluent{} shims and
     We then examine the load balancer's trace. The load balancer's
     \watprovenance{} specification informs us that the load balancer sent Ava's
     mean comment to Bob's \systemname{} client as a response to receiving the
-    mean comment from application server $s_3$.
+    mean comment from application server $s_3$. Note that the load balancer's
+    \watprovenance{} may also include other requests (e.g., load reports from
+    the application servers) that caused the load balancer to forward to $s_3$,
+    but they are not important for debugging this scenario.
   \item
     We then look at the application server $s_3$'s trace. The application
     server sent the mean comment to the load balancer as a reply to a

@@ -82,7 +82,7 @@ behavior requires us to reason about the ordering of events within the network
 requests (as with data provenance).
 %
 \defword{\Watprovenance{}} is a novel form of data provenance that fills this
-void.  Borrowing from causality, \watprovenance{} is a general-purpose
+void. Borrowing from causality, \watprovenance{} is a general-purpose
 mechanism that can be applied to arbitrary state machines. Borrowing from
 \whyprovenance{}, \watprovenance{} incorporates system semantics to produce the
 actual causes of a particular event, rather than a conservative
@@ -167,12 +167,12 @@ examples, ultimately leading to the definition of \watprovenance{}.
 
   This is certainly not what we want. $\Mset(a)$ does not contribute to our
   output, so it should be excluded. The problem here is that the subtrace $T_a$
-  does not include the $\Mset(b)$ request that ultimately keeps the
-  $\Mset(a)$ request from satisfying the formula. From this, we see that in order for a witness $T'$ to be
-  a good explanation of a particular output $o$, \textbf{it must be that every
-  supertrace of $T'$ in $T$ is also a witness of $o$}. $T_{ab} = \Mset(a);
-  \Mset(b)$ is a supertrace of $T_a$ in $T$, but $T_{ab}$ does not suffice to
-  generate $o$. Thus, $a$ is not a valid witness.
+  does not include the $\Mset(b)$ request that ultimately keeps the $\Mset(a)$
+  request from satisfying the formula. From this, we see that in order for a
+  witness $T'$ to be a good explanation of a particular output $o$, \textbf{it
+    must be that every supertrace of $T'$ in $T$ is also a witness of $o$}.
+    $T_{ab} = \Mset(a); \Mset(b)$ is a supertrace of $T_a$ in $T$, but $T_{ab}$
+    does not suffice to generate $o$. Thus, $a$ is not a valid witness.
 \end{example}
 
 Combining our lessons from \exampleref{WatExampleKvs},
@@ -191,9 +191,13 @@ proper subtrace of $T'$ is also a witness of $o$ that satisfies (1)\footnote{%
   Note the subtlety that in order to compute $\Wat{M, T, i}$, we first compute
   all the witnesses of $o$ that are closed under supertrace and then remove the
   non-minimal elements. We do \emph{not} compute all the minimal witnesses and
-  then remove the ones that are not closed under supertrace in $T$. These two
-  are not the same. See \exampleref{WatExampleAdds}, for example.
-}.
+  then remove the ones that are not closed under supertrace in $T$.
+  Informally, we compute minimal(closed\_under\_supertrace(witnesses)), not
+  closed\_under\_supertrace(minimal(witnesses)).
+  These two are not the same. See \exampleref{WatExampleAdds}, for example.
+}. Note that we formally define \watprovenance{} with respect to an input $i$,
+but colloquially discuss \watprovenance{} with respect to the corresponding
+output $o$.
 
 \subsection{Can I Get a Witness?}
 We now provide a few more simple examples of \watprovenance{} to illustrate the
@@ -308,10 +312,10 @@ non-empty.
   \exampleref{WatExampleKvs}) that allows for the insertions of tuples and the
   execution of relational queries. Let $I$ be an arbitrary database instance,
   and let $T$ be a trace which inserts every tuple in $I$. Let input $i =
-  \Min(t, Q)$ be an input which returns whether tuple $t$ is in $Q(I)$ for
-  select, project, join, union relational algebra query $Q$. Then, viewing a
-  subtrace $T'$ as a subinstance $I' \subseteq I$, $\Wat{M, T, i} = \MWhy{Q, I,
-  t}$.
+  \Min(t, Q)$ be an input which returns a boolean that indicates whether tuple
+  $t$ is in $Q(I)$ for select, project, join, union relational algebra query
+  $Q$. Then, viewing a subtrace $T'$ as a subinstance $I' \subseteq I$,
+  $\Wat{M, T, i} = \MWhy{Q, I, t}$.
 \end{theorem}
 
 In short, \thmref{WatSubsumesWhy} says that \watprovenance{} subsumes
