@@ -21,8 +21,8 @@ time is reified into all of the records.  These custom representations of
 provenance in time, while not formalized, are similar in spirit to WAT provenance.
 It turns out, however, that they are not equivalent to it---neither Dedalus nor
 NDLog provenance necessarily identify minimal witnesses.  The underlying issue
-is the problem of the \emph{negative provenance} or the provenance of
-non-answers~\cite{chapman2009whynot,huang2008nonanswers}, which remains an open problem in
+is the problem of \emph{negative provenance} or the provenance of
+non-answers~\cite{chapman2009whynot,huang2008nonanswers}, which remains an open issue in
 the database research community.
 
 \newcommand{\kvset}{\text{set}}
@@ -38,7 +38,7 @@ Consider the KVS state machine presented in \exampleref{WatExampleKvs}, extended
 
 The WAT provenance of $i = \kvget(x)$ is $\{a_1, a_2\}$.  But explaining why $a_2$ is part of the witness set requires reasoning about non-answers: $x$ had the value $1$ both because of $a_1$,
 which inserted the value into the store, and because $a_3$ had no effect (due to the action of $a_2$, without which $a_3$ would have removed the effects of $a_1$!)
-If the state machine was written in a language such as NDLog or Dedalus, implementing it would require the use of logical negation (in fact, examples 4-6 all require nonmonotonic logic) and explanations of its outputs would require both positive and negative provenance.  Explaining why a particular event \emph{did not occur} is intractable in general, as the explanation may be infinitely large.  Existing techniques for collecting negative provenance apply heuristics that (finitely) over-approximate the why provenance of non-answers.  For example, Dedalus provenance would determine that the provenance of $i$ is $\{a_1, a_2, a_3\}$.
+If the state machine was written in a language such as NDLog or Dedalus, implementing it would require the use of logical negation (in fact, \exampleref{WatExampleXyx}-\exampleref{WatExampleSetDiff} all require nonmonotonic logic) and explanations of its outputs would require both positive and negative provenance.  Explaining why a particular event \emph{did not occur} is intractable in general, as the explanation may be infinitely large.  Existing techniques for collecting negative provenance apply heuristics that (finitely) over-approximate the why provenance of non-answers.  For example, Dedalus provenance would determine that the provenance of $i$ is $\{a_1, a_2, a_3\}$.
 
 We could, of course, constrain the programming language to rule out the complication of negative provenance.  The language Dedalus+\cite{marczak2012confluence} is the positive fragment of Dedalus, in which negation is not permitted (except on base relations).    Programs written in Dedalus+ generate positive why-provenance graphs whose leaves correspond exactly with the WAT provenance of the given execution. Unfortunately, Dedalus+ is not adequately expressive to implement arbitrary stateful distributed services.  The CALM theorem~\cite{alvaro2011consistency,ameloot2013transducers} guarantees that Dedalus+ programs produce deterministic outputs under all input orders \emph{precisely because} those programs do not use negation.  By the same token, programs whose outputs are (by definition) influenced by their input orders---such as key/value stores, file systems and object stores, caches, etc---cannot be implemented in a logic language without using negation!
 
