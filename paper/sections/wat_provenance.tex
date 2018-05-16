@@ -285,12 +285,11 @@ realistic servers such as Redis, Zookeeper, and S3.
 \end{example}
 
 \subsection{\WatProvenance{} Properties}
-Definitions are asserted, not proven. A definition's correctness is axiomatic.
-Still, some definitions make more sense than others.
 \exampleref{WatExampleKvs} through \exampleref{WatExampleSetDiff} demonstrate
 that our definition of \watprovenance{} accurately models how we intuitively
-think about data provenance for state machines. We now prove two properties
-about \watprovenance{} that further demonstrate that our definition is sound.
+think about data provenance for state machines.  We now discuss some additional
+properties about \watprovenance{}. In particular, we discuss how
+\watprovenance{} provenance relates to \whyprovenance{} and causality.
 
 \begin{theorem}\thmlabel{Existence}
   For every state machine $M$, trace $T$, and input $i$, $\Wat{M, T, i}$ is
@@ -322,16 +321,26 @@ machine, and selecting a relational database state machine, we see that minimal
 
 The proof is straightforward.
 %
-If $t \notin Q(I)$, then $o = \epsilon^*(s_0, Ti)$ evaluates to false and
-$\Wat{Q, I, t}$ consists only of the empty trace, indicating that $\MWhy{Q, I,
-t}$ is empty.
+If $t \notin Q(I)$, then $o = \epsilon^*(s_0, Ti)$ returns false and $\Wat{Q,
+I, t}$ consists only of the empty trace, indicating that $\MWhy{Q, I, t}$ is
+empty.
 %
-Otherwise $t \in Q(I)$ and $o$ evaluates to true. Consider a witness $T' \in
-\Wat{M, T, i}$. $T'$ suffices to generate $o$, so the corresponding instance
-$I'$ suffices to generate $t$. Moreover, because $Q$ is monotone and $T$ does
-not contain any deletions, every witness $T'$ is closed under supertrace in
-$T'$. Thus, $T'$ (and hence $I'$) is a minimal witness. The proof of the
+Otherwise $t \in Q(I)$ and $o$ returns true. Consider a witness $T' \in \Wat{M,
+T, i}$. $T'$ suffices to generate $o$, so the corresponding instance $I'$
+suffices to generate $t$. Moreover, because $Q$ is monotone and $T$ does not
+contain any deletions, every witness $T'$ is closed under supertrace in $T'$.
+Thus, $T'$ (and hence $I'$) is a minimal witness. The proof of the
 converse---showing that every $I' \in \MWhy{Q, I, t}$ has a corresponding
 subtrace $T' \in \Wat{M, I, t}$---is almost identical.
 
-\todo{Insert claim/proof saying that we subsume causality.}
+While \watprovenance{} \emph{generalizes} \whyprovenance{}, it \emph{refines}
+causality in the following sense. Consider a state machine $M$ that executes a
+trace $T$ and then an input request $i$. The causal history of $i$ includes
+every single request in $T$ (and the causal history of every request in $T$)
+whether or not the request in $T$ actually did influence the output of
+executing request $i$. \Watprovenance{} instead returns the subtraces of $T$
+that are actual causes. Note that \watprovenance{} returns a set of witnesses
+that are local to a particular node. On its own, \watprovenance{} does not
+return the causal history of these witnesses, which includes messages sent by
+other nodes in the distributed system. In \secref{Fluent}, we see how to enrich
+\watprovenance{} with this information.

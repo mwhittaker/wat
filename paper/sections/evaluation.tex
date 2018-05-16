@@ -26,9 +26,9 @@ intercept and record the syscalls that are issued by processess running on the
 system. Thus, the auditing subsystem can record when sockets are opened, when
 files are read from or written to, when processes are launched, etc. We
 configured SPADE to capture the information produced by this auditing subsystem
-and ran our trivial get and set workload. SPADE produced a provenance graph
-with 191 vertices and 896 edges. A small sample of the information stored in
-the vertices is shown in \figref{SyscallProv}.
+and ran our trivial get and set workload against Redis. SPADE produced a
+provenance graph with 191 vertices and 896 edges. A small sample of the
+information stored in the vertices is shown in \figref{SyscallProv}.
 
 This type of kernel audit provenance has two major flaws. The first and most
 notable is that it includes a large amount of low-level information that is
@@ -62,13 +62,15 @@ invocation requires the executable to report provenance information to the
 SPADE server.
 
 \paragraph{\fluent{}}
-\jmh{You really need to describe your shims and specs here!!}
-Finally, we ran our workload with \fluent{}. \fluent{} produced eight data
-entries: a get and set request and response on both the Redis client and the
-Redis server. This is four orders of magnitude more succinct that the SPADE
-provenance produced by LLVM instrumentation. Moreover, applying Redis'
-\watprovenance{} specification to the get request, it returns the previous set
-request and nothing else. We summarize these findings in \tabref{ProvSizes}
+Finally, we ran our workload with \fluent{}. The \fluent{} \watprovenance{}
+specification for Redis get requests is given in
+\figref{ConcreteRedisProvSpec}. The Redis shim is 75 lines of C++.  \fluent{}
+produced eight data entries: a get and set request and response on both the
+Redis client and the Redis server. This is four orders of magnitude more
+succinct that the SPADE provenance produced by LLVM instrumentation. Moreover,
+applying Redis' \watprovenance{} specification to the get request, it returns
+the previous set request and nothing else. We summarize these findings in
+\tabref{ProvSizes}
 
 The provenance produced by \fluent{} improves upon the provenance produced by
 SPADE in two ways. First, \fluent{}'s provenance is based on the theoretical
@@ -83,12 +85,12 @@ provenance tracing mechanisms that can be applied to any black box. For
 example, compile-time instrumentation is a technique that can be applied to any
 executable.  Unfortunately, the generality of these approaches causes them to
 produce provenance that is too voluminous and too low-level. \Watprovenance{}
-specifications sidestep this generality and take advantage of the common case
-of black boxes with complex implementations but simple interfaces.
-\jmh{Well, i dunno about ``taking advantage''. They impose a programmer burden, but in many cases that burden is modest due to...}
-As a result,
+specifications sidestep this generality and instead have a developer directly
+specify the \watprovenance{} of particular black box.  As a result,
 \watprovenance{} specifications can produce much higher-level provenance that
-is significantly more succinct.
+is significantly more succinct.  And, because many black boxes have simple
+interfaces, these \watprovenance{} specifications are, in practice, easy to
+write.
 
 {\input{figures/prov_sizes}}
 
@@ -117,7 +119,6 @@ we found that writing the specifications was straightforward.
 \end{table}
 
 \subsection{Shim Overheads}
-\jmh{What about shim LOC?}
 We now measure the performance overheads of \fluent{} shims. \fluent{} shims
 increase the latency and reduce throughput of black boxes for two reasons.
 First, there is a latency overhead in proxying messages to and from a black
