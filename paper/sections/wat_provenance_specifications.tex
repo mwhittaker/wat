@@ -66,21 +66,12 @@ simple, but in our experience this simplicity is the rule, not the exception.
 We now survey a variety of popular black boxes and demonstrate that their
 \watprovenance{} specifications are mostly very simple.
 
-\paragraph{Stateless Services}
-A \defword{stateless service} is a service that can be modelled as a state
-machine with a single state. Given a request, a stateless service always
-produces the same reply, no matter what other requests it has already serviced.
-For example, a web server serving a static website is stateless; it replies to
-all requests with the same website. \Watprovenance{} specifications of a
-stateless service are trivial. Requests are completely independent, so the
-\watprovenance{} of any request consists only of the empty witness.
-
 \paragraph{Key-Value Stores}
 We've already seen a \watprovenance{} specification for the \kvget{} and
 \kvset{} API of Redis. We can easily extend our \watprovenance{} specification
 to handle more of Redis' API. For example, consider the operations
 \texttt{append}, \texttt{decr}, \texttt{decrby}, \texttt{incr}, and
-\texttt{incrby} which all modify the value associated with a particular key.
+\texttt{incrby} that all modify the value associated with a particular key.
 With these operations present in a trace, the \watprovenance{} specification
 for a \kvget{} request to key $k$ now includes the most recent set to $k$ and
 all subsequent modifying operations to key $k$.
@@ -126,6 +117,15 @@ forwards the message to the server $s_i$ that is least loaded. Modelling the
 forwarding decision $s_i$ as the output of the load balancer, the
 \watprovenance{} specification for the forwarding decision includes the most
 recent heartbeat message from the least loaded server.
+
+\paragraph{Stateless Services}
+A \defword{stateless service} is a service that can be modelled as a state
+machine with a single state. Given a request, a stateless service always
+produces the same reply, no matter what other requests it has already serviced.
+For example, a web server serving a static website is stateless; it replies to
+all requests with the same website. \Watprovenance{} specifications of a
+stateless service are trivial. Requests are completely independent, so the
+\watprovenance{} of any request consists only of the empty witness.
 
 \subsection{Discussion}
 These examples show that many popular black boxes have simple \watprovenance{}
@@ -178,8 +178,8 @@ specifications.
 The definition of \watprovenance{} assumes a \emph{deterministic} state
 machine, yet some black boxes are nondeterministic. For example, the behavior
 of many weakly consistent distributed systems depend on the non-deterministic
-ordering of messages in the network. \watprovenance{} specifications cannot be
-applied to nondeterministic distributed systems like this.  We leave a
+ordering of messages in the network. \Watprovenance{} specifications cannot be
+applied to nondeterministic distributed systems like this. We leave a
 generalization of \watprovenance{} and \watprovenance{} specifications to
 nondeterministic state machines as an interesting avenue for future work.
 

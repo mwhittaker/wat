@@ -3,17 +3,17 @@ Debugging distributed systems is hard. Traditional debugging techniques are
 poorly suited to distributed systems in which bugs arise due to chains of logic
 that often span multiple concurrent nodes connected by an unreliable network that can
 drop, duplicate, and reorder messages. Distributed debugging tools do
-exist but are largely in their infancy. They help tame some of the complexities
-of distributed debugging, but have limited applicability to real-world
-distributed systems that are made up of large number of complex components.
-Consequently, developers are often forced to perform ad-hoc root cause analysis
-in order to find the source of a bug, stitching together the logs of multiple
-concurrently executing nodes.
+exist but are largely in their infancy. They help tame \emph{some} of the
+complexities of distributed debugging, but have limited applicability to
+real-world distributed systems that are made up of a large number of complex
+components. Consequently, developers are often forced to perform ad-hoc root
+cause analysis in order to find the source of a bug, stitching together the
+logs of multiple concurrently executing nodes.
 
-We argue that existing formalisms are inadequate to handle the complexities of
-debugging real-world distributed systems. For example, consider
-causality~\cite{lamport1978time}.  Causality is a general-purpose formalism
-that specifies the \emph{causal history} of a particular event in an arbitrary
+Worse, we argue that existing formalisms are also inadequate to reason about
+systematically debugging real-world distributed systems. For example, consider
+causality~\cite{lamport1978time}. Causality is a general-purpose formalism that
+specifies the \emph{causal history} of a particular event in an arbitrary
 distributed system. However, causality is too general-purpose as it fails to
 incorporate any semantics of the underlying distributed system beyond opaque
 message-passing~\cite{bailis2012potential}. As a consequence, the causal
@@ -25,15 +25,16 @@ Alternatively, consider data provenance in the form of
 \emph{\whyprovenance{}}~\cite{cheney2009provenance, buneman2001and}. Given a
 relational database, a query issued against the database, and a tuple in the
 output of the query, the \whyprovenance{} of the output explains why the output
-tuple was produced: it shows input tuples which, if passed through the
-relational operators of the query, would produce the output. In contrast to
-causality, data provenance heavily incorporates the semantics of relational
-databases and queries in order to describe \emph{precisely} the cause of a
-particular output. However, makes the critical assumption that the underlying
-relational database is static. It cannot handle the time-varying nature of
-stateful distributed systems. Moreover, data provenance is limited to the
-domain of relational data and cannot easily be applied to other system
-components (e.g., load balancers, file systems, coordination services, etc.).
+tuple was produced. That is, it provides the input tuples which, if passed
+through the relational operators of the query, would produce the output in
+question. In contrast to causality, data provenance heavily incorporates the
+semantics of relational databases and queries in order to describe
+\emph{precisely} the cause of a particular output. However, \whyprovenance{}
+makes the critical assumption that the underlying relational database is
+static. It cannot handle the time-varying nature of stateful distributed
+systems. Moreover, data provenance is limited to the domain of relational data
+and cannot easily be applied to other system components (e.g., load balancers,
+file systems, coordination services, etc.).
 
 In short, \textbf{causality lacks a notion of data dependence, and data
 provenance lacks a notion of time}. In this paper, we present
@@ -60,7 +61,7 @@ state machine's source code. This source code can be both large and complex
 which makes this code analysis intractable. In the worst case, we cannot access
 the state machine's source code at all! For example, many distributed systems
 leverage cloud services, like Amazon S3 or Google Cloud Spanner, that have
-closed-source proprietary implementations.
+proprietary implementations.
 
 Automatically extracting the \watprovenance{} of an \emph{arbitrary} state
 machine might be hard or even impossible, but most distributed systems
@@ -82,15 +83,12 @@ Next, we present \fluent{}: a prototype distributed debugging framework that
 leverages the formal foundations of \watprovenance{} and \watprovenance{}
 specifications. \fluent{} includes a mechanism for developers to write
 \watprovenance{} specifications that are executed against the input traces of
-the components in a distributed system. \fluent{} also includes a C++ domain
-specific language for writing state machines for which we can automatically
-extract the \watprovenance{} without the need for a \watprovenance{}
-specification. We use \fluent{} to measure the complexity of writing
-\watprovenance{} specifications and also compare \fluent{} to existing
-distributed debugging frameworks. For a trivial Redis workload, we find that
-\fluent{} generates provenance output that is four orders of magnitude more
-succinct than an existing state of the art debugging tool that vastly
-overapproximates the provenance of a simple get request.
+the components in a distributed system. We use \fluent{} to measure the
+complexity of writing \watprovenance{} specifications and also compare
+\fluent{} to existing distributed debugging frameworks. For a trivial Redis
+workload, we find that \fluent{} generates provenance output that is \emph{four
+orders of magnitude} more succinct than an existing state of the art debugging
+tool which vastly overapproximates the provenance of a simple get request.
 
 In summary, this paper presents the following contributions:
 \begin{itemize}

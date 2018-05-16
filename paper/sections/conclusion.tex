@@ -54,14 +54,14 @@ overapproximates the true cause of an event, and data provenance is restricted
 to the domain of static relational databases.  We then presented
 \watprovenance{}: a novel form of provenance that generalizes \whyprovenance{}
 and refines causality. \Watprovenance{} formalizes precisely why a particular
-state machine produces a particular output with respect to an input trace of
-request. We then discussed how to sidestep the complexity of automatic
-\watprovenance{} extraction with \watprovenance{} specifications, which we
-found to be simple to write in practice due to the fact that most distributed
-systems components have simple interfaces. We implemented our theoretical
-findings in a system called \fluent{} and found it to produce lineage that is
-orders of magnitude more succinct than existing tools targeted at debugging
-distributed systems.
+state machine produces a particular output with respect to a previously
+executed trace of inputs. We then discussed how to sidestep the complexity of
+automatic \watprovenance{} extraction with \watprovenance{} specifications,
+which we found to be simple to write in practice due to the fact that most
+distributed systems components have simple interfaces. We implemented our
+theoretical findings in a system called \fluent{} and found it to produce
+lineage that is orders of magnitude more succinct than existing tools targeted
+at debugging distributed systems.
 
 \begin{acks}
   The authors would like to thank Sanjay Krishnan, Alvin Cheung, and Anthony

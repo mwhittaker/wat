@@ -1,4 +1,7 @@
 \section{Evaluation}\seclabel{Evaluation}
+We now evaluate the succinctness of the provenance produced by \fluent{}, the
+complexity of writing \watprovenance{} specifications, and the performance
+overheads of \fluent{} shims.
 
 \subsection{A Simple Case Study}
 SPADE~\cite{gehani2012spade} is a framework for collecting provenance
@@ -13,9 +16,9 @@ In this section, we compare the provenance information produced by SPADE (using
 kernel auditing and using LLVM instrumentation) against the provenance
 information produced by \fluent{}. To do so, we apply SPADE and \fluent{} to a
 trivial workload that consists of a single get request and a single set request
-issued against a Redis database. Momentarily, we will see that even for this
-trivial workload, \fluent{} produces \watprovenance{} that is orders of
-magnitude more succinct than the provenance produced by SPADE.
+to the same key issued against a Redis database. Momentarily, we will see that
+even for this trivial workload, \fluent{} produces \watprovenance{} that is
+orders of magnitude more succinct than the provenance produced by SPADE.
 
 {\input{figures/spade}}
 
@@ -26,8 +29,8 @@ intercept and record the syscalls that are issued by processess running on the
 system. Thus, the auditing subsystem can record when sockets are opened, when
 files are read from or written to, when processes are launched, etc. We
 configured SPADE to capture the information produced by this auditing subsystem
-and ran our trivial get and set workload against Redis. SPADE produced a
-provenance graph with 191 vertices and 896 edges. A small sample of the
+during the exuection of our trivial set and get Redis workload. SPADE produced
+a provenance graph with 191 vertices and 896 edges. A small sample of the
 information stored in the vertices is shown in \figref{SyscallProv}.
 
 This type of kernel audit provenance has two major flaws. The first and most
@@ -142,7 +145,7 @@ experiment.
   \item
     We measure the throughput of each black box when it is wrapped with a fully
     functional \fluent{} shim that periodically persists messages to a
-    relational database. Unlike the partial shim, This ``full shim'' incurs all
+    relational database. Unlike the partial shim, this ``full shim'' incurs all
     of the overheads of a \fluent{} shim.
 \end{enumerate}
 

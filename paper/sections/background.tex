@@ -3,14 +3,15 @@
 \section{Background}\seclabel{Background}
 
 \subsection{Causality}
-Time is fundamental to our understanding of how events are ordered. It's clear,
-tautological even, that if an event occurs at 6:42, then it \emph{happens
-before} another event that occurs at 6:45. Unfortunately, accurately measuring
-time in a distributed system is infeasible~\cite{marzullo1984maintaining,
-sampath2012synchronization, schmid2000orthogonal}. Clocks on different servers
-within a distributed system drift apart, so servers cannot agree on a single
-global notion of time, and thus they cannot agree on a single global
-\emph{total order} of events. However, as Lamport showed in
+As described by Lamport in \cite{lamport1978time}, time is fundamental to our
+understanding of how events are ordered. It's clear, tautological even, that if
+an event occurs at 6:42, then it \emph{happens before} another event that
+occurs at 6:45. Unfortunately, accurately measuring time in a distributed
+system is infeasible~\cite{marzullo1984maintaining, sampath2012synchronization,
+schmid2000orthogonal}. Clocks on different servers within a distributed system
+drift apart, so servers cannot agree on a single global notion of time, and
+thus they cannot agree on a single global \emph{total order} of events that
+respects the real time ordering of events. However, as Lamport showed in
 \cite{lamport1978time}, it \emph{is} possible for servers to agree on a global
 \emph{partial order} of events that respects the global passage of time. This
 partial ordering of events also dictates which events can causally affect each
@@ -29,8 +30,8 @@ represents the receipt of this message by server $b$.
 
 {\input{figures/causality}}
 
-We define the \defword{happens before} relation $\happensbefore$ on events as
-the smallest transitive relation such that
+The \defword{happens before} relation $\happensbefore$ on events is the
+smallest transitive relation such that
 %
 (1)
   if $a_i, a_j$ are two events within the same process (e.g. $a_1, a_2$ in

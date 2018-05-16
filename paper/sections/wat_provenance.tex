@@ -15,10 +15,10 @@ periodically they synchronize their caches with a centralized Postgres
 database.
 
 Consider a scenario in which Ava, a \systemname{} user, has a falling out with
-Bob, a friend of hers on the site. Ava unfriends Bob and posts the status ``Bob
-is a big jerk!'' to her wall, thinking that Bob will not see the status because
-he is no longer her \systemname{} friend. Unfortunately, Bob later logs in to
-\systemname{} and sees Ava's mean comment!
+Bob, a friend of hers on the site. Ava unfriends Bob and then posts the status
+``Bob is a big jerk!'' to her wall, thinking that Bob will not see the status
+because he is no longer her \systemname{} friend. Unfortunately, Bob later logs
+in to \systemname{} and sees Ava's mean comment!
 
 {\input{figures/mean_comment}}
 
@@ -81,12 +81,12 @@ behavior requires us to reason about the ordering of events within the network
 (as with causality) \emph{and} the precise data dependencies between different
 requests (as with data provenance).
 %
-\defword{\Watprovenance{}} is a novel form of data provenance that fills this
-void. Borrowing from causality, \watprovenance{} is a general-purpose
-mechanism that can be applied to arbitrary state machines. Borrowing from
-\whyprovenance{}, \watprovenance{} incorporates system semantics to produce the
-actual causes of a particular event, rather than a conservative
-overapproximation.
+\defword{\Watprovenance{}} is a novel form of data provenance that unifies the
+benefits of causality and data provenance. Borrowing from causality,
+\watprovenance{} is a general-purpose mechanism that can be applied to
+arbitrary state machines. Borrowing from \whyprovenance{}, \watprovenance{}
+incorporates system semantics to produce the actual causes of a particular
+event, rather than a conservative overapproximation.
 
 More formally, we consider a state machine $M = (S, s_0, \Sigma, \Lambda,
 \delta, \epsilon)$, a trace $T \in \Sigma^*$, and a particular input $i \in
@@ -123,7 +123,8 @@ examples, ultimately leading to the definition of \watprovenance{}.
   to our $\kvget(x)$ request, so we shouldn't include it as a cause of our
   output. Thus, we revise our earlier observation; \textbf{the cause of an
   ouput $o$ is a subtrace of the input that is sufficient to generate $o$ and
-  also minimal}.
+  is also in some sense minimal}. We will define minimality more carefully
+  below.
 \end{example}
 
 \begin{example}\examplelabel{WatExampleFormulas}
@@ -200,8 +201,8 @@ but colloquially discuss \watprovenance{} with respect to the corresponding
 output $o$.
 
 \subsection{Can I Get a Witness?}
-We now provide a few more simple examples of \watprovenance{} to illustrate the
-definition. In \secref{BlackBoxes}, we describe the \watprovenance{} of
+We now provide a few more simple examples of \watprovenance{} to illustrate
+the definition. In \secref{WatProvSpecs}, we describe the \watprovenance{} of
 realistic servers such as Redis, Zookeeper, and S3.
 
 \begin{example}\examplelabel{WatExampleXyx}
@@ -213,7 +214,7 @@ realistic servers such as Redis, Zookeeper, and S3.
     T = a_1 a_2 a_3 = \Mset(x, 1); \Mset(x, 2); \Mset(x, 1)
   \]
   and the input $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 1$. To compute
-  $\Wat{M, T, i}$ (the \watprovenance{} of $i$), we first compute $\Wit{M, T,
+  $\Wat{M, T, i}$ (the \watprovenance{} of $o$), we first compute $\Wit{M, T,
   i}$ (the witnesses of $o$ that are closed under supertrace in $T$).
 
 
@@ -250,7 +251,7 @@ realistic servers such as Redis, Zookeeper, and S3.
   and the request $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 42$.
 
   Again, we compute $\Wit{M, T, i}$. $T$ suffices to generate $o$, and $T$
-  doesn't have any supertraces in $T$, so it is trivially closed under
+  doesn't have any proper supertraces in $T$, so it is trivially closed under
   supertrace in $T$. Thus, $T \in \Wit{M, T, i}$.
   %
   $T_1 = a_1 = \Mset(x, 42)$ is the only other witness of $o$, but $T_1$ is not
@@ -260,11 +261,12 @@ realistic servers such as Redis, Zookeeper, and S3.
   Thus, $\Wit{M, T, i} = \Wat{M, T, i} = \set{T}$.
 
   Note that we first compute the witnesses that are closed under supertrace in
-  $T$ and then remove the non-minimal elements. Imagine instead that we first
-  compute the minimal witnesses and then remove the elements that are not
-  closed under supertrace in $T$. We find that the sole minimal witness of $o$
-  is $T_1$. Then, we filter out $T_1$ because, as we just saw, it is not closed
-  under supertrace in $T$. This leaves us with an empty \watprovenance{}!
+  $T$ and then remove the non-minimal elements. Imagine instead if we had first
+  computed the minimal witnesses and then removed the elements that were not
+  closed under supertrace in $T$. We would have found that the sole minimal
+  witness of $o$ was $T_1$. Then, we would have filtered out $T_1$ because, as
+  we just saw, it is not closed under supertrace in $T$. This would leave us
+  with an empty \watprovenance{}!
 \end{example}
 
 \begin{example}\examplelabel{WatExampleSetDiff}
@@ -332,7 +334,7 @@ empty.
 Otherwise $t \in Q(I)$ and $o$ returns true. Consider a witness $T' \in \Wat{M,
 T, i}$. $T'$ suffices to generate $o$, so the corresponding instance $I'$
 suffices to generate $t$. Moreover, because $Q$ is monotone and $T$ does not
-contain any deletions, every witness $T'$ is closed under supertrace in $T'$.
+contain any deletions, every witness $T'$ is closed under supertrace in $T$.
 Thus, $T'$ (and hence $I'$) is a minimal witness. The proof of the
 converse---showing that every $I' \in \MWhy{Q, I, t}$ has a corresponding
 subtrace $T' \in \Wat{M, I, t}$---is almost identical.
