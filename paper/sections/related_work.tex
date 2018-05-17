@@ -90,9 +90,11 @@ Stardust~\cite{thereska2006stardust} allow programmers to trace messages
 through large and complex distributed systems that span multiple nodes and
 administrative domains. These traces enable programmers to answer many useful
 debugging questions (e.g.\ ``When a client issues a request, which nodes are
-contacted before a reply is returned?''). However, the fundamental distinction
-between distributed traces and \watprovenance{} is that distributed traces do
-not carry historical information that link prior inputs to present outputs.
-For example, traces may show you which clients contacted a key-value store and
-when, but they will not show you which requests wrote the values that later
-requests read back.
+contacted before a reply is returned?''). Moreover, distributed tracing tools
+like Dapper implement a number of optimizations to reduce the performance and
+storage overheads of trace collection which we have not yet implemented in
+\fluent{}.  The fundamental distinction between distributed traces and
+\watprovenance{} is that distributed traces do not carry historical information
+that link prior inputs to present outputs.  For example, traces may show you
+which clients contacted a key-value store and when, but they will not show you
+which requests wrote the values that later requests read back.
