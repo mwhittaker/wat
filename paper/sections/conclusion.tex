@@ -1,27 +1,27 @@
-\section{Discussion}\seclabel{Discussion}
-In \secref{WatProvSpecs}, we showed how easy it was to write shims for a
-variety of common black box components.  In return for this modest investment,
-\fluent{}  allowed programmers to ask and answer debugging questions that span
-node boundaries and involve mutable state that changes over time.  It is
-tempting to ask if we can take the idea further.  If our components are written
-in a language amenable to provenance collection, could we infer their black box
-specifications automatically?  Or, better still, could we obtain richer
-provenance that explains not just which input tuples contributed to an output
-tuple, but precisely how?  While black box provenance helps take a distributed
-debugging problem and narrow it down to debugging a single component, this
-``white box'' approach would allow us to identify and repair bugs inside
-components.
+\section{On Automatic \WatProvenance{} Extraction}\seclabel{Discussion}
+In \secref{WatProvSpecs}, we saw how easy it is to write shims for a variety of
+common black box components. In return for this modest investment, \fluent{}
+allows programmers to ask and answer debugging questions that span node
+boundaries and involve mutable state that changes over time. It is tempting to
+ask if we can take the idea further. If our components are written in a
+language amenable to provenance collection, can we infer their \watprovenance{}
+specifications automatically? Or, better still, can we obtain a form of
+provenance even richer than \watprovenance{}: one that explains not just
+\emph{which} input tuples contribute to an output tuple, but also precisely
+\emph{how}?
 
-Unfortunately, automatically capturing white box WAT provenance seems elusive.
-Provenance-enhanced distributed logic programming languages such as NDLog and
-Dedalus each expose a form of why-provenance that accounts for state that
-changes over time.  In NDLog, effectful events such as the addition, deletion
-or update of records are reified into the provenance graph.  In Dedalus,
-logical time is reified into all of the records.  These custom representations
-of provenance in time, while not formalized, are similar in spirit to WAT
-provenance.  It turns out, however, that they are not equivalent to
+Unfortunately, automatically extracting \watprovenance{} remains elusive, even
+for state machines written in a restricted language. Take for example
+provenance-enhanced distributed logic programming languages such as
+NDLog~\cite{loo2006design} and Dedalus~\cite{alvaro2011dedalus}. Each expose a
+form of \whyprovenance{} that accounts for state that changes over time. In an
+NDLog program, effectful events---such as the addition, deletion, or update of
+records---are reified into the program's provenance graph. In Dedalus, logical
+time is reified into all of the tuples. These custom representations of
+provenance in time, while not formalized, are similar in spirit to
+\watprovenance{}. It turns out, however, that they are \emph{not} equivalent to
 it---neither Dedalus nor NDLog provenance necessarily identify minimal
-witnesses.  The underlying issue is the problem of \emph{negative provenance}
+witnesses. The underlying issue is the problem of \defword{negative provenance}
 or the provenance of non-answers~\cite{chapman2009whynot,huang2008nonanswers},
 which remains an open issue in the database research community.
 
@@ -30,57 +30,59 @@ which remains an open issue in the database research community.
 \newcommand{\freeze}{\text{freeze}}
 \newcommand{\trunc}{\text{trunc}}
 
-Consider the KVS state machine presented in \exampleref{WatExampleKvs},
-extended to support two new calls.   \texttt{freeze} makes the existing set of
-keys and values immutable, while \texttt{trunc} deletes all of the keys and
-values (provided that \texttt{freeze} has not been called.)  Now consider the
-trace
-
+Consider the key-value state machine presented in \exampleref{WatExampleKvs},
+extended to support two new requests. freeze makes the existing set of keys and
+values immutable, while trunc deletes all of the keys and values (provided that
+freeze has not already been called). Now consider the trace
 \[
-  T = a_1 a_2 a_3 = \kvset(x,1), \freeze, \trunc
+  T = a_1 a_2 a_3 = \kvset(x,1); \freeze; \trunc
 \]
+The \watprovenance{} of $i = \kvget(x)$ is the singleton set $\set{a_1a_2}$
+consisting of the single witness $a_1a_2$. But explaining why $a_2$ is part of
+this witness requires reasoning about non-answers: $x$ had the value $1$ both
+because of $a_1$ (which inserted the value into the store) and because $a_3$
+had no effect (due to the action of $a_2$, without which $a_3$ would have
+removed the effects of $a_1$!). If the state machine was written in a language
+such as NDLog or Dedalus, implementing it would require the use of logical
+negation (in fact, \exampleref{WatExampleXyx} through
+\exampleref{WatExampleSetDiff} all require nonmonotonic logic), and
+explanations of its outputs would require both positive and negative
+provenance.  Explaining why a particular event \emph{did not occur} is
+intractable in general, as the explanation may be infinitely large.  Existing
+techniques for collecting negative provenance apply heuristics that (finitely)
+over-approximate the why provenance of non-answers. For example, Dedalus
+provenance would determine that the provenance of $i$ is $\set{a_1a_2a_3}$.
 
-The WAT provenance of $i = \kvget(x)$ is $\{a_1, a_2\}$.  But explaining why
-$a_2$ is part of the witness set requires reasoning about non-answers: $x$ had
-the value $1$ both because of $a_1$, which inserted the value into the store,
-and because $a_3$ had no effect (due to the action of $a_2$, without which
-$a_3$ would have removed the effects of $a_1$!) If the state machine was
-written in a language such as NDLog or Dedalus, implementing it would require
-the use of logical negation (in fact,
-\exampleref{WatExampleXyx}-\exampleref{WatExampleSetDiff} all require
-nonmonotonic logic) and explanations of its outputs would require both positive
-and negative provenance.  Explaining why a particular event \emph{did not
-occur} is intractable in general, as the explanation may be infinitely large.
-Existing techniques for collecting negative provenance apply heuristics that
-(finitely) over-approximate the why provenance of non-answers.  For example,
-Dedalus provenance would determine that the provenance of $i$ is $\{a_1, a_2,
-a_3\}$.
-
+\newcommand{\dedalusplus}{Dedalus$^+$}
 We could, of course, constrain the programming language to rule out the
 complication of negative provenance.  The language
-Dedalus+\cite{marczak2012confluence} is the positive fragment of Dedalus, in
-which negation is not permitted (except on base relations).    Programs written
-in Dedalus+ generate positive why-provenance graphs whose leaves correspond
-exactly with the WAT provenance of the given execution. Unfortunately, Dedalus+
-is not adequately expressive to implement arbitrary stateful distributed
-services.  The CALM theorem~\cite{alvaro2011consistency,ameloot2013transducers}
-guarantees that Dedalus+ programs produce deterministic outputs under all input
-orders \emph{precisely because} those programs do not use negation.  By the
-same token, programs whose outputs are (by definition) influenced by their
-input orders---such as key/value stores, file systems and object stores,
-caches, etc---cannot be implemented in a logic language without using negation!
+\dedalusplus~\cite{marczak2012confluence} is the positive fragment of Dedalus,
+in which negation is not permitted (except on base relations). Programs written
+in \dedalusplus{} generate positive \whyprovenance{} graphs whose leaves
+correspond exactly with the \watprovenance{} of the given execution.
+Unfortunately, \dedalusplus{} is not adequately expressive to implement
+arbitrary stateful distributed services. The CALM
+theorem~\cite{alvaro2011consistency,ameloot2013transducers} guarantees that
+\dedalusplus{} programs produce deterministic outputs under all input orders
+\emph{precisely because} those programs do not use negation. By the same token,
+programs whose outputs are (by definition) influenced by their input
+orders---such as key/value stores, file systems and object stores, caches,
+etc---cannot be implemented in a logic language without using negation!
 
-In short, fully automatic collection of WAT provenance for general-purpose
-systems seems tricky, but programmer-assisted WAT provenance IS A-OK.  For
-consistent-by-construction systems written in monotonic logic languages,
-\fluent{} can automatically extract rich WAT provenance and compose it
-provenance obtained from black box specifications.  For systems written in
-arbitrary provenance-enhanced languages, \fluent{} can collect non-minimal
-witness sets to assist in intra-component debugging.  For a small additional
-investment, a programmer can supply a black box specification to filter the
-irrelevant witnesses, getting the best of both worlds.
+In short, fully automatic collection of \watprovenance{} for general-purpose
+systems seems tricky, but programmer-assisted \watprovenance{} specifications
+are often simple to write.  For consistent-by-construction systems written in
+monotonic logic languages, \fluent{} can automatically extract rich
+\watprovenance{} and compose it with the provenance obtained from
+\watprovenance{} specifications.  For systems written in arbitrary
+provenance-enhanced languages (e.g., NDLog, Dedalus), \fluent{} can collect
+non-minimal witnesses to assist in intra-component debugging. For a small
+additional investment, a programmer can supply a \watprovenance{} specification
+to filter the irrelevant witnesses, getting the best of both worlds. As future
+work, we plan to continue efforts to design of an expressive programming
+language for which we can automatically extract \watprovenance{}.
 
-\todo{joe wants better wrapup here!}
+% \todo{joe wants better wrapup here!}
 
 \section{Conclusion}\seclabel{Conclusion}
 This paper identified inadequacies in existing formalisms that are used to
