@@ -145,7 +145,7 @@ query includes non-monotone constructs like set difference or aggregation that a
 the scope of \whyprovenance{}, the \watprovenance{} specification becomes even
 more challenging to write.
 
-\jmh{I find that this paragraph is an unsatisfying response to the prior paragraph -- it really doesn't help with the case of relational databases or other ``wide'' APIs that are tantamount to nested DSLs.  I'd decouple the 2 points below from the example above, and respond to the example above with a different argument.}
+\jmh{I find that this paragraph is an unsatisfying response to the prior paragraph -- it really doesn't help with the case of relational databases or other ``open-ended'' APIs involving nested DSLs.  I'd decouple the 2 points below from the example above, and respond to the example above with a different argument.}
 Fortunately, we can take some steps to mitigate the difficulty of writing
 complex \watprovenance{} specifications.  First, the effort of writing a
 \watprovenance{} specification need not be duplicated. Black boxes like Redis
@@ -186,7 +186,7 @@ nondeterministic state machines as an interesting avenue for future work.
 
 \paragraph{Buggy Black Boxes}
 We have thus far tacitly assumed that common black boxes like Redis faithfully
-implement their advertised interfaces. However, if a black box is buggy and
+implement their advertised interfaces. \jmh{I'm still unhappy with this framing. The issue you're really describing here is whether the \watprovenance{} spec is faithful to the implementation. If not there are two possible problems: the spec is wrong, or the implementation is wrong (e.g., has unintended bugs).} However, if a black box is buggy and
 deviates from its expected behavior, then a \watprovenance{} specification will
 likely produce erroneous provenance. Fortunately, black box bugs are relatively
 rare (at least compared to the frequency of bugs in application-specific code
