@@ -51,7 +51,7 @@ SPADE. We did \emph{not} compile the Redis client with LLVM instrumentation, so
 SPADE did \emph{not} trace the function calls of the client. We then ran our
 simple Redis workload. SPADE produced a provenance graph with 399,916 vertices
 and 718,848 edges! A sample of the information stored in these vertices is
-shown in \figref{SyscallProv}.
+shown in \figref{LLvmProv}.
 
 This provenance has two shortcomings. The first is immediate; the provenance
 includes an overwhelming amount of information. A single set and get request
@@ -162,14 +162,14 @@ Box plots of these throughput measurements are shown in \figref{Shims}.
   \centering
   \begin{subfigure}[b]{\columnwidth}
     \centering
-    \includegraphics[width=0.7\columnwidth]{figures/redis_shim.pdf}
+    \includegraphics[width=0.8\columnwidth]{figures/redis_shim.pdf}
     \caption{Redis throughput}
     \figlabel{RedisShim}
   \end{subfigure}
-
+  %
   \begin{subfigure}[b]{\columnwidth}
     \centering
-    \includegraphics[width=0.7\columnwidth]{figures/s3_shim.pdf}
+    \includegraphics[width=0.8\columnwidth]{figures/s3_shim.pdf}
     \caption{S3 throughput}
     \figlabel{S3Shim}
   \end{subfigure}%

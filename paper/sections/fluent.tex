@@ -13,29 +13,27 @@ In order to write a \watprovenance{} specification for a black box, a developer
 must first wrap the black box in a \fluent{} shim, as illustrated in
 \figref{FluentShim}. A shim acts as proxy, intercepting all inbound requests
 sent to a black box and all outbound replies produced by a black box. \fluent{}
-shims provide two key pieces of functionality:
-\begin{enumerate}
-  \item
-    \fluent{} shims are responsible for recording the trace $T$ of requests
-    that are sent to a black box, as well as the corresponding replies produced
-    by the black box. These traces are later used as the inputs to
-    \watprovenance{} specifications.  Currently, \fluent{} shims persist traces
-    in a relational database.
+shims provide two key pieces of functionality.
 
-  \item
-    \fluent{} shims implement a simple distributed tracing service. Whenever a
-    \fluent{} shim receives a request, it records the address of the message's
-    \emph{sender} along with the request. Similarly, whenever a \fluent{} shim
-    sends a request, it records the address of the message's \emph{destination}.
-    %
-    This enables a developer to integrate the \watprovenance{} of multiple
-    black boxes within a distributed system. To find the cause of a particular
-    black box output, we invoke the black box's \watprovenance{} specification.
-    The specification returns the set of witnesses that cause the output. Then,
-    we can trace a request in a witness back to the black box that sent it and
-    repeat the process, invoking the sender's \watprovenance{} specification to
-    get a new set of witnesses.
-\end{enumerate}
+First, \fluent{} shims are responsible for recording the trace $T$ of requests
+that are sent to a black box, as well as the corresponding replies produced by
+the black box. These traces are later used as the inputs to \watprovenance{}
+specifications.  Currently, \fluent{} shims persist traces in a relational
+database.
+
+Second, \fluent{} shims implement a simple distributed tracing service.
+Whenever a \fluent{} shim receives a request, it records the address of the
+message's \emph{sender} along with the request. Similarly, whenever a \fluent{}
+shim sends a request, it records the address of the message's
+\emph{destination}.
+%
+This enables a developer to integrate the \watprovenance{} of multiple black
+boxes within a distributed system. To find the cause of a particular black box
+output, we invoke the black box's \watprovenance{} specification.  The
+specification returns the set of witnesses that cause the output. Then, we can
+trace a request in a witness back to the black box that sent it and repeat the
+process, invoking the sender's \watprovenance{} specification to get a new set
+of witnesses.
 
 After a user has written a black box's shim, they can write the black box's
 \watprovenance{} specification. \fluent{} \watprovenance{} specifications are

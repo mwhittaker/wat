@@ -22,24 +22,13 @@ in to \systemname{} and sees Ava's mean comment!
 
 {\input{figures/mean_comment}}
 
-Why did this happen? Here's an informal account.
-\begin{itemize}
-  \item
-    Ava's request to unfriend Bob was forwarded to application server $s_1$ by
-    the load balancer.
-  \item
-    Then, Ava's request to post the mean comment about Bob was forwarded to
-    $s_2$.
-  \item
-    $s_2$ then pushed the comment to the Postgres repository.
-  \item
-    $s_3$ then issued a SQL query to the Postgres repository, pulling the
-    latest data into its Redis cache. In doing so, it pulled in Ava's mean
-    comment.
-  \item
-    Finally, when Bob logged in, his request was forwarded to $s_3$ which
-    returned the mean comment.
-\end{itemize}
+Why did this happen? Here's an informal account. Ava's request to unfriend Bob
+was forwarded to application server $s_1$ by the load balancer.  Then, Ava's
+request to post the mean comment about Bob was forwarded to $s_2$.  $s_2$ then
+pushed the comment to the Postgres repository.  $s_3$ then issued a SQL query
+to the Postgres repository, pulling the latest data into its Redis cache. In
+doing so, it pulled in Ava's mean comment.  Finally, when Bob logged in, his
+request was forwarded to $s_3$ which returned the mean comment.
 
 We argue that there is currently no \emph{systematic} way to go about
 discovering this sequence of events. One possibility is to use causality, as

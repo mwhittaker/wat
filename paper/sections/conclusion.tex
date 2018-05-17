@@ -21,11 +21,11 @@ events---such as the addition, deletion, or update of records---are reified
 into the program's provenance graph. In Dedalus, logical time is reified into
 all of the tuples.
 %
-\jmh{%
-  Peter -- can you reword the notions of reification here? In Dedalus it's
-  ``recorded as an attribute in every tuple''. In NDlog/DistTape, what is it
-  precisely -- events are recorded as data tuples added to the system state?
-}
+% \jmh{%
+%   Peter -- can you reword the notions of reification here? In Dedalus it's
+%   ``recorded as an attribute in every tuple''. In NDlog/DistTape, what is it
+%   precisely -- events are recorded as data tuples added to the system state?
+% }
 %
 These custom representations of provenance in time, while not formalized, are
 similar in spirit to \watprovenance{}. It turns out, however, that they are
@@ -76,22 +76,15 @@ theorem~\cite{alvaro2011consistency,ameloot2013transducers} shows that
 programs produce a single consistent output under all input orders
 if and only if those programs do not use negation in their logic. Therefore
 programs whose outputs are (by definition) dependent upon their input
-orders---such as mutable key/value stores, file systems and object stores, caches,
-etc---cannot be implemented in a logic language \emph{without} using negation! Negative provenance is requirement for capturing the semantics of typical stateful services.
+orders---such as mutable key/value stores, file systems and object stores,
+caches, etc---cannot be implemented in a logic language \emph{without} using
+negation! Negative provenance is requirement for capturing the semantics of
+typical stateful services.
 
 In short, fully automatic collection of \watprovenance{} for general-purpose
-systems seems tricky, even though programmer-assisted \watprovenance{}
-specifications are often simple to write.  For consistent-by-construction
-systems written in monotonic logic languages, \fluent{} can automatically
-extract rich \watprovenance{} and compose it with the provenance obtained from
-\watprovenance{} specifications.  For systems written in arbitrary
-provenance-enhanced languages (e.g., NDLog, Dedalus), \fluent{} can collect
-non-minimal witnesses to assist in intra-component debugging. For a small
-additional investment, a white-box programmer can supply a \watprovenance{}
-specification to filter the irrelevant witnesses. As future work, we plan to
-continue efforts to design of an expressive programming language for which we
-can automatically extract \watprovenance{} with a minimum of programmer
-assistance.
+systems seems tricky. As future work, we plan to continue efforts to design of
+an expressive programming language for which we can automatically extract
+\watprovenance{} with a minimum of programmer assistance.
 
 \section{Conclusion}\seclabel{Conclusion}
 This paper identified inadequacies in existing formalisms that are used to
