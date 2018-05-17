@@ -94,8 +94,8 @@ or HDFS. A \watprovenance{} specification of a request to read a byte range
 from a file includes the most recent creation of the file, the most recent
 creation of the parent directories of the file, and the most recent writes that
 overlap with the requested byte range. If the file was created by moving
-another file, then the \watprovenance{} specification \jmh{also includes the provenance of the file that was moved.} may also include writes
-to the moved file.
+another file, then the \watprovenance{} specification also includes the
+provenance of the file that was moved.
 
 \paragraph{Coordination Services}
 Systems use coordination services like Apache
@@ -140,34 +140,37 @@ However, not \emph{every} black box has a simple provenance specification. Take
 for example, a relational database where users can insert tuples and issue
 queries (as with \exampleref{WatExampleSetDiff}). As \thmref{WatSubsumesWhy}
 shows, writing a \watprovenance{} specification for a particular query is
-tantamount to specifying the \whyprovenance{} of the query. Worse, if the
-query includes non-monotone constructs like set difference or aggregation that are beyond
-the scope of \whyprovenance{}, the \watprovenance{} specification becomes even
-more challenging to write.
+tantamount to specifying the \whyprovenance{} of the query. Worse, if the query
+includes non-monotone constructs like set difference or aggregation that are
+beyond the scope of \whyprovenance{}, the \watprovenance{} specification
+becomes even more challenging to write.
 
-\jmh{I find that this paragraph is an unsatisfying response to the prior paragraph -- it really doesn't help with the case of relational databases or other ``open-ended'' APIs involving nested DSLs.  I'd decouple the 2 points below from the example above, and respond to the example above with a different argument.}
-Fortunately, we can take some steps to mitigate the difficulty of writing
-complex \watprovenance{} specifications.  First, the effort of writing a
-\watprovenance{} specification need not be duplicated. Black boxes like Redis
-are written by a handful of developers but used by thousands of others.
-Provenance specifications are no different. Once a single developer writes a
-provenance specification for a particular black box, all other users of the
-black box can leverage it.
+Fortunately, we can mitigate (though not completely eliminate) some of the
+difficulties of writing complex \watprovenance{} specifications using a simple
+yet effective technique we call \defword{exhaustive \watprovenance{} checking}:
+a mechanism for unit testing provenance specifications. Informally, we can
+directly compute the \watprovenance{} for a particular request with respect to
+trace $T$ by exhaustively enumerating every possible subtrace of $T$ and
+checking if it is a witness. Formally, given a state machine $M$ with start
+state $s_0$, a trace $T$, and an input $i$, we can automatically compute the
+\watprovenance{} of $i$ by exhaustively computing $\epsilon^*(s_0, T'i)$ for
+every subtrace $T'$ of $T$. Doing so, we can automatically compute the
+\watprovenance{} of a particular request and verify that it matches the
+\watprovenance{} produced by a provenance specification. Even with exhaustive
+\watprovenance{} checking, complex \watprovenance{} specifications can be
+challenging to write. But, exhaustive \watprovenance{} checking enables a
+developer to find subtle bugs that are otherwise difficult to discover.  Also
+note that exhaustive \watprovenance{} checking runs in superexponential time
+with respect to the length of $T$, so it is effective for small unit tests but
+impractical for computing the \watprovenance{} of real-world traces.
 
-Furthermore, there is a simple yet effective way to unit test provenance
-specifications that we call \defword{exhaustive \watprovenance{} checking}.
-Informally, we can compute the \watprovenance{} for a particular request by
-exhaustively enumerating every possible subtrace and checking if it is a
-witness. Formally, given a state machine $M$ with start state $s_0$, a trace
-$T$, and an input $i$, we can automatically compute the \watprovenance{} of $i$
-by exhaustively computing $\epsilon^*(s_0, T'i)$ for every subtrace $T'$ of
-$T$. Doing so, we can automatically compute the \watprovenance{} of a
-particular request and verify that it matches the \watprovenance{} produced by
-a provenance specification. Unfortunately, this technique runs in
-superexponential time with respect to the length of $T$, so it is effective for
-small unit tests but impractical for computing the \watprovenance{} of
-real-world traces.
-% \jmh{Perhaps reference the ``small-scope hypothesis''?}
+Moreover, we can also take steps to mitigate \emph{redundantly} writing complex
+\watprovenance{} specifications.  The effort of writing a \watprovenance{}
+specification need not be duplicated. Black boxes like Redis are written by a
+handful of developers but used by thousands of others.  Provenance
+specifications are no different. Once a single developer writes a provenance
+specification for a particular black box, all other users of the black box can
+leverage it.
 
 \subsection{Limitations}
 Automatically inferring the \watprovenance{} of a black box is intractable, and
@@ -185,12 +188,15 @@ generalization of \watprovenance{} and \watprovenance{} specifications to
 nondeterministic state machines as an interesting avenue for future work.
 
 \paragraph{Buggy Black Boxes}
-We have thus far tacitly assumed that common black boxes like Redis faithfully
-implement their advertised interfaces. \jmh{I'm still unhappy with this framing. The issue you're really describing here is whether the \watprovenance{} spec is faithful to the implementation. If not there are two possible problems: the spec is wrong, or the implementation is wrong (e.g., has unintended bugs).} However, if a black box is buggy and
-deviates from its expected behavior, then a \watprovenance{} specification will
-likely produce erroneous provenance. Fortunately, black box bugs are relatively
-rare (at least compared to the frequency of bugs in application-specific code
-written from scratch).
+There are two conditions under which a \watprovenance{} specifications returns
+incorrect provenance for a particular state machine: the specification is
+incorrect or the state machine is incorrect. We have thus far tacitly
+assumed that common black boxes like Redis are correct and faithfully implement
+their advertised interfaces.  However, if a black box is buggy and deviates
+from its expected behavior, then a \watprovenance{} specification will produce
+erroneous provenance. Fortunately, black box bugs are relatively rare (at least
+compared to the frequency of bugs in application-specific code written from
+scratch).
 %
 Moreover, if we have confidence in the correctness of a \watprovenance{}
 specification, then we can use exhaustive \watprovenance{} checking on small

@@ -68,7 +68,7 @@ SPADE server.
 Finally, we ran our workload with \fluent{}. The \fluent{} \watprovenance{}
 specification for Redis get requests is given in
 \figref{ConcreteRedisProvSpec}. The Redis shim is 75 lines of C++.  \fluent{}
-produced eight data entries \jmh{``data entry'' is a weird way to describe units of provenance description.  How about ``input events from the system trace''?  BTW, this terminology suggests an obvious framing for the next sentence (and maybe the intro): \watprovenance{} produces relevant inputs to the black box, while Spade produces low-level activities from \emph{within} the box}: a get and set request and response on both the
+produced eight trace entries: a get and set request and response on both the
 Redis client and the Redis server. This is four orders of magnitude more
 succinct that the SPADE provenance produced by LLVM instrumentation. Moreover,
 applying Redis' \watprovenance{} specification to the get request, it returns
@@ -89,11 +89,11 @@ example, compile-time instrumentation is a technique that can be applied to any
 executable.  Unfortunately, the generality of these approaches causes them to
 produce provenance that is too voluminous and too low-level. \Watprovenance{}
 specifications sidestep this generality and instead have a developer directly
-specify the \watprovenance{} of particular black box.  As a result,
+specify the \watprovenance{} of particular black box. As a result,
 \watprovenance{} specifications can produce much higher-level provenance that
-is significantly more succinct.  And, because many black boxes have simple
-interfaces, these \watprovenance{} specifications are, in practice, easy to
-write.
+is significantly more succinct. \watprovenance{} produces only the relevant
+inputs to a black box, while Spade produces all the low-level activities that
+occur \emph{within} the black box.
 
 {\input{figures/prov_sizes}}
 
@@ -101,22 +101,23 @@ write.
 In \secref{WatProvSpecs}, we described the \watprovenance{} specifications for
 a number of commonly used distributed systems components such as Redis, Amazon
 Z3, etc. We implemented \fluent{} \watprovenance{} specifications for Redis, a
-file system \jmh{can you be more specific, e.g. ``the POSIX filesystem API''?}, Amazon S3, and Zookeeper. In \tabref{ProvSpecLengths}, we list the
-language in which each provenance specification is written, the lines of code
-required to write each specification, and the API supported by each
-specification. All of the provenance specifications are relatively short, and
-we found that writing the specifications was straightforward.
+subset of the POSIX file system API, Amazon S3, and Zookeeper. In
+\tabref{ProvSpecLengths}, we list the language in which each provenance
+specification is written, the lines of code required to write each
+specification, and the API supported by each specification. All of the
+provenance specifications are relatively short, and we found that writing the
+specifications was straightforward.
 
 \begin{table}[t]
   \caption{\fluent{} \watprovenance{} specifications}
   \tablabel{ProvSpecLengths}
   \begin{tabular}{lllp{3.9cm}}
     \toprule
-    System      & Language & LOC & Supported API                                                         \\\midrule
-    Redis       & SQL      & 30  & set, del, append, incr, decr, incrby, decrby, strlen                  \\
-    File system & Python   & 88  & reads and writes of byte ranges                                       \\
-    Amazon S3   & Python   & 200 & creating, copying, catting, removing, and listing objects and buckets \\
-    Zookeeper   & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
+    System    & Language & LOC & Supported API                                                         \\\midrule
+    Redis     & SQL      & 30  & set, del, append, incr, decr, incrby, decrby, strlen                  \\
+    POSIX     & Python   & 88  & reads and writes of byte ranges                                       \\
+    Amazon S3 & Python   & 200 & creating, copying, catting, removing, and listing objects and buckets \\
+    Zookeeper & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -126,7 +127,7 @@ We now measure the performance overheads of \fluent{} shims. \fluent{} shims
 increase the latency and reduce throughput of black boxes for two reasons.
 First, there is a latency overhead in proxying messages to and from a black
 box. Second, there is a latency overhead in persisting the messages to a
-relational database.  Some of these overheads can be avoided \jmh{mitigated}---e.g., \fluent{}
+relational database.  Some of these overheads can be mitigated---e.g., \fluent{}
 shims buffer messages in memory and only periodically persist them to a
 relation database---but some overhead is unavoidable.
 
@@ -185,11 +186,11 @@ a \fluent{} shim that does not persist messages, the throughput drops to an
 average of 3111 set requests per second (with a standard deviation of 225).
 When Redis is wrapped with a fully functional shim, its throughput drops to
 2676 set request per second. These large decreases in throughput are expected.
-Redis is a lightweight system, and the time it takes to service a single \jmh{minimalist two-byte} set
-request is very low. Thus, even small overheads can significantly decrease
-throughput.  While these overheads are fundamental to our shim-based approach,
-they will likely decrease as we continue to optimize \fluent{}'s prototype
-implementation.
+Redis is a lightweight system, and the time it takes to service a single
+minimalist two-byte set request is very low. Thus, even small overheads can
+significantly decrease throughput.  While these overheads are fundamental to
+our shim-based approach, they will likely decrease as we continue to optimize
+\fluent{}'s prototype implementation.
 
 % (24.222414999999998 , 14.674786717547207)
 % (22.34917           , 15.440412655172143)

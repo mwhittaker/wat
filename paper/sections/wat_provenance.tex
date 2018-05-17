@@ -41,20 +41,20 @@ Why did this happen? Here's an informal account.
     returned the mean comment.
 \end{itemize}
 
-We argue that there is no \emph{systematic} way to go about discovering this
-sequence of events. \jmh{That is an odd thing to argue, as you are about to present such a way!  Rephrase to critique prior techniques, but leave open room for a new technique.} One possibility is to use causality, as described in
-\secref{Background}. We could instrument our distributed system to record the
-causal history of every event that takes place in the system. Then, we could
-examine the causal history of Bob's request in an attempt to diagnose why Bob
-was seeing Ava's mean comment. Unfortunately, this is not helpful. The causal
-history of Bob's request includes \emph{every} event that causally precedes it,
-whether or not the event is actually relevant. For example, the causal history
-of Bob's request would include every single message that was received by server
-$s_3$ prior to Bob sending his request, even those that do not involve Ava and
-Bob. The problem is that causality is too coarse-grained. It fails to
-incorporate any notion of a system's semantics as a means to filter out
-irrelevant messages.  Instead, it returns a vast overapproximation of all the
-events that \emph{might} cause an event instead of the events that
+We argue that there is currently no \emph{systematic} way to go about
+discovering this sequence of events. One possibility is to use causality, as
+described in \secref{Background}. We could instrument our distributed system to
+record the causal history of every event that takes place in the system. Then,
+we could examine the causal history of Bob's request in an attempt to diagnose
+why Bob was seeing Ava's mean comment. Unfortunately, this is not helpful. The
+causal history of Bob's request includes \emph{every} event that causally
+precedes it, whether or not the event is actually relevant. For example, the
+causal history of Bob's request would include every single message that was
+received by server $s_3$ prior to Bob sending his request, even those that do
+not involve Ava and Bob. The problem is that causality is too coarse-grained.
+It fails to incorporate any notion of a system's semantics as a means to filter
+out irrelevant messages.  Instead, it returns a vast overapproximation of all
+the events that \emph{might} cause an event instead of the events that
 \emph{actually do} cause an event.
 
 This might prompt us to try and apply ideas from data provenance. Unlike
@@ -94,8 +94,9 @@ More formally, we consider a state machine $M = (S, s_0, \Sigma, \Lambda,
 transitioning to state $s_T = \delta^*(s_0, T)$. It then executes input $i$
 producing output $o = \epsilon^*(s_0, Ti) = \epsilon(s_T, i)$. \Watprovenance{}
 aims to formalize an intuitive notion of \emph{why} the state machine $M$
-produces output $o$ \jmh{when given input $i$}. We build this intuitive notion by way of a sequence of
-examples, ultimately leading to the definition of \watprovenance{}.
+produces output $o$ when given input $i$. We build this intuitive notion by way
+of a sequence of examples, ultimately leading to the definition of
+\watprovenance{}.
 
 \begin{example}\examplelabel{WatExampleKvs}
   \newcommand{\kvset}{\text{set}}
@@ -297,33 +298,31 @@ think about data provenance for state machines.  We now discuss some additional
 properties about \watprovenance{}. In particular, we discuss how
 \watprovenance{} provenance relates to \whyprovenance{} and causality.
 
-\jmh{Consider renaming these ``observations'' or lemmas.}
-\begin{theorem}\thmlabel{Existence}
+\begin{claim}\clmlabel{Existence}
   For every state machine $M$, trace $T$, and input $i$, $\Wat{M, T, i}$ is
   non-empty.
-\end{theorem}
+\end{claim}
 
-\thmref{Existence} is a simple sanity check for our definition of
+\clmref{Existence} is a simple sanity check for our definition of
 \watprovenance{}. It would be odd if something had no provenance at all! The
 proof is trivial. $T$ is always a witness of $o$ that is closed under
 supertrace in $T$. Thus, $\Wit{M, T, i}$ (and hence $\Wat{M, T, i}$) is
 non-empty.
 
 \newcommand{\Min}{\text{in}}
-\begin{theorem}\thmlabel{WatSubsumesWhy}
+\begin{claim}\clmlabel{WatSubsumesWhy}
   Let $M$ be a general relational database state machine (first introduced in
   \exampleref{WatExampleKvs}) that allows for the insertions of tuples and the
-  execution of \jmh{monotone} relational queries \jmh{: queries over the monotone relational algebra operators select, project, join and union}. Let $I$ be an arbitrary database instance,
-  and let $T$ be a trace which inserts every tuple in $I$. Let input $i =
-  \Min(t, Q)$ be an input which returns a boolean that indicates whether tuple
-  $t$ is in $Q(I)$ 
-  \jmh{drop the remainder of sentence}
-  for select, project, join, union relational algebra query $Q$. 
-  Then, viewing a subtrace $T'$ as a subinstance $I' \subseteq I$,
-  $\Wat{M, T, i} = \MWhy{Q, I, t}$.
-\end{theorem}
+  execution of monotone relational queries (i.e. queries composed of the
+  monotone relational algebra operators select, project, join and union). Let
+  $I$ be an arbitrary database instance, and let $T$ be a trace which inserts
+  every tuple in $I$. Let input $i = \Min(t, Q)$ be an input which returns a
+  boolean that indicates whether tuple $t$ is in $Q(I)$.  Then, viewing a
+  subtrace $T'$ as a subinstance $I' \subseteq I$, $\Wat{M, T, i} = \MWhy{Q, I,
+  t}$.
+\end{claim}
 
-In short, \thmref{WatSubsumesWhy} says that \watprovenance{} subsumes
+In short, \clmref{WatSubsumesWhy} says that \watprovenance{} subsumes
 minimal \whyprovenance{}. \Watprovenance{} is defined for an arbitrary state
 machine, and selecting a relational database state machine, we see that minimal
 \whyprovenance{} is just a special case of \watprovenance{}.
