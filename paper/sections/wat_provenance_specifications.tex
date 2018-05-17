@@ -1,5 +1,5 @@
 \section{\WatProvenance{} Specifications}\seclabel{WatProvSpecs}
-Now that we've defined \watprovenance{}, we turn to the matter of computing it.
+Now that we have defined \watprovenance{}, we turn to the matter of computing it.
 
 \subsection{Provenance Specifications}
 Automatically computing the \watprovenance{} for an \emph{arbitrary}
@@ -32,11 +32,11 @@ specification of a \kvget{} request is trivial: \textbf{the \watprovenance{} of
 a \kvget{} request for key $k$ includes only the most recent \kvset{} to
 $k$}. Redis is implemented in over 50,000 lines of C. Analyzing this body of
 code and inferring the \watprovenance{} of a \kvget{} request is infeasible
-using modern program analysis techniques. This \watprovenance{} specification
+using modern program analysis techniques. \Watprovenance{} specification
 avoids this issue entirely and instead specifies the \watprovenance{} in a
 single line of text.
 
-Moreover, codifying this one line \watprovenance{} specification is expectedly
+Moreover, codifying this one-line \watprovenance{} specification is expectedly
 straightforward. \Watprovenance{} specifications can be written in any
 programming language. As a simple example, we provide a Python implementation
 of the one line \watprovenance{} specification In \figref{RedisProvSpec}.  The
@@ -67,7 +67,7 @@ We now survey a variety of popular black boxes and demonstrate that their
 \watprovenance{} specifications are mostly very simple.
 
 \paragraph{Key-Value Stores}
-We've already seen a \watprovenance{} specification for the \kvget{} and
+We have already seen a \watprovenance{} specification for the \kvget{} and
 \kvset{} API of Redis. We can easily extend our \watprovenance{} specification
 to handle more of Redis' API. For example, consider the operations
 \texttt{append}, \texttt{decr}, \texttt{decrby}, \texttt{incr}, and
@@ -94,7 +94,7 @@ or HDFS. A \watprovenance{} specification of a request to read a byte range
 from a file includes the most recent creation of the file, the most recent
 creation of the parent directories of the file, and the most recent writes that
 overlap with the requested byte range. If the file was created by moving
-another file, then the \watprovenance{} specification may also include writes
+another file, then the \watprovenance{} specification \jmh{also includes the provenance of the file that was moved.} may also include writes
 to the moved file.
 
 \paragraph{Coordination Services}
@@ -141,10 +141,11 @@ for example, a relational database where users can insert tuples and issue
 queries (as with \exampleref{WatExampleSetDiff}). As \thmref{WatSubsumesWhy}
 shows, writing a \watprovenance{} specification for a particular query is
 tantamount to specifying the \whyprovenance{} of the query. Worse, if the
-query includes constructs like set difference or aggregation that are beyond
+query includes non-monotone constructs like set difference or aggregation that are beyond
 the scope of \whyprovenance{}, the \watprovenance{} specification becomes even
 more challenging to write.
 
+\jmh{I find that this paragraph is an unsatisfying response to the prior paragraph -- it really doesn't help with the case of relational databases or other ``wide'' APIs that are tantamount to nested DSLs.  I'd decouple the 2 points below from the example above, and respond to the example above with a different argument.}
 Fortunately, we can take some steps to mitigate the difficulty of writing
 complex \watprovenance{} specifications.  First, the effort of writing a
 \watprovenance{} specification need not be duplicated. Black boxes like Redis

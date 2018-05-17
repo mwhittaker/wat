@@ -68,7 +68,7 @@ SPADE server.
 Finally, we ran our workload with \fluent{}. The \fluent{} \watprovenance{}
 specification for Redis get requests is given in
 \figref{ConcreteRedisProvSpec}. The Redis shim is 75 lines of C++.  \fluent{}
-produced eight data entries: a get and set request and response on both the
+produced eight data entries \jmh{``data entry'' is a weird way to describe units of provenance description.  How about ``input events from the system trace''?  BTW, this terminology suggests an obvious framing for the next sentence (and maybe the intro): \watprovenance{} produces relevant inputs to the black box, while Spade produces low-level activities from \emph{within} the box}: a get and set request and response on both the
 Redis client and the Redis server. This is four orders of magnitude more
 succinct that the SPADE provenance produced by LLVM instrumentation. Moreover,
 applying Redis' \watprovenance{} specification to the get request, it returns
@@ -101,7 +101,7 @@ write.
 In \secref{WatProvSpecs}, we described the \watprovenance{} specifications for
 a number of commonly used distributed systems components such as Redis, Amazon
 Z3, etc. We implemented \fluent{} \watprovenance{} specifications for Redis, a
-file system, Amazon S3, and Zookeeper. In \tabref{ProvSpecLengths}, we list the
+file system \jmh{can you be more specific, e.g. ``the POSIX filesystem API''?}, Amazon S3, and Zookeeper. In \tabref{ProvSpecLengths}, we list the
 language in which each provenance specification is written, the lines of code
 required to write each specification, and the API supported by each
 specification. All of the provenance specifications are relatively short, and
@@ -126,7 +126,7 @@ We now measure the performance overheads of \fluent{} shims. \fluent{} shims
 increase the latency and reduce throughput of black boxes for two reasons.
 First, there is a latency overhead in proxying messages to and from a black
 box. Second, there is a latency overhead in persisting the messages to a
-relational database.  Some of these overheads can be avoided---e.g., \fluent{}
+relational database.  Some of these overheads can be avoided \jmh{mitigated}---e.g., \fluent{}
 shims buffer messages in memory and only periodically persist them to a
 relation database---but some overhead is unavoidable.
 
@@ -149,8 +149,7 @@ experiment.
     of the overheads of a \fluent{} shim.
 \end{enumerate}
 
-To measure the throughput of Redis, we have a single client perform small two
-byte set requests to a single key for five seconds. To measure the throughput
+To measure the throughput of Redis, we have a single client perform small two-byte set requests to a single key for five seconds. To measure the throughput
 of S3, we have a single client create, read, and delete 25 objects in a single
 bucket. Each object is 1 KB. We run clients, shims, and black boxes on
 t2.xlarge instances on Amazon EC2. We colocate shims with their black boxes,
@@ -186,7 +185,7 @@ a \fluent{} shim that does not persist messages, the throughput drops to an
 average of 3111 set requests per second (with a standard deviation of 225).
 When Redis is wrapped with a fully functional shim, its throughput drops to
 2676 set request per second. These large decreases in throughput are expected.
-Redis is a lightweight system, and the time it takes to service a single set
+Redis is a lightweight system, and the time it takes to service a single \jmh{minimalist two-byte} set
 request is very low. Thus, even small overheads can significantly decrease
 throughput.  While these overheads are fundamental to our shim-based approach,
 they will likely decrease as we continue to optimize \fluent{}'s prototype

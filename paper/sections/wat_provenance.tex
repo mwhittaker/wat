@@ -42,7 +42,7 @@ Why did this happen? Here's an informal account.
 \end{itemize}
 
 We argue that there is no \emph{systematic} way to go about discovering this
-sequence of events. One possibility is to use causality, as described in
+sequence of events. \jmh{That is an odd thing to argue, as you are about to present such a way!  Rephrase to critique prior techniques, but leave open room for a new technique.} One possibility is to use causality, as described in
 \secref{Background}. We could instrument our distributed system to record the
 causal history of every event that takes place in the system. Then, we could
 examine the causal history of Bob's request in an attempt to diagnose why Bob
@@ -94,7 +94,7 @@ More formally, we consider a state machine $M = (S, s_0, \Sigma, \Lambda,
 transitioning to state $s_T = \delta^*(s_0, T)$. It then executes input $i$
 producing output $o = \epsilon^*(s_0, Ti) = \epsilon(s_T, i)$. \Watprovenance{}
 aims to formalize an intuitive notion of \emph{why} the state machine $M$
-produces output $o$. We build this intuitive notion by way of a sequence of
+produces output $o$ \jmh{when given input $i$}. We build this intuitive notion by way of a sequence of
 examples, ultimately leading to the definition of \watprovenance{}.
 
 \begin{example}\examplelabel{WatExampleKvs}
@@ -122,7 +122,7 @@ examples, ultimately leading to the definition of \watprovenance{}.
   to generate an output of $1$. But, the $\kvset(y, 2)$ request is not relevant
   to our $\kvget(x)$ request, so we shouldn't include it as a cause of our
   output. Thus, we revise our earlier observation; \textbf{the cause of an
-  ouput $o$ is a subtrace of the input that is sufficient to generate $o$ and
+  output $o$ is a subtrace of the input that is sufficient to generate $o$ and
   is also in some sense minimal}. We will define minimality more carefully
   below.
 \end{example}
@@ -251,7 +251,7 @@ realistic servers such as Redis, Zookeeper, and S3.
   and the request $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 42$.
 
   Again, we compute $\Wit{M, T, i}$. $T$ suffices to generate $o$, and $T$
-  doesn't have any proper supertraces in $T$, so it is trivially closed under
+  does not have any proper supertraces in $T$, so it is trivially closed under
   supertrace in $T$. Thus, $T \in \Wit{M, T, i}$.
   %
   $T_1 = a_1 = \Mset(x, 42)$ is the only other witness of $o$, but $T_1$ is not
@@ -297,6 +297,7 @@ think about data provenance for state machines.  We now discuss some additional
 properties about \watprovenance{}. In particular, we discuss how
 \watprovenance{} provenance relates to \whyprovenance{} and causality.
 
+\jmh{Consider renaming these ``observations'' or lemmas.}
 \begin{theorem}\thmlabel{Existence}
   For every state machine $M$, trace $T$, and input $i$, $\Wat{M, T, i}$ is
   non-empty.
@@ -312,11 +313,13 @@ non-empty.
 \begin{theorem}\thmlabel{WatSubsumesWhy}
   Let $M$ be a general relational database state machine (first introduced in
   \exampleref{WatExampleKvs}) that allows for the insertions of tuples and the
-  execution of relational queries. Let $I$ be an arbitrary database instance,
+  execution of \jmh{monotone} relational queries \jmh{: queries over the monotone relational algebra operators select, project, join and union}. Let $I$ be an arbitrary database instance,
   and let $T$ be a trace which inserts every tuple in $I$. Let input $i =
   \Min(t, Q)$ be an input which returns a boolean that indicates whether tuple
-  $t$ is in $Q(I)$ for select, project, join, union relational algebra query
-  $Q$. Then, viewing a subtrace $T'$ as a subinstance $I' \subseteq I$,
+  $t$ is in $Q(I)$ 
+  \jmh{drop the remainder of sentence}
+  for select, project, join, union relational algebra query $Q$. 
+  Then, viewing a subtrace $T'$ as a subinstance $I' \subseteq I$,
   $\Wat{M, T, i} = \MWhy{Q, I, t}$.
 \end{theorem}
 

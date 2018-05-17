@@ -1,4 +1,5 @@
 \section{Introduction}\seclabel{Introduction}
+\jmh{Consider hyphenating ``why-provenance'' throughout -- reduces ambiguity in parsing. The Cheney survey does that. You may also choose to hyphenate ``wat-provenance'' for uniformity.}
 Debugging distributed systems is hard. Traditional debugging techniques are
 poorly suited to distributed systems in which bugs arise due to chains of logic
 that often span multiple concurrent nodes connected by an unreliable network that can
@@ -39,13 +40,13 @@ file systems, coordination services, etc.).
 In short, \textbf{causality lacks a notion of data dependence, and data
 provenance lacks a notion of time}. In this paper, we present
 \defword{\watprovenance{}} (why-across-time provenance): a novel form of data
-provenance that unifies the two. \Watprovenance{} generalizes \whyprovenance{}
+provenance that unifies the two \jmh{``unifies ideas from both traditions''? ``inspired by both''?}. \Watprovenance{} generalizes \whyprovenance{}
 from the domain of relational queries issued against a static database to the
 domain of arbitrary time-varying state machines in a distributed system. More
 specifically, given a deterministic state machine, the sequence of inputs that
 the state machine has processed, and a particular input to the state machine,
 \watprovenance{} formalizes \emph{why} the state machine produces the output
-that it does. This description includes a set of subsets of the input trace
+that it does. This description includes a set of subsets \jmh{subsequences} of the input trace
 that are both necessary and sufficient to generate the output in question.
 Borrowing from causality, \watprovenance{} can be applied to time-varying state
 machines. Borrowing from \whyprovenance{}, \watprovenance{} incorporates state
@@ -53,8 +54,10 @@ machine semantics to avoid overapproximating provenance and instead returns
 \emph{precisely} the inputs that cause a particular output.
 
 After we define \watprovenance{}, we turn to the matter of computing it. We
-find that automatically extracting the \watprovenance{} of an arbitrary state
-machine is intractable (at best) or impossible (at worst). In the best case,
+find \jmh{observe} that automatically extracting the \watprovenance{} of an arbitrary state
+machine is intractable (at best) or impossible (at worst). 
+\jmh{The previous sentence is an odd construction. It could be read as talking about a property of \emph{arbitrary} state machines (which would be a worst-case argument). But then it talks about ``at best'' and ``at worst''.  That doesn't parse.  Or it could be read as talking about \emph{any particular} state machine, then ``at best'' it would be easy to automatically extract the \watprovenance{}, because there is some state machine where that's true. In all this, I'm sensitive about overly discounting future progress in program analysis. I think it's sufficient to talk about the common case being implausible, and the worst case intractable. Anyhow, decide how you want to frame this, and fix in abstract as well.}
+In the best case,
 computing the \watprovenance{} of a state machine is tantamount to inferring
 the state machine's data dependencies using a very complex code analysis of the
 state machine's source code. This source code can be both large and complex
@@ -66,7 +69,7 @@ proprietary implementations.
 Automatically extracting the \watprovenance{} of an \emph{arbitrary} state
 machine might be hard or even impossible, but most distributed systems
 components are far from arbitrary. Many distributed system components are
-designed with simple and minimalistic APIs. If a service involved very
+designed with simple and minimalistic APIs. \jmh{I am uncomfortable with the next sentence, I think it encourages the reader to look for counter-examples and quibble with you. Maybe just drop it.} If a service involved very
 convoluted data dependencies between different parts of a complex API, the
 service would likely not be widely used. We can take advantage of this
 observation and sidestep the complexity of \emph{extracting} the
@@ -95,7 +98,7 @@ In summary, this paper presents the following contributions:
   \item
     We define \watprovenance{}: a formalism that extends notions of data
     provenance to the realm of state machines in a distributed system. We also
-    prove a handful of properties demonstrating the formalism's soundness.
+    prove a handful \jmh{a pair?} of properties demonstrating the formalism's soundness.
   \item
     We present \watprovenance{} specifications: a mechanism to compute the
     \watprovenance{} of distributed system components for which automatically

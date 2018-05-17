@@ -45,7 +45,7 @@ deterministic state machines.
 
 \paragraph{Network Provenance}
 Network provenance was originally introduced in~\cite{zhou2010efficient} as a
-generalization of data provenance to programs written in
+generalization of data provenance to programs written in the \jmh{extended relational} language
 NDLog~\cite{loo2006design}. ExSPAN~\cite{zhou2010efficient} and
 DistTape~\cite{zhou2012distributed} are two accompanying implementations that
 record the network provenance of a distributed system implemented in NDLog.
@@ -92,7 +92,7 @@ administrative domains. These traces enable programmers to answer many useful
 debugging questions (e.g.\ ``When a client issues a request, which nodes are
 contacted before a reply is returned?''). However, the fundamental distinction
 between distributed traces and \watprovenance{} is that distributed traces do
-not carry historical information which link prior inputs to present outputs.
+not carry historical information that link prior inputs to present outputs.
 For example, traces may show you which clients contacted a key-value store and
-when, but they won't show you which requests wrote the values that later
+when, but they will not show you which requests wrote the values that later
 requests read back.
