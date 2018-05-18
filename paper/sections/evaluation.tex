@@ -3,7 +3,7 @@ We now evaluate the succinctness of the provenance produced by \fluent{}, the
 complexity of writing \watprovenance{} specifications, and the performance
 overheads of \fluent{} shims.
 
-\subsection{A Simple Case Study}
+\subsection{Provenance Succinctness: A Case Study}
 SPADE~\cite{gehani2012spade} is a framework for collecting provenance
 information in distributed systems composed of arbitrary black boxes. SPADE
 collects provenance information from a variety of sources including operating
@@ -51,7 +51,7 @@ SPADE. We did \emph{not} compile the Redis client with LLVM instrumentation, so
 SPADE did \emph{not} trace the function calls of the client. We then ran our
 simple Redis workload. SPADE produced a provenance graph with 399,916 vertices
 and 718,848 edges! A sample of the information stored in these vertices is
-shown in \figref{LLvmProv}.
+shown in \figref{LlvmProv}.
 
 This provenance has two shortcomings. The first is immediate; the provenance
 includes an overwhelming amount of information. A single set and get request
@@ -89,10 +89,10 @@ example, compile-time instrumentation is a technique that can be applied to any
 executable.  Unfortunately, the generality of these approaches causes them to
 produce provenance that is too voluminous and too low-level. \Watprovenance{}
 specifications sidestep this generality and instead have a developer directly
-specify the \watprovenance{} of particular black box. As a result,
+specify the \watprovenance{} of a particular black box. As a result,
 \watprovenance{} specifications can produce much higher-level provenance that
-is significantly more succinct. \watprovenance{} produces only the relevant
-inputs to a black box, while Spade produces all the low-level activities that
+is significantly more succinct. \Watprovenance{} produces only the relevant
+inputs to a black box, while SPADE produces all the low-level activities that
 occur \emph{within} the black box.
 
 {\input{figures/prov_sizes}}
@@ -200,6 +200,6 @@ shims. Without any shim, S3 averages a throughput of 24.22 operations per
 second (with standard deviation 14.67). This throughput drops only slightly to
 22.35 operations per second (with standard deviation 15.44) and 23.58
 operations per second (with standard deviation 15.31) when S3 is wrapped with a
-partial and full\fluent{} shim respectively. In contrast to Redis, S3
+partial and full \fluent{} shim respectively. In contrast to Redis, S3
 sacrifices low latency and high throughput for availability. Thus, the small
 overheads introduced by the shims are largely negligible.

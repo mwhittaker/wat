@@ -39,7 +39,7 @@ single line of text.
 Moreover, codifying this one-line \watprovenance{} specification is expectedly
 straightforward. \Watprovenance{} specifications can be written in any
 programming language. As a simple example, we provide a Python implementation
-of the one line \watprovenance{} specification In \figref{RedisProvSpec}.  The
+of the one line \watprovenance{} specification in \figref{RedisProvSpec}.  The
 specification, \texttt{get\_prov}, takes in a trace \texttt{T} and a \kvget{}
 request \texttt{i} for key $k$. Redis requests are represented as objects of
 type \texttt{Request} with subclasses \texttt{GetRequest} and
@@ -138,7 +138,7 @@ system.
 
 However, not \emph{every} black box has a simple provenance specification. Take
 for example, a relational database where users can insert tuples and issue
-queries (as with \exampleref{WatExampleSetDiff}). As \thmref{WatSubsumesWhy}
+queries (as with \exampleref{WatExampleSetDiff}). As \clmref{WatSubsumesWhy}
 shows, writing a \watprovenance{} specification for a particular query is
 tantamount to specifying the \whyprovenance{} of the query. Worse, if the query
 includes non-monotone constructs like set difference or aggregation that are

@@ -24,10 +24,10 @@ instead of the events that \emph{actually do} cause it.
 Alternatively, consider data provenance in the form of
 \emph{\whyprovenance{}}~\cite{cheney2009provenance, buneman2001and}. Given a
 relational database, a query issued against the database, and a tuple in the
-output of the query, the \whyprovenance{} of the output explains why the output
-tuple was produced. That is, it provides the input tuples which, if passed
-through the relational operators of the query, would produce the output in
-question. In contrast to causality, data provenance heavily incorporates the
+output of the query, \whyprovenance{} explains why the output tuple was
+produced. That is, \whyprovenance{} produces the input tuples which, if passed
+through the relational operators of the query, would produce the output tuple
+in question. In contrast to causality, data provenance heavily incorporates the
 semantics of relational databases and queries in order to describe
 \emph{precisely} the cause of a particular output. However, \whyprovenance{}
 makes the critical assumption that the underlying relational database is
@@ -98,13 +98,13 @@ In summary, this paper presents the following contributions:
   \item
     We present \watprovenance{} specifications: a mechanism to compute the
     \watprovenance{} of distributed system components for which automatically
-    extracting the \watprovenance{} is otherwise intractable or impractical. We
-    also describe the \watprovenance{} specification of a number of widely used
-    distributed systems components, illustrating that \watprovenance{}
-    specifications are straightforward to write in the common case.
+    extracting the \watprovenance{} is otherwise impractical. We also describe
+    the \watprovenance{} specifications of a number of widely used distributed
+    systems components, illustrating that \watprovenance{} specifications are
+    straightforward to write in the common case.
   \item
     We implement the theoretical foundations of \watprovenance{} in a system
     called \fluent{} and demonstrate that \fluent{} can be used to debug
-    distributed systems with significantly less effort that what is currently
+    distributed systems with significantly less effort than what is currently
     possible when using existing techniques.
 \end{itemize}
