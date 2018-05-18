@@ -10,9 +10,8 @@ social media application called \systemname{}, illustrated in
 wall, and these updates are only viewable by their friends on the site. Users
 send requests to a load balancer that forwards the requests to one of three
 weakly consistent Redis-backed application servers: $s_1$, $s_2$, and $s_3$.
-These application servers store a cache of \systemname{}'s data in Redis, and
-periodically they synchronize their caches with a centralized Postgres
-database.
+These application servers store a cache of \systemname{}'s data in Redis and
+periodically synchronize their caches with a centralized Postgres database.
 
 Consider a scenario in which Ava, a \systemname{} user, has a falling out with
 Bob, a friend of hers on the site. Ava unfriends Bob and then posts the status

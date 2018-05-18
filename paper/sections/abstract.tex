@@ -8,15 +8,15 @@
   relational query, but data provenance is limited to the domain of static
   relational databases. In this paper, we present \defword{\watprovenance{}}: a
   novel form of provenance that provides the benefits of causality and data
-  provenance. Given an arbitrary time-varying state machine, \watprovenance{}
-  describes why the state machine produces a particular output when given a
-  particular input. This enables system developers to systematically reason
-  about the causes of events in real-world distributed systems. We observe that
-  automatically extracting the \watprovenance{} of a state machine is often
-  infeasible and sometimes impossible, depending on the state machine.
-  Fortunately, many distributed systems components have simple interfaces from
-  which a developer can directly specify \watprovenance{} using a technique we
-  call \defword{\watprovenance{} specifications}. Leveraging the theoretical
+  provenance. Given an arbitrary state machine, \watprovenance{} describes why
+  the state machine produces a particular output when given a particular input.
+  This enables system developers to systematically reason about the causes of
+  events in real-world distributed systems. We observe that automatically
+  extracting the \watprovenance{} of a state machine is often infeasible and
+  sometimes impossible, depending on the state machine.  Fortunately, many
+  distributed systems components have simple interfaces from which a developer
+  can directly specify \watprovenance{} using a technique we call
+  \defword{\watprovenance{} specifications}. Leveraging the theoretical
   foundations of \watprovenance{}, we implement a prototype distributed
   debugging framework called \fluent{} and empirically demonstrate that
   \watprovenance{} makes debugging distributed systems significantly easier
