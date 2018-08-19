@@ -118,11 +118,11 @@ Both $J_1$ and $J_2$ are minimal witnesses, so the \whyprovenance{} and minimal
 % \end{align*}
 
 \subsection{State Machines}
-It is common to model servers---like FTP servers or key-value stores---as
-deterministic state machines that repeatedly receive requests, update their
-state, and send replies~\cite{schneider1990implementing, lamport1998part}. More
-precisely, a \defword{deterministic state machine} $M = (S, s_0, \Sigma,
-\Lambda, \delta, \epsilon)$ consists of
+It is common to model servers---like key-value stores or relational
+databases---as deterministic state machines that repeatedly receive requests,
+update their state, and send replies~\cite{schneider1990implementing,
+lamport1998part}. More precisely, a \defword{deterministic state machine} $M =
+(S, s_0, \Sigma, \Lambda, \delta, \epsilon)$ consists of
   a (potentially infinite) set $S$ of states,
   a start state $s_0 \in S$,
   an input alphabet $\Sigma$,
