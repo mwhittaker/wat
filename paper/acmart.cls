@@ -515,8 +515,8 @@ Computing Machinery]
 \or % sigconf
    \geometry{twoside=true, head=13pt,
      paperwidth=8.5in, paperheight=11in,
-     includeheadfoot, columnsep=2pc,
-     top=57pt, bottom=73pt, inner=54pt, outer=54pt,
+     includeheadfoot, columnsep=1pc,
+     top=57pt, bottom=73pt, inner=72pt, outer=72pt,
      marginparwidth=2pc,heightrounded
      }%
 \or % siggraph
