@@ -57,12 +57,11 @@ is often infeasible. Computing the \watprovenance{} of a state machine is
 tantamount to inferring the state machine's data dependencies using a very
 complex code analysis of the state machine's source code. This source code can
 be both large and complex which makes this code analysis intractable.
-
+%
 Automatically extracting the \watprovenance{} of an \emph{arbitrary} state
-machine might be hard, but most distributed systems components are far from
-arbitrary. Many distributed system components are designed with simple and
-minimalistic APIs. We can take advantage of this observation and sidestep the
-complexity of \emph{extracting} the \watprovenance{} from the
+machine is difficult, but many distributed systems components are designed with
+simple and minimalistic APIs. We can take advantage of this observation and
+sidestep the complexity of \emph{extracting} the \watprovenance{} from the
 \emph{implementation} of a state machine and instead \emph{specify} the
 \watprovenance{} from the \emph{interface} of a state machine. To this end, we
 propose \defword{\watprovenance{} specifications}: functions that directly

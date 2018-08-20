@@ -285,8 +285,7 @@ realistic services such as Redis, Zookeeper, and S3.
 \subsection{\WatProvenance{} Properties}
 \exampleref{WatExampleKvs} through \exampleref{WatExampleSetDiff} demonstrate
 that our definition of \watprovenance{} accurately models how we intuitively
-think about data provenance for state machines. We now discuss some additional
-properties about \watprovenance{}. In particular, we discuss how
+think about data provenance for state machines. We now discuss how
 \watprovenance{} provenance relates to \whyprovenance{} and causality.
 
 % \begin{claim}\clmlabel{Existence}
@@ -352,11 +351,33 @@ distributed system. In \secref{Fluent}, we see how to enrich \watprovenance{}
 with this information.
 
 \subsection{Limitations}
-\todo{%
-  Discuss the limitations of \watprovenance{}. In particular, make it clear
-  that \watprovenance{} can tell you what inputs contributed to a particular
-  output, but it cannot help you debug particular implementations of code and
-  why certain things are happening. Mention that the state machine has to be
-  non-deterministic. Mention that sometimes \watprovenance{} is confusing like
-  with the insertion, deletion, append stuff?
-}
+To clarify the strengths of \watprovenance{}, we pause to discuss its
+limitations.
+
+\paragraph{\Watprovenance{} is not GDB}
+\Watprovenance{} is a high-level debugging technique. It's a formalism that is
+defined with respect to abstract deterministic state machines. It can be used
+to identify the necessary and sufficient inputs that cause a state machine to
+produce a particular output (the \emph{why}), but unlike low-level debugging
+tools like GDB, it cannot describe the implementation details that actually
+produce a particular output (the \emph{how}).  As a concrete example, consider
+the relational database state machine from \exampleref{WatExampleSetDiff}.
+Given a relational query $Q$, \watprovenance{} can identify the inputs that
+cause the query $Q$ to evaluate the way it does, but \watprovenance{} cannot
+help you step through the details of any particular query execution engine.
+Thus, we view \watprovenance{} and GDB-like debuggers as complementary. When
+debugging, a developer can use \watprovenance{} to narrow their attention to
+the relevant inputs and then use a low-level debugger like GDB to fill in the
+details.
+
+\paragraph{\Watprovenance{} requires determinism.}
+\Watprovenance{} is defined with respect to \emph{deterministic} state
+machines, yet many pieces of code are nondeterministic. For example, the
+behavior of many weakly consistent distributed systems depend on the
+non-deterministic ordering of messages in the network. Similarly, some load
+balancers intentionally use randomness when deciding which machine should
+receive a particular request.
+%
+\Watprovenance{} specifications cannot be applied to nondeterministic systems
+like these. We leave a generalization of \watprovenance{} to nondeterministic
+state machines as an interesting avenue for future work.
