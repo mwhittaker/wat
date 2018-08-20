@@ -1,19 +1,12 @@
-\begin{figure}[t]
-
-  \begin{subfigure}[b]{\columnwidth}
+\begin{figure*}[t]
+  \begin{subfigure}[b]{\textwidth}
     {
       \scriptsize
       \begin{Verbatim}[gobble=8]
-        {source:syscall,type:Artifact,hashCode:53bcf1cc966af740e6947b0e9c2a339b,
-         id:94,epoch:0,path:/proc/sys/net/core/somaxconn,permissions:0644,
-         subtype:file,version:0}
-        {source:syscall,type:Artifact,hashCode:581c5ee9cdcf7389575329bf82952436,
-         id:95,subtype:memory,version:1,memory address:7f780c538000,size:1000,
-         tgid:22694}
-        {pid:22694,source:syscall,type:Artifact,hashCode:aacd358e7170deccc70c2f88b52d4cef,
-         id:96,epoch:0,subtype:unknown,version:8,fd:1}
-        {pid:22694,source:syscall,type:Artifact,hashCode:c86147ac594fd4f80b476a6a928aaf56,
-         id:97,epoch:0,subtype:unknown,version:9,fd:1}
+        {source:syscall,type:Artifact,hashCode:53...9b,id:94,epoch:0,path:/proc/sys/net/core/somaxconn,permissions:0644,subtype:file,version:0}
+        {source:syscall,type:Artifact,hashCode:58...36,id:95,subtype:memory,version:1,memory address:7f780c538000,size:1000,tgid:22694}
+        {pid:22694,source:syscall,type:Artifact,hashCode:aacd358e7170deccc70c2f88b52d4cef,id:96,epoch:0,subtype:unknown,version:8,fd:1}
+        {pid:22694,source:syscall,type:Artifact,hashCode:c86147ac594fd4f80b476a6a928aaf56,id:97,epoch:0,subtype:unknown,version:9,fd:1}
         ...
       \end{Verbatim}
     }
@@ -23,23 +16,14 @@
 
   \vspace{0.5cm}
 
-  \begin{subfigure}[b]{\columnwidth}
+  \begin{subfigure}[b]{\textwidth}
     {
       \scriptsize
       \begin{Verbatim}[gobble=8]
-        {FunctionID:jemalloc_constructor.0.23984,FunctionName:jemalloc_constructor,
-         ThreadID:23984,type:Process,hashCode:bf1efff78cc36fca4e34ba0b7bdea49d,id:0}
-        {FunctionID:malloc_init_hard_a0_locked.1.23984,FunctionName:
-         malloc_init_hard_a0_locked,ThreadID:23984,type:Process,
-         hashCode:10a9c5270a6e2f6ea962cd387787b4ec,id:1}
-        {FunctionID:je_base_boot.2.23984,FunctionName:je_base_boot,ThreadID:23984,
-         type:Process,hashCode:a8210dae28f03bf0cc8f8f43bff1b0ec,id:2}
-        {FunctionID:je_malloc_mutex_init.3.23984,FunctionName:je_malloc_mutex_init,
-         ThreadID:23984,type:Process,hashCode:833b92e80ae64062350b522d285a08b6,id:3}
-        {type:Artifact,hashCode:76c88e33c157de390e9574bf0196b3de,id:4,
-         ArgName:mutex,ArgType:%struct.malloc_mutex_s*,ArgVal:0x7fed42d84520}
-        {type:Artifact,hashCode:70da28e8a2611657ba8842e198f401db,id:5,ReturnType:i1,
-         ReturnVal:0}
+        {FunctionID:jemalloc_constructor.0.23984,FunctionName:jemalloc_constructor,ThreadID:23984,type:Process,hashCode:bf...9d,id:0}
+        {FunctionID:malloc_init_hard_a0_locked.1.23984,ThreadID:23984,type:Process,hashCode:10...ec,id:1}
+        {FunctionID:je_base_boot.2.23984,FunctionName:je_base_boot,ThreadID:23984,type:Process,hashCode:a8...ec,id:2}
+        {type:Artifact,hashCode:70da28e8a2611657ba8842e198f401db,id:5,ReturnType:i1,ReturnVal:0}
         ...
       \end{Verbatim}
     }
@@ -48,4 +32,4 @@
   \end{subfigure}
   \caption{SPADE provenance}
   \figlabel{Spade}
-\end{figure}
+\end{figure*}

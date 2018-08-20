@@ -1,10 +1,12 @@
 \section{\fluent{}}\seclabel{Fluent}
 In this section, we present \fluent{}: a prototype distributed debugging
 framework that leverages the theoretical foundations of \watprovenance{} and
-\watprovenance{} specifications. We also describe how to use \fluent{} to debug
-our motivating example from \secref{WatProvenanceExample}.
+\watprovenance{} specifications.
+%
+% We also describe how to use \fluent{} to debug our motivating example from
+% \secref{WatProvenanceExample}.
 
-\subsection{\WatProvenance{} Specifications}
+% \subsection{\WatProvenance{} Specifications}
 {\input{figures/shims}}
 
 \fluent{} uses \watprovenance{} specifications to generate the provenance of
@@ -40,27 +42,28 @@ After a user has written a black box's shim, they can write the black box's
 simple scripts written in a developer's choice of either SQL or Python. Given a
 particular black box request, a \watprovenance{}  script computes the
 corresponding \watprovenance{} with respect to the black box's trace (which is
-persisted in a relational database by the black box's shim). For example, a SQL
-\watprovenance{} specification for Redis get requests is listed in
-\figref{ConcreteRedisProvSpec}. The \watprovenance{} specification consists of
-a single SQL query parameterized by the get request's key \texttt{KEY} and
-logical time \texttt{TIME}. As with \figref{RedisProvSpec}, this
-\watprovenance{} specification returns the most recent set to the key
-\texttt{KEY}. The \texttt{redis\_set\_req} relation is a view over the trace
-that only includes set requests.
+persisted in a relational database by the black box's shim).
+%
+% For example, a SQL \watprovenance{} specification for Redis get requests is
+% listed in \figref{ConcreteRedisProvSpec}. The \watprovenance{} specification
+% consists of a single SQL query parameterized by the get request's key
+% \texttt{KEY} and logical time \texttt{TIME}. As with \figref{RedisProvSpec},
+% this \watprovenance{} specification returns the most recent set to the key
+% \texttt{KEY}. The \texttt{redis\_set\_req} relation is a view over the trace
+% that only includes set requests.
 
-\begin{figure}[ht]
-  \begin{Verbatim}
-    -- Return the most recent set to key $KEY.
-    SELECT *
-      FROM redis_set_req
-     WHERE key = $KEY AND time <= $TIME
-     ORDER BY time DESC
-     LIMIT 1
-  \end{Verbatim}
-  \caption{\Watprovenance{} specification for Redis get requests}
-  \figlabel{ConcreteRedisProvSpec}
-\end{figure}
+% \begin{figure}[ht]
+%   \begin{Verbatim}
+%     -- Return the most recent set to key $KEY.
+%     SELECT *
+%       FROM redis_set_req
+%      WHERE key = $KEY AND time <= $TIME
+%      ORDER BY time DESC
+%      LIMIT 1
+%   \end{Verbatim}
+%   \caption{\Watprovenance{} specification for Redis get requests}
+%   \figlabel{ConcreteRedisProvSpec}
+% \end{figure}
 
 % \subsection{Our Motivating Example}
 % \newcommand{\systemname}{ZardozBook}

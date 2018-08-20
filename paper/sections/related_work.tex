@@ -7,25 +7,19 @@ Provenance is a broad and far-reaching concept that has been researched by the
 database, distributed systems, and scientific workflow communities. In this
 section, we summarize the most relevant research from these fields.
 
-\paragraph{Why-Provenance}
-\todo{Explain why we can automatically extract why provenance.}
-
 \paragraph{Black Box Provenance}
-RDataTracker~\cite{lerner2014collecting},
-noWorkflow~\cite{murta2014noworkflow}, and SPADE~\cite{gehani2012spade} are
-frameworks that attempt to record the provenance of data through an
-\emph{arbitrary} black box using general purpose low-level provenance tracing
-techniques. RDataTracker and noWorkflow use reflection and runtime information
-to track the provenance of data through minimally annotated R and Python
-scripts. SPADE collects provenance information from operating system audit
-logs, network artifacts, LLVM instrumented applications, and applications
-dynamically instrumented for taint analysis. The benefit of these frameworks is
-their generality. They can be applied to \emph{any} piece of code. However,
-their generality is also their undoing. As we saw in \secref{Evaluation}, these
-provenance frameworks produce an overwhelming amount of very low-level
-implementation-specific provenance information that is challenging to
-interpret. \Watprovenance{} specifications sidestep these low-level details and
-directly specify the relevant \watprovenance{} of a black box.
+RDataTracker \cite{lerner2014collecting}, noWorkflow
+\cite{murta2014noworkflow}, and SPADE \cite{gehani2012spade} are frameworks
+that attempt to record the provenance of data through an \emph{arbitrary} black
+box using general purpose low-level provenance tracing techniques. RDataTracker
+and noWorkflow use reflection and runtime information to track the provenance
+of data through minimally annotated R and Python scripts. SPADE collects
+provenance information from operating system audit logs, network artifacts,
+LLVM instrumented applications, and applications dynamically instrumented for
+taint analysis. The benefit of these frameworks is their generality. However,
+their generality comes at the cost of verbosity. These provenance frameworks
+produce a large amount of low-level implementation-specific provenance
+information that can be challenging to interpret.
 
 \paragraph{Data-Dependent Process Provenance}
 A data-dependent process (DDP) is a finite state machine in which certain
@@ -38,13 +32,15 @@ formulas issued against a DDP.
 %
 Both DDP provenance and \watprovenance{} aim to extend traditional data
 provenance to state machines, but they do so in very different ways. DDP
-provenance is used to explain how particular execution traces may arise. For
-example, DDP provenance might inform us about the database contents under which
-a particular state in the DDP can be reached. \Watprovenance{}, on the other
-hand, aims to explain why a particular output was generated with respect to a
-particular trace of inputs. DDPs are also assumed to be finite and backed by
-relational databases, while \watprovenance{} targets arbitrary (even infinite)
-deterministic state machines.
+provenance is used to explain how particular execution traces may arise.
+%
+% For example, DDP provenance might inform us about the database contents under
+% which a particular state in the DDP can be reached.
+%
+\Watprovenance{}, on the other hand, aims to explain why a particular output
+was generated with respect to a fixed trace of inputs. DDPs are also assumed to
+be finite and backed by relational databases, while \watprovenance{} targets
+arbitrary (even infinite) deterministic state machines.
 
 \paragraph{Network Provenance}
 Network provenance was originally introduced in~\cite{zhou2010efficient} as a
@@ -52,41 +48,39 @@ generalization of data provenance to programs written in the extended
 relational language NDLog~\cite{loo2006design}. ExSPAN~\cite{zhou2010efficient}
 and DistTape~\cite{zhou2012distributed} are two accompanying implementations
 that record the network provenance of a distributed system implemented in
-NDLog.  Network provenance, like \watprovenance{}, borrows characteristics from
-causality and \whyprovenance{}, allowing a system developer to discover the
-precise causes of an event in a distributed system. The most notable difference
-between network provenance and \watprovenance{} is \watprovenance{}'s
-generality. \Watprovenance{} is defined in terms of abstract deterministic
-state machines and does not depend on the system being implemented in NDLog.
-
-\todo{Emphasize difference better}
+NDLog.
+%
+The network provenance of a piece of data is tied to the particular NDLog
+program that created it, whereas \watprovenance{} is defined with respect to
+abstract state machines instead of concrete implementations. As a result,
+network provenance provides finer grained debugging information than
+\watprovenance{}, but is applicable only to systems written in NDLog.
+\Watprovenance{} provides coarser grained debugging information, but is
+applicable to arbitrary state machines.
 
 \paragraph{Scientific Workflow Systems}
-Scientific workflow systems like Taverna~\cite{wolstencroft2013taverna},
-Kepler~\cite{altintas2006provenance}, Pegasus~\cite{kim2008provenance}, and
-Swift~\cite{wozniak2013swift} can be used to structure complex computational
-tasks as a graph, composing tasks by connecting the outputs of one task to the
-inputs of another. These systems are limited to the workflow languages that
-they support, and these languages are not typically used to build distributed
-systems. They also assume that the inputs to a workflow are static.
-\Watprovenance{} formalizes provenance for arbitrary distributed systems
-composed of time-varying state machines.
+Scientific workflow systems like Taverna \cite{wolstencroft2013taverna}, Kepler
+\cite{altintas2006provenance}, Pegasus \cite{kim2008provenance}, and Swift
+\cite{wozniak2013swift} can be used to structure complex computational tasks as
+a graph, composing tasks by connecting the outputs of one task to the inputs of
+another. These systems are limited to the workflow languages that they support,
+and these languages are not typically used to build distributed systems. They
+also assume that the inputs to a workflow are static. \Watprovenance{}
+formalizes provenance for arbitrary distributed systems composed of
+time-varying state machines.
 
 \paragraph{DISC Provenance}
 Data intensive scalable computing (DISC) frameworks like Apache
 Hadoop~\cite{shvachko2010hadoop} and Apache Spark~\cite{zaharia2010spark} can
 execute data-parallel programs on massive amounts of data both efficiently and
-with fault tolerance. Debugging programs executed by these frameworks can be
-challenging because it can be difficult to pinpoint which subset of the massive
-input data triggered some buggy behaviour. In efforts to reduce this burden,
-work on GMRW provenance~\cite{ikeda2011provenance} and systems like
-BigDebug~\cite{gulzar2016bigdebug}, Titian~\cite{interlandi2015titian}, and
-RAMP~\cite{park2011ramp} augment DISC frameworks like Hadoop and Spark with
-data provenance. DISC provenance is similar to the provenance produced by
-scientific workflow systems. It is restricted to the domain of data intensive
-computations over static data.  Unlike \watprovenance{}, it cannot be applied
-to other distributed systems components like storage systems, coordination
-services, load balancers, etc.
+with fault tolerance. Work on GMRW provenance~\cite{ikeda2011provenance} and
+systems like BigDebug~\cite{gulzar2016bigdebug},
+Titian~\cite{interlandi2015titian}, and RAMP~\cite{park2011ramp} augment DISC
+frameworks like Hadoop and Spark with data provenance. DISC provenance is
+similar to the provenance produced by scientific workflow systems. It is
+restricted to the domain of data intensive computations over static data.
+Unlike \watprovenance{}, it cannot be applied to other distributed systems
+components like storage systems, coordination services, load balancers, etc.
 
 \paragraph{Distributed Tracing Tools}
 Distributed tracing tools like Dapper~\cite{sigelman2010dapper},
@@ -95,11 +89,9 @@ Stardust~\cite{thereska2006stardust} allow programmers to trace messages
 through large and complex distributed systems that span multiple nodes and
 administrative domains. These traces enable programmers to answer many useful
 debugging questions (e.g.\ ``When a client issues a request, which nodes are
-contacted before a reply is returned?''). Moreover, distributed tracing tools
-like Dapper implement a number of optimizations to reduce the performance and
-storage overheads of trace collection which we have not yet implemented in
-\fluent{}.  The fundamental distinction between distributed traces and
-\watprovenance{} is that distributed traces do not carry historical information
-that link prior inputs to present outputs.  For example, traces may show you
-which clients contacted a key-value store and when, but they will not show you
-which requests wrote the values that later requests read back.
+contacted before a reply is returned?''). The fundamental distinction between
+distributed traces and \watprovenance{} is that distributed traces do not carry
+historical information that link prior inputs to present outputs.  For example,
+traces may show you which clients contacted a key-value store and when, but
+they will not show you which requests wrote the values that later requests read
+back.

@@ -314,8 +314,9 @@ the execution of monotone relational queries (i.e.\ queries composed of the
 monotone relational algebra operators select, project, join and union). Let
 $I$ be an arbitrary database instance, and let $T$ be a trace which inserts
 every tuple in $I$. Let input $i = \Min(t, Q)$ be an input which returns a
-boolean that indicates whether tuple $t$ is in $Q(I)$. Then, viewing a subtrace
-$T'$ as a subinstance $I' \subseteq I$, $\Wat{M, T, i} = \MWhy{Q, I, t}$.
+boolean that indicates whether tuple $t$ is in the result of evaluating query
+$Q$ on instance $I$. Then, viewing a subtrace $T'$ as a subinstance $I'
+\subseteq I$, $\Wat{M, T, i} = \MWhy{Q, I, t}$.
 
 Proving this fact is straightforward.
 %
@@ -331,6 +332,14 @@ Thus, $T'$ (and hence $I'$) is a minimal witness. The proof of the
 converse---showing that every $I' \in \MWhy{Q, I, t}$ has a corresponding
 subtrace $T' \in \Wat{M, I, t}$---is almost identical.
 
+Unfortunately, \watprovenance{}'s generality does not come for free. Given a
+query $Q$, tuple $t$, and instance $I$, it is possible to automatically compute
+$\MWhy{Q, I, t}$ because queries are constructed from a fixed set of simple
+relational operators. As we discuss in \secref{WatProvSpecs}, it is normally
+intractable to automatically compute the \watprovenance{} of a particular state
+machine because, unlike relational queries, these state machines can have
+arbitrarily complex semantics.
+
 \begin{claim}\clmlabel{WatRefinesCausality}
   \Watprovenance{} refines causality.
 \end{claim}
@@ -343,12 +352,11 @@ whether or not the request in $T$ actually did influence the output of
 executing request $i$. \Watprovenance{} instead returns the subtraces of $T$
 that are actual causes.
 
-\todo{Consider re-writing this once we re-write section 5.}
 Note that \watprovenance{} returns a set of witnesses that are local to a
-particular node. On its own, \watprovenance{} does not return the causal
-history of these witnesses, which includes messages sent by other nodes in the
-distributed system. In \secref{Fluent}, we see how to enrich \watprovenance{}
-with this information.
+particular node. \Watprovenance{} does not return the causal history of these
+witnesses, which includes messages sent by other nodes in the distributed
+system. In \secref{Fluent}, we see how to enrich \watprovenance{} with this
+information.
 
 \subsection{Limitations}
 To clarify the strengths of \watprovenance{}, we pause to discuss its

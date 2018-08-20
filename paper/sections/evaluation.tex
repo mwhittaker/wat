@@ -1,4 +1,14 @@
 \section{Evaluation}\seclabel{Evaluation}
+\todo{%
+  Revise evaluation section:
+    - show fluent output.
+    - show throughput of redis and S3 when traced by SPADE.
+    - emphasize prototype nature of shim overheads.
+    - reduce size of evaluation.
+    - run spade on a hand-written KVS to show that spade can produce smaller
+      output.
+}
+
 We now evaluate the succinctness of the provenance produced by \fluent{}, the
 complexity of writing \watprovenance{} specifications, and the performance
 overheads of \fluent{} shims.
@@ -72,8 +82,9 @@ produced eight trace entries: a get and set request and response on both the
 Redis client and the Redis server. This is four orders of magnitude more
 succinct that the SPADE provenance produced by LLVM instrumentation. Moreover,
 applying Redis' \watprovenance{} specification to the get request, it returns
-the previous set request and nothing else. We summarize these findings in
-\tabref{ProvSizes}
+the previous set request and nothing else.
+%
+% We summarize these findings in \tabref{ProvSizes}
 
 The provenance produced by \fluent{} improves upon the provenance produced by
 SPADE in two ways. First, \fluent{}'s provenance is based on the theoretical
@@ -95,7 +106,7 @@ is significantly more succinct. \Watprovenance{} produces only the relevant
 inputs to a black box, while SPADE produces all the low-level activities that
 occur \emph{within} the black box.
 
-{\input{figures/prov_sizes}}
+% {\input{figures/prov_sizes}}
 
 \subsection{\WatProvenance{} Specifications}
 In \secref{WatProvSpecs}, we described the \watprovenance{} specifications for
@@ -111,7 +122,7 @@ specifications was straightforward.
 \begin{table}[t]
   \caption{\fluent{} \watprovenance{} specifications}
   \tablabel{ProvSpecLengths}
-  \begin{tabular}{lllp{3.9cm}}
+  \begin{tabular}{lllp{3cm}}
     \toprule
     System    & Language & LOC & Supported API                                                         \\\midrule
     Redis     & SQL      & 30  & set, del, append, incr, decr, incrby, decrby, strlen                  \\
