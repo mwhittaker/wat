@@ -71,19 +71,18 @@ Intuitively, $t = \text{(Michael Jordan)}$ is present in the output $Q(I)$ for
 two reasons: (1) the existence of the (ecodd, jumpman) and (jumpman, Michael
 Jordan) tuples and (2) the existence of the (ecodd, mlpro) and (mlpro, Michael
 Jordan) tuples.  \defword{\Whyprovenance{}}~\cite{buneman2001and,
-cheney2009provenance} is a form of data provenance that formalizes this
-intuition. The
+cheney2009provenance} formalizes this intuition. The
 \whyprovenance{}\footnote{
   For a formal definition of \whyprovenance{}, we refer the reader to
   \cite{cheney2009provenance}. For our purposes, an informal understanding of
   \whyprovenance{} is sufficent.
 }
 of a tuple $t$ with respect to query $Q$ and database instance $I$, denoted
-$\Why{Q, I, t}$, is a set $J_1, \ldots, J_n$ of subinstances where each
+$\Why{Q, I, t}$, is a set $J_1, \ldots, J_n$ of subinstances of $I$ where each
 subinstance $J_i \subseteq I$ suffices to produce $t$ (i.e.\ $t \in Q(J_i)$).
-These subinstances are also called \defword{witnesses of $t$}, and a witness
-$J_i$ is called a \defword{minimal witness of $t$} if no proper subinstance of
-$J_i$ is also a witness of $t$. The \defword{minimal \whyprovenance{}} of $t$,
+These subinstances are called \defword{witnesses of $t$}, and a witness $J_i$
+is called a \defword{minimal witness of $t$} if no proper subinstance of $J_i$
+is also a witness of $t$. The \defword{minimal \whyprovenance{}} of $t$,
 denoted $\MWhy{Q, I, t}$, is the set of the minimal witnesses in $\Why{Q, I,
 t}$. It can be shown that $\MWhy{Q, I, t}$ is exactly the set of minimal
 witnesses of $t$~\cite{cheney2009provenance}.

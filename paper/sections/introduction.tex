@@ -1,28 +1,28 @@
 \section{Introduction}\seclabel{Introduction}
 Debugging distributed systems is hard. Traditional debugging techniques are
 poorly suited to distributed systems in which bugs arise due to chains of logic
-that often span multiple concurrent nodes connected by an unreliable network that can
-drop, duplicate, and reorder messages. Distributed debugging tools do
-exist but are largely in their infancy. They help tame \emph{some} of the
-complexities of distributed debugging, but have limited applicability to
-real-world distributed systems that are made up of a large number of complex
-components. Consequently, developers are often forced to perform ad-hoc root
-cause analysis in order to find the source of a bug, stitching together the
-logs of multiple concurrently executing nodes.
+that often span multiple nodes connected by an unreliable network that can
+drop, duplicate, and reorder messages. Distributed debugging tools do exist but
+are largely in their infancy. They help tame \emph{some} of the complexities of
+distributed debugging, but have limited applicability to real-world distributed
+systems that are made up of a large number of complex components. Consequently,
+developers are often forced to perform ad-hoc root cause analysis in order to
+find the source of a bug, stitching together the logs of multiple concurrently
+executing nodes.
 
 Worse, we argue that existing formalisms are also inadequate to reason about
 systematically debugging real-world distributed systems. For example, consider
-causality~\cite{lamport1978time}. Causality is a general-purpose formalism that
-specifies the \emph{causal history} of a particular event in an arbitrary
-distributed system. However, causality is too general-purpose, as it fails to
-incorporate any semantics of the underlying distributed
+\defword{causality}~\cite{lamport1978time}. Causality is a general-purpose
+formalism that specifies the causal history of a particular event in an
+arbitrary distributed system. However, causality is too general-purpose, as it
+fails to incorporate any semantics of the underlying distributed
 system~\cite{bailis2012potential}. As a consequence, the causal history of an
 event is an overapproximation of the cause of the event. It includes all the
-events that \emph{might} have caused a particular event
-instead of the events that \emph{actually do} cause it.
+events that \emph{might} have caused a particular event instead of the events
+that \emph{actually do} cause it.
 
 Alternatively, consider data provenance in the form of
-\emph{\whyprovenance{}}~\cite{cheney2009provenance, buneman2001and}. Given a
+\defword{\whyprovenance{}}~\cite{cheney2009provenance, buneman2001and}. Given a
 relational database, a query issued against the database, and a tuple in the
 output of the query, \whyprovenance{} explains why the output tuple was
 produced. That is, \whyprovenance{} produces the input tuples which, if passed
@@ -45,11 +45,11 @@ arbitrary time-varying state machines in a distributed system. More
 specifically, given a deterministic state machine, the sequence of inputs that
 the state machine has processed, and a particular input to the state machine,
 \watprovenance{} formalizes \emph{why} the state machine produces the output
-that it does. This description includes a set of subsequences of the input
-trace that are necessary and sufficient to generate the output in
-question. Borrowing from causality, \watprovenance{} can be applied to
-time-varying state machines. Borrowing from \whyprovenance{}, \watprovenance{}
-incorporates state machine semantics to avoid overapproximating provenance.
+that it does. This description is the set of subsequences of the input trace
+that are necessary and sufficient to generate the output in question. Borrowing
+from causality, \watprovenance{} can be applied to time-varying state machines.
+Borrowing from \whyprovenance{}, \watprovenance{} incorporates state machine
+semantics to avoid overapproximating provenance.
 
 After we define \watprovenance{}, we turn to the matter of computing it. We
 observe that automatically extracting the \watprovenance{} of a state machine
@@ -58,10 +58,10 @@ tantamount to inferring the state machine's data dependencies using a very
 complex code analysis of the state machine's source code. This source code can
 be both large and complex which makes this code analysis intractable.
 %
-Automatically extracting the \watprovenance{} of an \emph{arbitrary} state
-machine is difficult, but many distributed systems components are designed with
-simple and minimalistic APIs. We can take advantage of this observation and
-sidestep the complexity of \emph{extracting} the \watprovenance{} from the
+Though automatically extracting the \watprovenance{} of an \emph{arbitrary}
+state machine is difficult, many distributed systems components are designed
+with simple and minimalistic APIs. We can take advantage of this observation
+and sidestep the complexity of \emph{extracting} the \watprovenance{} from the
 \emph{implementation} of a state machine and instead \emph{specify} the
 \watprovenance{} from the \emph{interface} of a state machine. To this end, we
 propose \defword{\watprovenance{} specifications}: functions that directly
@@ -73,7 +73,7 @@ and find that in practice, they are often straightforward to implement.
 Next, we present \fluent{}: a prototype distributed debugging framework that
 leverages the formal foundations of \watprovenance{} and \watprovenance{}
 specifications. \fluent{} includes a mechanism for developers to write
-\watprovenance{} specifications that are executed against the input traces of
+\watprovenance{} specifications which are executed against the input traces of
 the components in a distributed system. We use \fluent{} to measure the
 complexity of writing \watprovenance{} specifications and also compare
 \fluent{} to existing distributed debugging frameworks. For a trivial Redis

@@ -59,7 +59,7 @@ Second and more fundamental is \whyprovenance{}'s inability to reflect any
 notion of state change over time. In particular, the real ``why'' question we
 want to answer here is ``why was the provenance of Bob's query unaffected by
 Ava's unfriend request?''. The \whyprovenance{} of Bob's query has no answer to
-this question: it knows nothing about updates or the order in which they
+this question; it knows nothing about updates or the order in which they
 happen.
 
 \subsection{Defining \WatProvenance{}}
@@ -284,9 +284,9 @@ realistic services such as Redis, Zookeeper, and S3.
 
 \subsection{\WatProvenance{} Properties}
 \exampleref{WatExampleKvs} through \exampleref{WatExampleSetDiff} demonstrate
-that our definition of \watprovenance{} accurately models how we intuitively
-think about data provenance for state machines. We now discuss how
-\watprovenance{} provenance relates to \whyprovenance{} and causality.
+that our definition of \watprovenance{} accurately models out intuition about
+data provenance for state machines. We now discuss how \watprovenance{}
+provenance relates to \whyprovenance{} and causality.
 
 % \begin{claim}\clmlabel{Existence}
 % For every state machine $M$, trace $T$, and input $i$, $\Wat{M, T, i}$ is
@@ -363,12 +363,11 @@ To clarify the strengths of \watprovenance{}, we pause to discuss its
 limitations.
 
 \paragraph{\Watprovenance{} is not GDB}
-\Watprovenance{} is a high-level debugging technique. It's a formalism that is
-defined with respect to abstract deterministic state machines. It can be used
-to identify the necessary and sufficient inputs that cause a state machine to
+\Watprovenance{} is a high-level debugging technique. It can be used to
+identify the necessary and sufficient inputs that cause a state machine to
 produce a particular output (the \emph{why}), but unlike low-level debugging
-tools like GDB, it cannot describe the implementation details that actually
-produce a particular output (the \emph{how}).  As a concrete example, consider
+tools like GDB, it cannot describe the details of the code that actually
+produces a particular output (the \emph{how}).  As a concrete example, consider
 the relational database state machine from \exampleref{WatExampleSetDiff}.
 Given a relational query $Q$, \watprovenance{} can identify the inputs that
 cause the query $Q$ to evaluate the way it does, but \watprovenance{} cannot

@@ -181,7 +181,8 @@ stateless service are trivial. Requests are completely independent, so the
 
 \subsection{Limitations}
 Though \watprovenance{} specifications are often simple to write, they are not
-a panacea. Here, we discuss two limitations of \watprovenance{} specifications.
+a panacea. Here, we discuss some limitations of \watprovenance{}
+specifications.
 
 \paragraph{Complex \watprovenance{} specifications}
 There are some black boxes for which writing a \watprovenance{} specification
@@ -190,10 +191,11 @@ implements an online support vector machine (SVM)~\cite{hearst1998support,
 laskov2006incremental, bordes12huller}. Clients can either (a) submit training
 data to the state machine to update the model or (b) submit test data to the
 state machine to get classified. The \watprovenance{} of a classification
-request is straightforward: it includes only the support vectors of the model
-at the time of classification. Writing a \watprovenance{} specification to
-identify the support vectors is possible but difficult. Such a \watprovenance{}
+request includes only the support vectors of the model at the time of
+classification. Writing a \watprovenance{} specification to identify these
+support vectors is possible but very difficult. Such a \watprovenance{}
 specification would likely be as complicated as the state machine itself.
+\todo{Give more examples?}
 
 % However, not \emph{every} black box has a simple provenance specification. Take
 % for example, a relational database where users can insert tuples and issue
