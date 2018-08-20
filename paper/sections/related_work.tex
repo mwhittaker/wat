@@ -84,14 +84,19 @@ components like storage systems, coordination services, load balancers, etc.
 
 \paragraph{Distributed Tracing Tools}
 Distributed tracing tools like Dapper~\cite{sigelman2010dapper},
-X-trace~\cite{fonseca2007x}, Magpie~\cite{barham2003magpie}, and
-Stardust~\cite{thereska2006stardust} allow programmers to trace messages
-through large and complex distributed systems that span multiple nodes and
-administrative domains. These traces enable programmers to answer many useful
-debugging questions (e.g.\ ``When a client issues a request, which nodes are
-contacted before a reply is returned?''). The fundamental distinction between
-distributed traces and \watprovenance{} is that distributed traces do not carry
-historical information that link prior inputs to present outputs.  For example,
-traces may show you which clients contacted a key-value store and when, but
-they will not show you which requests wrote the values that later requests read
-back.
+X-trace~\cite{fonseca2007x}, Magpie~\cite{barham2003magpie},
+Stardust~\cite{thereska2006stardust}, and lprof~\cite{zhao2014lprof} allow
+programmers to trace messages through large and complex distributed systems
+that span multiple nodes and administrative domains. These traces enable
+programmers to answer many useful debugging questions (e.g.\ ``When a client
+issues a request, which nodes are contacted before a reply is returned?''). The
+fundamental distinction between distributed traces and \watprovenance{} is that
+distributed traces do not carry historical information that link prior inputs
+to present outputs. For example, traces may show you which clients contacted a
+key-value store and when, but they will not show you which requests wrote the
+values that later requests read back.
+%
+lprof, unlike other tracing tools, constructs traces by analyzing systems'
+existing logs; it does not require any program instrumentation. In the future,
+we plan to explore whether we can use a similar technique to construct traces
+from a system's existing logs.
