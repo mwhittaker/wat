@@ -1,19 +1,18 @@
 \begin{abstract}
-  There is currently no systematic way to reason about the fine-grained causes
-  of events in a real-world distributed system. Causality, from the distributed
+  Systematically reasoning about the fine-grained causes of events in a
+  real-world distributed system is challenging. Causality, from the distributed
   systems literature, can be used to compute the causal history of an arbitrary
-  event in a distributed system, but the causal history of an event is a vast
+  event in a distributed system, but the event's causal history is a vast
   overapproximation of the true causes. Data provenance, from the database
-  literature, describes precisely the cause of a particular output of a
-  relational query, but data provenance is limited to the domain of static
+  literature, precisely describes why a particular tuple appears in the output
+  of a relational query, but data provenance is limited to the domain of static
   relational databases. In this paper, we present \defword{\watprovenance{}}: a
   novel form of provenance that provides the benefits of causality and data
   provenance. Given an arbitrary state machine, \watprovenance{} describes why
   the state machine produces a particular output when given a particular input.
-  This enables system developers to systematically reason about the causes of
-  events in real-world distributed systems. We observe that automatically
-  extracting the \watprovenance{} of a state machine is often infeasible and
-  sometimes impossible, depending on the state machine.  Fortunately, many
+  This enables system developers to reason about the causes of events in
+  real-world distributed systems. We observe that automatically extracting the
+  \watprovenance{} of a state machine is often infeasible. Fortunately, many
   distributed systems components have simple interfaces from which a developer
   can directly specify \watprovenance{} using a technique we call
   \defword{\watprovenance{} specifications}. Leveraging the theoretical

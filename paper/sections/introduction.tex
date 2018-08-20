@@ -14,11 +14,11 @@ Worse, we argue that existing formalisms are also inadequate to reason about
 systematically debugging real-world distributed systems. For example, consider
 causality~\cite{lamport1978time}. Causality is a general-purpose formalism that
 specifies the \emph{causal history} of a particular event in an arbitrary
-distributed system. However, causality is too general-purpose as it fails to
-incorporate any semantics of the underlying distributed system beyond opaque
-message-passing~\cite{bailis2012potential}. As a consequence, the causal
-history of an event is an overapproximation of the cause of the event. It
-includes all the events that \emph{might} have caused a particular event
+distributed system. However, causality is too general-purpose, as it fails to
+incorporate any semantics of the underlying distributed
+system~\cite{bailis2012potential}. As a consequence, the causal history of an
+event is an overapproximation of the cause of the event. It includes all the
+events that \emph{might} have caused a particular event
 instead of the events that \emph{actually do} cause it.
 
 Alternatively, consider data provenance in the form of
@@ -36,47 +36,40 @@ systems. Moreover, data provenance is limited to the domain of relational data
 and cannot easily be applied to other system components (e.g., load balancers,
 file systems, coordination services, etc.).
 
-In short, \textbf{causality lacks a notion of data dependence, and data
-provenance lacks a notion of time}. In this paper, we present
-\defword{\watprovenance{}} (why-across-time provenance): a novel form of data
-provenance that unifies ideas from the two. \Watprovenance{} generalizes
-\whyprovenance{} from the domain of relational queries issued against a static
-database to the domain of arbitrary time-varying state machines in a
-distributed system. More specifically, given a deterministic state machine, the
-sequence of inputs that the state machine has processed, and a particular input
-to the state machine, \watprovenance{} formalizes \emph{why} the state machine
-produces the output that it does. This description includes a set of
-subsequences of the input trace that are both necessary and sufficient to
-generate the output in question.  Borrowing from causality, \watprovenance{}
-can be applied to time-varying state machines. Borrowing from \whyprovenance{},
-\watprovenance{} incorporates state machine semantics to avoid
-overapproximating provenance and instead returns \emph{precisely} the inputs
-that cause a particular output.
+In short, causality lacks a notion of data dependence, and data provenance
+lacks a notion of time. In this paper, we present \defword{\watprovenance{}}
+(why-across-time provenance): a novel form of data provenance that unifies
+ideas from the two. \Watprovenance{} generalizes \whyprovenance{} from the
+domain of relational queries issued against a static database to the domain of
+arbitrary time-varying state machines in a distributed system. More
+specifically, given a deterministic state machine, the sequence of inputs that
+the state machine has processed, and a particular input to the state machine,
+\watprovenance{} formalizes \emph{why} the state machine produces the output
+that it does. This description includes a set of subsequences of the input
+trace that are necessary and sufficient to generate the output in
+question. Borrowing from causality, \watprovenance{} can be applied to
+time-varying state machines. Borrowing from \whyprovenance{}, \watprovenance{}
+incorporates state machine semantics to avoid overapproximating provenance.
 
 After we define \watprovenance{}, we turn to the matter of computing it. We
 observe that automatically extracting the \watprovenance{} of a state machine
-is often infeasible or impossible, depending on the state machine.  Computing
-the \watprovenance{} of a state machine is tantamount to inferring the state
-machine's data dependencies using a very complex code analysis of the state
-machine's source code. This source code can be both large and complex which
-makes this code analysis infeasible. In the worst case, we cannot access the
-state machine's source code at all! For example, many distributed systems
-leverage cloud services, like Amazon S3 or Google Cloud Spanner, that have
-proprietary implementations.
+is often infeasible. Computing the \watprovenance{} of a state machine is
+tantamount to inferring the state machine's data dependencies using a very
+complex code analysis of the state machine's source code. This source code can
+be both large and complex which makes this code analysis intractable.
 
 Automatically extracting the \watprovenance{} of an \emph{arbitrary} state
-machine might be hard or even impossible, but most distributed systems
-components are far from arbitrary. Many distributed system components are
-designed with simple and minimalistic APIs. We can take advantage of this
-observation and sidestep the complexity of \emph{extracting} the
-\watprovenance{} from the \emph{implementation} of a state machine and instead
-\emph{specify} the \watprovenance{} from the \emph{interface} of a state
-machine. To this end, we propose \defword{\watprovenance{} specifications}:
-functions that directly encode the \watprovenance{} of state machine using its
-interface instead of its implementation.  We describe the provenance
-specifications of a number of widely used distributed systems components (i.e.\
-Redis, Amazon S3, HDFS, Zookeeper) and find that in practice, they are
-straightforward to implement.
+machine might be hard, but most distributed systems components are far from
+arbitrary. Many distributed system components are designed with simple and
+minimalistic APIs. We can take advantage of this observation and sidestep the
+complexity of \emph{extracting} the \watprovenance{} from the
+\emph{implementation} of a state machine and instead \emph{specify} the
+\watprovenance{} from the \emph{interface} of a state machine. To this end, we
+propose \defword{\watprovenance{} specifications}: functions that directly
+encode the \watprovenance{} of state machine using its interface instead of its
+implementation. We describe the provenance specifications of a number of widely
+used distributed systems components (e.g.,\ Redis, Amazon S3, HDFS, Zookeeper)
+and find that in practice, they are often straightforward to implement.
 
 Next, we present \fluent{}: a prototype distributed debugging framework that
 leverages the formal foundations of \watprovenance{} and \watprovenance{}
@@ -93,18 +86,16 @@ In summary, this paper presents the following contributions:
 \begin{itemize}
   \item
     We define \watprovenance{}: a formalism that extends notions of data
-    provenance to the realm of state machines in a distributed system. We also
-    prove a pair of properties demonstrating the formalism's soundness.
+    provenance to the realm of state machines in a distributed system.
   \item
     We present \watprovenance{} specifications: a mechanism to compute the
     \watprovenance{} of distributed system components for which automatically
     extracting the \watprovenance{} is otherwise impractical. We also describe
     the \watprovenance{} specifications of a number of widely used distributed
-    systems components, illustrating that \watprovenance{} specifications are
-    straightforward to write in the common case.
+    systems components, illustrating that \watprovenance{} specifications can
+    be straightforward to write.
   \item
     We implement the theoretical foundations of \watprovenance{} in a system
     called \fluent{} and demonstrate that \fluent{} can be used to debug
-    distributed systems with significantly less effort than what is currently
-    possible when using existing techniques.
+    distributed systems with less effort than when using existing techniques.
 \end{itemize}
