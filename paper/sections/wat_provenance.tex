@@ -367,15 +367,23 @@ limitations.
 identify the necessary and sufficient inputs that cause a state machine to
 produce a particular output (the \emph{why}), but unlike low-level debugging
 tools like GDB, it cannot describe the details of the code that actually
-produces a particular output (the \emph{how}).  As a concrete example, consider
-the relational database state machine from \exampleref{WatExampleSetDiff}.
-Given a relational query $Q$, \watprovenance{} can identify the inputs that
-cause the query $Q$ to evaluate the way it does, but \watprovenance{} cannot
-help you step through the details of any particular query execution engine.
+produces a particular output (the \emph{how}).
+
+To make things concrete, consider again our motivating example from
+\secref{WatProvenanceExample} in which two of Ava's requests were reordered,
+allowing Bob to erroneously see Ava's mean comment. We can use \watprovenance{}
+to debug scenarios like this one. These types of scenarios require us to reason
+about which messages affect other messages, to reason about how events are
+ordered with respect to another, and to reason about how data is transferred
+across multiple machines across a span of time. On the other hand,
+\watprovenance{} cannot help us understand why a particular node is
+segfaulting; we need a lower-level tool like GDB for this.
+
 Thus, we view \watprovenance{} and GDB-like debuggers as complementary. When
-debugging, a developer can use \watprovenance{} to narrow their attention to
-the relevant inputs and then use a low-level debugger like GDB to fill in the
-details.
+debugging, a developer can use \watprovenance{} to trace the root cause of a
+bug across a system, narrowing their attention down to only the relevant
+inputs. Then, if needed, they can use a low-level debugger like GDB to discover
+the details of what's going wrong.
 
 \paragraph{\Watprovenance{} requires determinism.}
 \Watprovenance{} is defined with respect to \emph{deterministic} state
