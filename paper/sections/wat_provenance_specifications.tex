@@ -27,22 +27,21 @@ function that---given a trace $T$ and request $i$---directly returns the
 \watprovenance{} $\Wat{M, T, i}$ for a black box modeled as state machine $M$.
 
 For example, if we restrict our attention to the \kvget{} and \kvset{} API of
-Redis (as with \exampleref{WatExampleXyx}), then the \watprovenance{}
-specification of a \kvget{} request is trivial: \textbf{the \watprovenance{} of
-a \kvget{} request for key $k$ includes only the most recent \kvset{} to
-$k$}. Redis is implemented in over 50,000 lines of C. Analyzing this body of
-code and inferring the \watprovenance{} of a \kvget{} request is infeasible
-using modern program analysis techniques. \Watprovenance{} specification
-avoids this issue entirely and instead specifies the \watprovenance{} in a
-single line of text.
+Redis, then the \watprovenance{} specification of a \kvget{} request is
+trivial: \textbf{the \watprovenance{} of a \kvget{} request for key $k$
+includes only the most recent \kvset{} to $k$}. Redis is implemented in over
+50,000 lines of C. Analyzing this body of code and inferring the
+\watprovenance{} of a \kvget{} request is infeasible using modern program
+analysis techniques. \Watprovenance{} specification avoids this issue entirely
+and instead specifies the \watprovenance{} in a single line of text.
 
 Moreover, codifying this one-line \watprovenance{} specification is expectedly
-straightforward. \Watprovenance{} specifications are implemented as simple
-functions that take in a trace $T$ and an input $i$ and return the
-\watprovenance{} of $i$. Thus, \watprovenance{} specifications can be written
-in any programming language and can use any language features available.
-\Watprovenance{} specifications do not have to be written using any special
-domain specific language or using any restricted subset of a language.
+straightforward. \Watprovenance{} specifications are implemented as functions
+that take in a trace $T$ and an input $i$ and return the \watprovenance{} of
+$i$. Thus, \watprovenance{} specifications can be written in any programming
+language and can use any language features available.  \Watprovenance{}
+specifications do not have to be written using any special domain specific
+language or using any restricted subset of a language.
 
 As a simple example, we provide a Python implementation of the one line
 \watprovenance{} specification in \figref{RedisProvSpec}.  The specification,
@@ -63,7 +62,7 @@ witness.
 In \secref{Fluent}, we present a prototype implementation of a system for
 writing \watprovenance{} specifications and describe the details of concretely
 how traces are collected and how \watprovenance{} specifications are written.
-In this section, we omit the details and focus on the concepts behind
+In this section, we omit these details and focus on the concepts behind
 \watprovenance{} specifications.
 
 \subsection{Examples}
@@ -190,12 +189,11 @@ is inherently very difficult. For example, consider a state machine that
 implements an online support vector machine (SVM)~\cite{hearst1998support,
 laskov2006incremental, bordes12huller}. Clients can either (a) submit training
 data to the state machine to update the model or (b) submit test data to the
-state machine to get classified. The \watprovenance{} of a classification
+state machine for classification. The \watprovenance{} of a classification
 request includes only the support vectors of the model at the time of
 classification. Writing a \watprovenance{} specification to identify these
 support vectors is possible but very difficult. Such a \watprovenance{}
 specification would likely be as complicated as the state machine itself.
-\todo{Give more examples?}
 
 % However, not \emph{every} black box has a simple provenance specification. Take
 % for example, a relational database where users can insert tuples and issue

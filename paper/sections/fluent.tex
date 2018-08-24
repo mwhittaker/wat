@@ -25,9 +25,9 @@ database.
 
 Second, \fluent{} shims implement a simple distributed tracing service.
 Whenever a \fluent{} shim receives a request, it records the address of the
-message's \emph{sender} along with the request. Similarly, whenever a \fluent{}
+message's sender along with the request. Similarly, whenever a \fluent{}
 shim sends a request, it records the address of the message's
-\emph{destination}.
+destination.
 %
 This enables a developer to integrate the \watprovenance{} of multiple black
 boxes within a distributed system. To find the cause of a particular black box

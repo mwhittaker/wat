@@ -65,10 +65,11 @@ and sidestep the complexity of \emph{extracting} the \watprovenance{} from the
 \emph{implementation} of a state machine and instead \emph{specify} the
 \watprovenance{} from the \emph{interface} of a state machine. To this end, we
 propose \defword{\watprovenance{} specifications}: functions that directly
-encode the \watprovenance{} of state machine using its interface instead of its
-implementation. We describe the provenance specifications of a number of widely
-used distributed systems components (e.g.,\ Redis, Amazon S3, HDFS, Zookeeper)
-and find that in practice, they are often straightforward to implement.
+encode the \watprovenance{} of a state machine using its interface instead of
+its implementation. We describe the provenance specifications of a number of
+widely used distributed systems components (e.g.,\ Redis, Amazon S3, HDFS,
+Zookeeper) and find that in practice, they are often straightforward to
+implement.
 
 Next, we present \fluent{}: a prototype distributed debugging framework that
 leverages the formal foundations of \watprovenance{} and \watprovenance{}
@@ -89,12 +90,12 @@ In summary, this paper presents the following contributions:
   \item
     We present \watprovenance{} specifications: a mechanism to compute the
     \watprovenance{} of distributed system components for which automatically
-    extracting the \watprovenance{} is otherwise impractical. We also describe
-    the \watprovenance{} specifications of a number of widely used distributed
-    systems components, illustrating that \watprovenance{} specifications can
-    be straightforward to write.
+    extracting the \watprovenance{} is otherwise impractical.
+    We also describe the \watprovenance{} specifications of a number of widely
+    used distributed systems components, illustrating that \watprovenance{}
+    specifications can be straightforward to write.
   \item
-    We implement the theoretical foundations of \watprovenance{} in a system
-    called \fluent{} and demonstrate that \fluent{} can be used to debug
+    We implement the theoretical foundations of \watprovenance{} in a prototype
+    system called \fluent{} and demonstrate that \fluent{} can be used to debug
     distributed systems with less effort than when using existing techniques.
 \end{itemize}

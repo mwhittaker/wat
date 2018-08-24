@@ -22,31 +22,32 @@ set of single-threaded servers that communicate over the network. Every server
 $a$ serially executes a sequence of events $a_1, a_2, a_3, \ldots$ where each
 event $a_i$ represents the action of server $a$ either (1) performing local
 computation, (2) sending a message to another server, or (3) receiving a
-message from another server. For example, consider the execution illustrated in
-\figref{Causality}. There are three servers ($a$, $b$, and $c$) and eight
-events ($a_1, a_2, \ldots, c_2$).  $a_1$ represents a local computation on $a$,
-$a_2$ represents server $a$ sending a message to server $b$, and event $b_2$
-represents the receipt of this message by server $b$.
+message from another server.
 
-{\input{figures/causality}}
+% For example, consider the execution illustrated in \figref{Causality}. There
+% are three servers ($a$, $b$, and $c$) and eight events ($a_1, a_2, \ldots,
+% c_2$).  $a_1$ represents a local computation on $a$, $a_2$ represents server
+% $a$ sending a message to server $b$, and event $b_2$ represents the receipt of
+% this message by server $b$.
+
+% {\input{figures/causality}}
 
 The \defword{happens before} relation $\happensbefore$ on events is the
 smallest transitive relation such that
 %
 (1)
-  if $a_i, a_j$ are two distinct events within the same process (e.g. $a_1,
-  a_2$ in \figref{Causality}), then $a_i$ happens before $a_j$, and
+  if $a_i, a_j$ are two distinct events within the same process, then $a_i$
+  happens before $a_j$, and
 (2)
-  if $a_i$ and $b_j$ are the sending and receiving of a message respectively
-  (e.g. $a_2$ and $b_2$ in \figref{Causality}), then $a_i$ happens before
-  $b_j$.
+  if $a_i$ and $b_j$ are the sending and receiving of a message respectively,
+  then $a_i$ happens before $b_j$.
 %
-For example, in \figref{Causality}, $b_1 \happensbefore b_2$, and $a_1
-\happensbefore c_2$. The happens before relation is a partial order and
-formalizes our intuitive notion of which events can causally affect each other.
-An event $a_i$ can only be caused by an event $b_j$ that happens before it.
-The set $\setst{b_j}{b_j \happensbefore a_i}$ is called the \defword{causal
-history} of $a_i$.
+% For example, in \figref{Causality}, $b_1 \happensbefore b_2$, and $a_1
+% \happensbefore c_2$.
+The happens before relation is a partial order and formalizes our intuitive
+notion of which events can causally affect each other.  An event $a_i$ can only
+be caused by an event $b_j$ that happens before it.  The set $\setst{b_j}{b_j
+\happensbefore a_i}$ is called the \defword{causal history} of $a_i$.
 
 \subsection{Data Provenance}
 Given a relational database instance $I$, a relational algebra query $Q$, and a

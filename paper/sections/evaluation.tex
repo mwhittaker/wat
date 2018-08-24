@@ -9,23 +9,17 @@
 %       output.
 % }
 
-In this section, we answer two questions:
-\begin{enumerate}
-  \item
-    How difficult is it to write \watprovenance{} specifications?
-
-  \item
-    How do \watprovenance{} and \watprovenance{} specifications compare to
-    other debugging techniques?
-\end{enumerate}
+In this section, we answer two questions: (1) How difficult is it to write
+\watprovenance{} specifications? and (2) How do \watprovenance{} and
+\watprovenance{} specifications compare to other debugging techniques?
 We answer question $1$ in \secref{EvalWatProvSpecs} and question $2$ in
 \secref{EvalWatProvRedis}.
 
 \subsection{\WatProvenance{} Specifications}\seclabel{EvalWatProvSpecs}
-\begin{table}[t]
+\begin{table*}[t]
   \caption{\fluent{} \watprovenance{} specifications}
   \tablabel{ProvSpecLengths}
-  \begin{tabular}{lllp{3cm}}
+  \begin{tabular}{llll}
     \toprule
     System    & Language & LOC & Supported API                                                         \\\midrule
     Redis     & SQL      & 30  & set, del, append, incr, decr, incrby, decrby, strlen                  \\
@@ -34,22 +28,18 @@ We answer question $1$ in \secref{EvalWatProvSpecs} and question $2$ in
     Zookeeper & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
     \bottomrule
   \end{tabular}
-\end{table}
+\end{table*}
 
 In \secref{WatProvSpecs}, we argued that many commonly used distributed system
-components have relatively simple \watprovenance{} specifications. We
-substantiated this argument by providing high-level \watprovenance{}
-specifications for a number of distributed systems components (e.g.,\ key-value
-stores, object stores, distributed file systems).
-
-In this subsection, we further substantiate our argument with concrete
-\watprovenance{} specifications for Redis, a subset of the POSIX file system
-API, Amazon S3, and Zookeeper. We implemented these \watprovenance{}
-specifications using \fluent{}. \tabref{ProvSpecLengths} lists the language in
-which each provenance specification is written, the lines of code required to
-write each specification, and the API supported by each specification. All of
-the provenance specifications are relatively short, and we found that writing
-the specifications was straightforward. As we discussed in
+components have relatively simple \watprovenance{} specifications. In this
+subsection, we substantiate our argument with concrete \watprovenance{}
+specifications for Redis, a subset of the POSIX file system API, Amazon S3, and
+Zookeeper. We implemented these \watprovenance{} specifications using
+\fluent{}. \tabref{ProvSpecLengths} lists the language in which each provenance
+specification is written, the lines of code required to write each
+specification, and the API supported by each specification. All of the
+provenance specifications are relatively short, and we found that writing the
+specifications was straightforward. As we discussed in
 \secref{WatProvSpecsLimitations}, this does not mean that \emph{all}
 distributed system components have simple \watprovenance{} specifications, but
 it does mean that many commonly used components do.
@@ -81,7 +71,7 @@ summarized in \tabref{DebugComparison}.
 
 \subsubsection{SPADE}
 SPADE~\cite{gehani2012spade} is a framework that collects provenance
-information of arbitrary black boxes in a distributed system. SPADE collects
+information from arbitrary black boxes in a distributed system. SPADE collects
 provenance information from a variety of sources including operating system
 audit logs, network artifacts, LLVM instrumented applications, and applications
 dynamically instrumented for taint analysis. These techniques are the current
@@ -194,8 +184,8 @@ inherent to shims.
 
 \paragraph{Ease of High- and Low-Level Debugging}
 \fluent{}'s greatest strength is that it makes high-level debugging easy.
-\watprovenance{} formalizes the intuitive notion of which inputs in a
-distributed system cause a particular output. \watprovenance{} specifications
+\Watprovenance{} formalizes the intuitive notion of which inputs in a
+distributed system cause a particular output. \Watprovenance{} specifications
 allow a developer to codify these intuitions and automatically use them to
 filter irrelevant information when debugging. By refining causality,
 \watprovenance{} also allows developers to reason about the ordering of events

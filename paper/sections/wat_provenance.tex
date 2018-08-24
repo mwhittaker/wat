@@ -6,7 +6,7 @@ It's difficult to reason precisely about the causes of events in a
 heterogeneous distributed system. To best understand why, let's look at a
 simple example. Consider the implementation of a Facebook-like social media
 application called \systemname{}, illustrated in \figref{MeanComment}.
-\systemname{} users can post status updates to their wall, and these updates
+\systemname{} users can post status updates, and these updates
 are only viewable by their friends on the site. Users send requests to a load
 balancer that forwards the requests to one of three weakly consistent
 Redis-backed application servers: $s_1$, $s_2$, and $s_3$. These application
@@ -15,7 +15,7 @@ synchronize their caches with a centralized Postgres database.
 
 Consider a scenario in which Ava, a \systemname{} user, has a falling out with
 Bob, a friend of hers on the site. Ava unfriends Bob and then posts the status
-``Bob is a big jerk!'' to her wall, thinking that Bob will not see the status
+``Bob is a big jerk!'', thinking that Bob will not see the status
 because he is no longer her \systemname{} friend. Unfortunately, Bob later logs
 in to \systemname{} and sees Ava's mean comment!
 
@@ -374,7 +374,7 @@ To make things concrete, consider again our motivating example from
 allowing Bob to erroneously see Ava's mean comment. We can use \watprovenance{}
 to debug scenarios like this one. These types of scenarios require us to reason
 about which messages affect other messages, to reason about how events are
-ordered with respect to another, and to reason about how data is transferred
+ordered with respect to one another, and to reason about how data is transferred
 across multiple machines across a span of time. On the other hand,
 \watprovenance{} cannot help us understand why, for example, a particular node
 is segfaulting; we need a lower-level tool like GDB for this.
