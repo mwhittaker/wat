@@ -1,124 +1,27 @@
 \section{Evaluation}\seclabel{Evaluation}
-\todo{%
-  Revise evaluation section:
-    - show fluent output.
-    - show throughput of redis and S3 when traced by SPADE.
-    - emphasize prototype nature of shim overheads.
-    - reduce size of evaluation.
-    - run spade on a hand-written KVS to show that spade can produce smaller
-      output.
-}
+% \todo{%
+%   Revise evaluation section:
+%     - show fluent output.
+%     - show throughput of redis and S3 when traced by SPADE.
+%     - emphasize prototype nature of shim overheads.
+%     - reduce size of evaluation.
+%     - run spade on a hand-written KVS to show that spade can produce smaller
+%       output.
+% }
 
-We now evaluate the succinctness of the provenance produced by \fluent{}, the
-complexity of writing \watprovenance{} specifications, and the performance
-overheads of \fluent{} shims.
+In this section, we answer two questions:
+\begin{enumerate}
+  \item
+    How difficult is it to write \watprovenance{} specifications?
 
-\subsection{Provenance Succinctness: A Case Study}
-SPADE~\cite{gehani2012spade} is a framework for collecting provenance
-information in distributed systems composed of arbitrary black boxes. SPADE
-collects provenance information from a variety of sources including operating
-system audit logs, network artifacts, LLVM instrumented applications, and
-applications dynamically instrumented for taint analysis. These techniques are
-the current state of the art in extracting the provenance of arbitrary black
-boxes.
+  \item
+    How do \watprovenance{} and \watprovenance{} specifications compare to
+    other debugging techniques?
+\end{enumerate}
+We answer question $1$ in \secref{EvalWatProvSpecs} and question $2$ in
+\secref{EvalWatProvRedis}.
 
-In this section, we compare the provenance information produced by SPADE (using
-kernel auditing and using LLVM instrumentation) against the provenance
-information produced by \fluent{}. To do so, we apply SPADE and \fluent{} to a
-trivial workload that consists of a single get request and a single set request
-to the same key issued against a Redis database. Momentarily, we will see that
-even for this trivial workload, \fluent{} produces \watprovenance{} that is
-orders of magnitude more succinct than the provenance produced by SPADE.
-
-{\input{figures/spade}}
-
-\paragraph{SPADE (Kernel Auditing)}
-The Linux kernel includes an auditing subsystem that records security related
-events that take place on a system. For example, the auditing subsystem can
-intercept and record the syscalls that are issued by processess running on the
-system. Thus, the auditing subsystem can record when sockets are opened, when
-files are read from or written to, when processes are launched, etc. We
-configured SPADE to capture the information produced by this auditing subsystem
-during the exuection of our trivial set and get Redis workload. SPADE produced
-a provenance graph with 191 vertices and 896 edges. A small sample of the
-information stored in the vertices is shown in \figref{SyscallProv}.
-
-This type of kernel audit provenance has two major flaws. The first and most
-notable is that it includes a large amount of low-level information that is
-difficult to understand. Before a developer can debug with the kernel audit
-provenance, they must first have a strong understanding of the various Linux
-syscalls. Then, they must understand when and why Redis issues these syscalls,
-which requires a deep understanding of Redis' implementation. Second, the
-kernel audit provenance doesn't include some vital pieces of information that
-are required to understand the workload. Notably, syscalls do not capture
-writes to memory, so they do not provide visibility into the fact that our get
-request reads from the same memory location as the previous set request.
-
-\paragraph{SPADE (LLVM Instrumentation)}
-SPADE can trace the function calls of certain LLVM instrumented executables. We
-compiled the Redis server with LLVM instrumentation and integrated it with
-SPADE. We did \emph{not} compile the Redis client with LLVM instrumentation, so
-SPADE did \emph{not} trace the function calls of the client. We then ran our
-simple Redis workload. SPADE produced a provenance graph with 399,916 vertices
-and 718,848 edges! A sample of the information stored in these vertices is
-shown in \figref{LlvmProv}.
-
-This provenance has two shortcomings. The first is immediate; the provenance
-includes an overwhelming amount of information. A single set and get request
-produced over a million combined vertices and edges. If the Redis server
-processed a modest ten transactions per second for one minute, it would produce
-over half a \emph{billion} combined vertices and edges. Worse, interpreting
-this provenance requires a deep understanding of the underlying Redis
-implementation. Second, when an executable is compiled with LLVM
-instrumentation, its execution is significantly slowed because every function
-invocation requires the executable to report provenance information to the
-SPADE server.
-
-\paragraph{\fluent{}}
-Finally, we ran our workload with \fluent{}. The \fluent{} \watprovenance{}
-specification for Redis get requests is given in
-\figref{ConcreteRedisProvSpec}. The Redis shim is 75 lines of C++.  \fluent{}
-produced eight trace entries: a get and set request and response on both the
-Redis client and the Redis server. This is four orders of magnitude more
-succinct that the SPADE provenance produced by LLVM instrumentation. Moreover,
-applying Redis' \watprovenance{} specification to the get request, it returns
-the previous set request and nothing else.
-%
-% We summarize these findings in \tabref{ProvSizes}
-
-The provenance produced by \fluent{} improves upon the provenance produced by
-SPADE in two ways. First, \fluent{}'s provenance is based on the theoretical
-foundations of \watprovenance{}. While kernel audits and function traces
-provide low-level explanations of particular events in a system,
-\watprovenance{} directly encodes our high-level understanding of \emph{why}
-certain outputs are produced. Second, SPADE and similar frameworks, like
-RDataTracker~\cite{lerner2014collecting} and
-noWorkflow~\cite{murta2014noworkflow}, aim to produce provenance for arbitrary
-black boxes. In this quest for generality, they adopt general-purpose
-provenance tracing mechanisms that can be applied to any black box. For
-example, compile-time instrumentation is a technique that can be applied to any
-executable.  Unfortunately, the generality of these approaches causes them to
-produce provenance that is too voluminous and too low-level. \Watprovenance{}
-specifications sidestep this generality and instead have a developer directly
-specify the \watprovenance{} of a particular black box. As a result,
-\watprovenance{} specifications can produce much higher-level provenance that
-is significantly more succinct. \Watprovenance{} produces only the relevant
-inputs to a black box, while SPADE produces all the low-level activities that
-occur \emph{within} the black box.
-
-% {\input{figures/prov_sizes}}
-
-\subsection{\WatProvenance{} Specifications}
-In \secref{WatProvSpecs}, we described the \watprovenance{} specifications for
-a number of commonly used distributed systems components such as Redis, Amazon
-Z3, etc. We implemented \fluent{} \watprovenance{} specifications for Redis, a
-subset of the POSIX file system API, Amazon S3, and Zookeeper. In
-\tabref{ProvSpecLengths}, we list the language in which each provenance
-specification is written, the lines of code required to write each
-specification, and the API supported by each specification. All of the
-provenance specifications are relatively short, and we found that writing the
-specifications was straightforward.
-
+\subsection{\WatProvenance{} Specifications}\seclabel{EvalWatProvSpecs}
 \begin{table}[t]
   \caption{\fluent{} \watprovenance{} specifications}
   \tablabel{ProvSpecLengths}
@@ -126,9 +29,176 @@ specifications was straightforward.
     \toprule
     System    & Language & LOC & Supported API                                                         \\\midrule
     Redis     & SQL      & 30  & set, del, append, incr, decr, incrby, decrby, strlen                  \\
-    POSIX     & Python   & 88  & reads and writes of byte ranges                                       \\
+    POSIX     & Python   & 88  & reading and writing byte ranges                                       \\
     Amazon S3 & Python   & 200 & creating, copying, catting, removing, and listing objects and buckets \\
     Zookeeper & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
     \bottomrule
   \end{tabular}
 \end{table}
+
+In \secref{WatProvSpecs}, we argued that many commonly used distributed system
+components have relatively simple \watprovenance{} specifications. We
+substantiated this argument by providing high-level \watprovenance{}
+specifications for a number of distributed systems components (e.g.,\ key-value
+stores, object stores, distributed file systems).
+
+In this subsection, we further substantiate our argument with concrete
+\watprovenance{} specifications for Redis, a subset of the POSIX file system
+API, Amazon S3, and Zookeeper. We implemented these \watprovenance{}
+specifications using \fluent{}. \tabref{ProvSpecLengths} lists the language in
+which each provenance specification is written, the lines of code required to
+write each specification, and the API supported by each specification. All of
+the provenance specifications are relatively short, and we found that writing
+the specifications was straightforward. As we discussed in
+\secref{WatProvSpecsLimitations}, this does not mean that \emph{all}
+distributed system components have simple \watprovenance{} specifications, but
+it does mean that many commonly used components do.
+
+\subsection{Debugging with \WatProvenance}\seclabel{EvalWatProvRedis}
+How do \watprovenance{} and \watprovenance{} specifications compare to other
+debugging techniques? We answer this question by comparing \fluent{}, our
+prototype \watprovenance{} debugger, against two other debugging techniques:
+SPADE~\cite{gehani2012spade} and \texttt{printf} debugging. We qualitatively
+evaluate the three debugging techniques using four metrics---ease of adoption,
+runtime overhead, ease high-level debugging, and ease of low-level
+debugging---which we will explain momentarily. This qualitative analysis is
+summarized in \tabref{DebugComparison}.
+
+\begin{table*}[t]
+  \caption{A qualitative comparison of debugging techniques}
+  \tablabel{DebugComparison}
+  \begin{tabular}{lllp{3cm}p{3cm}}
+    \toprule
+    Debugging Technique          & Ease Of Adoption & Runtime Overheads & Ease of High-Level Debugging & Ease of Low-Level Debugging \\\midrule
+    SPADE (Audit Logs)           & easy             & low               & hard                         & hard \\
+    SPADE (LLVM Instrumentation) & easy             & high              & hard                         & medium \\
+    \texttt{printf} Debugging    & easy--impossible & low               & medium--hard                 & easy--hard \\
+    \fluent{}                    & easy--hard       & medium            & easy                         & impossible \\
+    % GDB                        & easy             & low               & hard                         & easy \\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\subsubsection{SPADE}
+SPADE~\cite{gehani2012spade} is a framework that collects provenance
+information of arbitrary black boxes in a distributed system. SPADE collects
+provenance information from a variety of sources including operating system
+audit logs, network artifacts, LLVM instrumented applications, and applications
+dynamically instrumented for taint analysis. These techniques are the current
+state of the art in extracting the provenance of unmodified black boxes. For the
+sake of brevity, we will focus only on the provenance that SPADE collects from
+operating system audit logs and LLVM instrumented applications.
+
+\paragraph{Ease of Adoption}
+Our first metric, \defword{ease of adoption}, is a measure of how difficult it
+is for a developer to set up the infrastructure required to use a particular
+debugging technique. Ease-of-adoption does not include the difficulty of
+actually debugging using a debugging technique; it only includes the difficulty
+of making a system amenable to the debugging technique.
+%
+The ease of adoption of SPADE, for example, is very low. For SPADE to collect
+operating system audit logs, binaries can be run unmodified. To collect LLVM
+call graphs, binaries have to be compiled with LLVM instrumentation, but the
+code itself remains unchanged.
+
+% Note to self. We ran 100,000 single-threaded synchronous redis ping
+% operations on an EC2 m5.xlarge. When run against a normal redis-server, it
+% takes 2.45 seconds. When run against a LLVM-traced server, it takes 29.766
+% seconds. Both the client and server were run on the same machine. The
+% provenance was not even being stored.
+\paragraph{Runtime Overhead}
+Our second metric, \defword{runtime overhead}, is a measure of the performance
+overheads that a debugging technique imposes on a system.
+%
+When SPADE collects operating system audit logs, it imposes a negligible amount
+of runtime overhead, as operating system audit logs are created whether or not
+SPADE is being used. LLVM instrumented binaries, on the other hand, run
+significantly slower than their uninstrumented counterparts. As a simple
+example, on an Amazon EC2 m5.xlarge instance, we measured that a single Redis
+client required 2.45 seconds to send 100,000 synchronous \texttt{PING}
+operations to a default configured Redis server running on the same machine.
+When we compiled the Redis server with LLVM instrumentation, the client
+required 29.76 seconds, an order of magnitude decrease in throughput.
+
+\paragraph{Ease of High- and Low-Level Debugging}
+Our third and fourth metrics, \defword{ease of high-level debugging} and
+\defword{ease of low-level debugging}, are measures of how difficult it is to
+perform high-level and low-level debugging. As we described in
+\secref{WatProvLimitations}, high-level debugging involves understanding which
+events in a distributed system cause each other, how events are ordered with
+respect to one another, etc. Conversely, low-level debugging involves reasoning
+about the details of how a particular program executes.
+
+We ran SPADE---with audit logging and LLVM instrumentation enabled---against a
+trivial workload consisting of a single set and get to Redis. SPADE produced
+1,087 audit log provenance entries and 1,118,764 LLVM instrumentation
+provenance entries. High-level debugging with either of these sources of
+provenance is difficult due the provenance's size and detailed nature.
+Understanding the reported provenance requires either an understanding of how
+particular syscalls relate to Redis' source code (for audit logs) or a detailed
+understanding of Redis' implementation (for LLVM instrumentation). Low-level
+debugging with audit logs is challenging, because the audit logs lack
+information about the execution of the code being debugged (besides the
+syscalls that it makes). Low-level debugging with LLVM instrumentation is easier
+but still challenging due to the sheer volume of provenance information
+produced.
+
+\newcommand{\printf}{\texttt{printf}}
+\subsubsection{\printf{} Debugging}
+``\printf{} debugging'' is the ad-hoc debugging technique in which a developer
+adds \printf{} statements (or log statements) to the various components of a
+distributed system and then debugs the system by analyzing the resulting logs.
+
+\paragraph{Ease of Adoption}
+The ease of implementing \printf{} debugging depends on (a) how many log
+statements a developer wants to add and (b) the piece of code to which a
+developer wants to add log statements. It's relatively easy for a developer to
+add logging to a piece of code that they wrote because they know where and what
+to log. If the code is a complex piece of open source software (e.g. Apache
+Cassandra, Apache Zookeeper), then adding log statements requires understanding
+at least part of the software's implementation. If the code is closed-source
+(e.g. Cloud Spanner, Amazon Redshift), then adding log statements is
+impossible.
+
+\paragraph{Runtime Overheads}
+The overheads of logging are typically negligible compared to heavier weight
+techniques like LLVM instrumentation or \fluent{} shims.
+
+\paragraph{Ease of High- and Low-Level Debugging}
+The ease of high- and low-level \printf{} debugging is challenging to
+characterize. It varies from easy to difficult based on the complexity of the
+bug being debugged, the quantity and quality of logs, etc. Still, for
+high-level debugging, there is an unavoidable burden imposed by \printf{}
+debugging. Developers have to make sure enough information is logged, collect
+logs from a number of machines (some of which might have crashed), filter out
+irrelevant entries from the potentially voluminous logs, and trace data across
+multiple logs.
+
+\subsubsection{\fluent{}}
+\paragraph{Ease of Adoption}
+In order to adopt \fluent{}, a developer must first write \watprovenance{}
+specifications for each component in the system. As we discussed, many
+distributed system components have relatively simple \watprovenance{}
+specifications for which adopting Watermelon is relatively easy, while some
+components have very complex \watprovenance{} specifications that make
+\fluent{} more challenging to adopt.
+
+\paragraph{Runtime Overheads}
+\fluent{} shims introduce a non-negligible amount of runtime overhead by
+intercepting network messages and periodically persisting traces. We measured
+the performance overheads of \fluent{} shims on trivial workload in which a
+Redis client performs a series of \texttt{SET} operations against a Redis
+server. \fluent{} shims decreased the system's throughput by 41.4\%. While some
+of this performance degradation is an artifact of our prototype, some is
+inherent to shims.
+
+\paragraph{Ease of High- and Low-Level Debugging}
+\fluent{}'s greatest strength is that it makes high-level debugging easy.
+\watprovenance{} formalizes the intuitive notion of which inputs in a
+distributed system cause a particular output. \watprovenance{} specifications
+allow a developer to codify these intuitions and automatically use them to
+filter irrelevant information when debugging. By refining causality,
+\watprovenance{} also allows developers to reason about the ordering of events
+in a distributed system without having to manually trace events through a set
+of machine logs. Conversely, \fluent{}'s greatest weakness is that it cannot be
+used for low-level debugging.

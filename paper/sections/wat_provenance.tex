@@ -358,7 +358,7 @@ witnesses, which includes messages sent by other nodes in the distributed
 system. In \secref{Fluent}, we see how to enrich \watprovenance{} with this
 information.
 
-\subsection{Limitations}
+\subsection{Limitations}\seclabel{WatProvLimitations}
 To clarify the strengths of \watprovenance{}, we pause to discuss its
 limitations.
 
@@ -376,8 +376,8 @@ to debug scenarios like this one. These types of scenarios require us to reason
 about which messages affect other messages, to reason about how events are
 ordered with respect to another, and to reason about how data is transferred
 across multiple machines across a span of time. On the other hand,
-\watprovenance{} cannot help us understand why a particular node is
-segfaulting; we need a lower-level tool like GDB for this.
+\watprovenance{} cannot help us understand why, for example, a particular node
+is segfaulting; we need a lower-level tool like GDB for this.
 
 Thus, we view \watprovenance{} and GDB-like debuggers as complementary. When
 debugging, a developer can use \watprovenance{} to trace the root cause of a
