@@ -30,7 +30,9 @@
     % Trace.
     \begin{scope}
       \trace{0, 0} \ai{} \aii{} \aiii{} \aiv{}
-      \centertext{trace $T$};
+      % The phantom p's are here to vertically align all the text at the top of
+      % this figure.
+      \centertext{\phantom{p}trace $T$\phantom{p}};
     \end{scope}
 
     % Subtrace.
@@ -42,7 +44,9 @@
     % Subtraces.
     \begin{scope}[shift={(2.2, 0)}]
       \trace{0, 0}
-      \centertext{subtraces of $T'$};
+      % The phantom p's are here to vertically align all the text at the top of
+      % this figure.
+      \centertext{\phantom{p}subtraces of $T'$\phantom{p}};
       \trace{0, 0} \ai{} \aiii{}
       \trace{0, -0.5}  \aiii{}
       \trace{0, -1} \ai{}

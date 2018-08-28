@@ -4,10 +4,10 @@
 
 \subsection{Causality}
 As described by Lamport in \cite{lamport1978time}, time is fundamental to our
-understanding of how events are ordered. It is clear, tautological even, that if
-an event occurs at 6:42, then it \emph{happens before} another event that
-occurs at 6:45. Unfortunately, accurately measuring time in a distributed
-system is infeasible~\cite{marzullo1984maintaining, sampath2012synchronization,
+understanding of how events are ordered. It is clear that if an event occurs at
+6:42, then it \emph{happens before} another event that occurs at 6:45.
+Unfortunately, accurately measuring time in a distributed system is
+infeasible~\cite{marzullo1984maintaining, sampath2012synchronization,
 schmid2000orthogonal}. Clocks on different servers within a distributed system
 drift apart, so servers cannot agree on a single global notion of time, and
 thus they cannot agree on a single global \emph{total order} of events that
@@ -53,7 +53,7 @@ be caused by an event $b_j$ that happens before it.  The set $\setst{b_j}{b_j
 Given a relational database instance $I$, a relational algebra query $Q$, and a
 tuple $t$ in the output of the query, it is natural to ask why $t$ appears in
 the output. For example, consider the relational database instance given in
-\figref{DataProvenance} which describes users and friends in a social media
+\figref{DataProvenance} that describes users and friends in a social media
 application.  And, consider the relational algebra query
 \[
   \footnotesize
@@ -94,7 +94,7 @@ tuple is the set $\set{J_1, J_2}$ where
   J_1 &= \set{(\text{ecodd}, \text{jumpman}), (\text{jumpman}, \text{Michael Jordan})} \\
   J_2 &= \set{(\text{ecodd}, \text{mlpro}), (\text{mlpro}, \text{Michael Jordan})}
 \end{align*}
-Both $J_1$ and $J_2$ are minimal witnesses, so the \whyprovenance{} and minimal
+$J_1$ and $J_2$ are minimal witnesses, so the \whyprovenance{} and minimal
 \whyprovenance{} of $t = \text{(Michael Jordan)}$ are the same.
 
 % The definition of \Whyprovenance{} for select ($\sigma$), project ($\pi$), join
@@ -136,10 +136,10 @@ $\delta(s, a)$ and outputs $\epsilon(s, a)$.
 
 In our work, we need to reason about specific sub-inputs to a state machine, in
 the spirit of \whyprovenance{}, so we introduce some notation here. We refer to
-a sequence of inputs received by a state machine as a \defword{trace} $T = a_1
-a_2 \ldots a_n \in \Sigma^*$. A \defword{subtrace} $T'$ of $T$ is a subsequence
-$T' = a_{i_1} a_{i_2} \ldots a_{i_m}$ where $i_1, i_2, \ldots, i_m$ are
-distinct elements of $1, 2, \ldots, n$ in ascending order. Note that a
+an ordered sequence of inputs received by a state machine as a \defword{trace}
+$T = a_1 a_2 \ldots a_n \in \Sigma^*$. A \defword{subtrace} $T'$ of $T$ is a
+subsequence $T' = a_{i_1} a_{i_2} \ldots a_{i_m}$ where $i_1, i_2, \ldots, i_m$
+are distinct elements of $1, 2, \ldots, n$ in ascending order. Note that a
 subsequence does \emph{not} have to be contiguous. For example, $T' = a_1 a_3$
 is a subtrace of $T = a_1 a_2 a_3 a_4$. If $T'$ is a subtrace of $T$, then a
 \defword{supertrace of $T'$ in $T$} is a subtrace of $T$ that contains every
@@ -158,5 +158,5 @@ state reached after sequentially executing the inputs in $T$ starting in state
 $s$. Similarly, we can extend $\epsilon$ to a function $\epsilon: S \times
 \Sigma^+ \to \Lambda$ which takes in a state $s$ and a non-empty trace $T = a_1
 \ldots a_n \in \Sigma^+$ and returns $\epsilon(\delta^*(s, a_1 a_2 \ldots
-a_{n-1}), a_n)$: the final output produced from sequentially executing every
-input in $T$ starting in state $s$.
+a_{n-1}), a_n)$: the final output produced from executing every input in $T$
+starting in state $s$.

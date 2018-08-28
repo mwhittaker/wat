@@ -6,12 +6,12 @@ It's difficult to reason precisely about the causes of events in a
 heterogeneous distributed system. To best understand why, let's look at a
 simple example. Consider the implementation of a Facebook-like social media
 application called \systemname{}, illustrated in \figref{MeanComment}.
-\systemname{} users can post status updates, and these updates
-are only viewable by their friends on the site. Users send requests to a load
-balancer that forwards the requests to one of three weakly consistent
-Redis-backed application servers: $s_1$, $s_2$, and $s_3$. These application
-servers store a cache of \systemname{}'s data in Redis and periodically
-synchronize their caches with a centralized Postgres database.
+\systemname{} users post status updates, and these updates are only viewable by
+their friends on the site. Users send requests to a load balancer that forwards
+the requests to one of three weakly consistent Redis-backed application
+servers: $s_1$, $s_2$, and $s_3$. These application servers store a cache of
+\systemname{}'s data in Redis and periodically synchronize their caches with a
+centralized Postgres database.
 
 Consider a scenario in which Ava, a \systemname{} user, has a falling out with
 Bob, a friend of hers on the site. Ava unfriends Bob and then posts the status
@@ -36,31 +36,31 @@ causal history of every event that takes place in the system. Then, we could
 examine the causal history of Bob's request in an attempt to diagnose why Bob
 was seeing Ava's mean comment. Unfortunately, this is not helpful. The causal
 history of Bob's request includes \emph{every} event that causally precedes it,
-whether or not the event is actually relevant. For example, the causal history
-of Bob's request would include every single message that was received by server
-$s_3$ prior to Bob sending his request, even those that do not involve Ava and
-Bob. The problem is that causality is too coarse-grained. It fails to
-incorporate any notion of a system's semantics as a means to filter out
-irrelevant messages. Instead, it returns a vast overapproximation of all the
-events that \emph{might} cause an event instead of the events that
-\emph{actually do} cause an event.
+whether or not the event is relevant. For example, the causal history
+of Bob's request would include every message received by server $s_3$ prior to
+Bob sending his request, even those that do not involve Ava and Bob. The
+problem is that causality is too coarse-grained. It fails to incorporate any
+notion of a system's semantics as a means to filter out irrelevant messages.
+Instead, it returns an overapproximation of all the events that \emph{might}
+cause an event instead of the events that \emph{do} cause an event.
 
 This might prompt us to try and apply ideas from data provenance. Unlike
-causality, \whyprovenance{} does incorporate system semantics in order to
-return the actual causes of a particular output of a query. As discussed
-above, \whyprovenance{} has two fatal flaws. First is \whyprovenance{}'s
-restriction to relational queries: while we might be able to use
-\whyprovenance{} to debug $s_3$'s SQL query that was sent to the Postgres
-database, that is only one small piece of the puzzle. Understanding why Bob
-saw Ava's mean comment requires us to reason about messages that travel through
-our application servers, our Redis servers, and our load balancer. But, these
-are not relational databases, so we cannot apply \whyprovenance{} to them.
-Second and more fundamental is \whyprovenance{}'s inability to reflect any
-notion of state change over time. In particular, the real ``why'' question we
-want to answer here is ``why was the provenance of Bob's query unaffected by
-Ava's unfriend request?''. The \whyprovenance{} of Bob's query has no answer to
-this question; it knows nothing about updates or the order in which they
-happen.
+causality, \whyprovenance{} does incorporate system semantics to return the
+causes of a particular output of a query. As discussed above, \whyprovenance{}
+has two flaws. First is \whyprovenance{}'s restriction to relational queries:
+while we might be able to use \whyprovenance{} to debug $s_3$'s SQL query that
+was sent to the Postgres database, that is only one small piece of the puzzle.
+Understanding why Bob saw Ava's mean comment requires us to reason about
+messages that travel through our application servers, our Redis servers, and
+our load balancer. But, these are not relational databases, so we cannot apply
+\whyprovenance{} to them\footnote{Note that there are other forms of lineage
+(e.g.,~\cite{cui2003lineage}) that can be applied to more generic data
+transformation operators.}. Second and more fundamental is \whyprovenance{}'s
+inability to reflect any notion of state change over time. In particular, the
+real ``why'' question we want to answer here is ``why was the provenance of
+Bob's query unaffected by Ava's unfriend request?'' The \whyprovenance{} of
+Bob's query has no answer to this question; it knows nothing about updates or
+the order in which they happen.
 
 \subsection{Defining \WatProvenance{}}
 In isolation, causality and data provenance are both insufficient to diagnose
@@ -69,12 +69,11 @@ behavior requires us to reason about the ordering of events within the network
 (as with causality) \emph{and} the precise data dependencies between different
 requests (as with data provenance).
 %
-\defword{\Watprovenance{}} is a novel form of data provenance that unifies the
-benefits of causality and data provenance. Borrowing from causality,
-\watprovenance{} is a general-purpose mechanism that can be applied to
-arbitrary state machines. Borrowing from \whyprovenance{}, \watprovenance{}
-incorporates system semantics to produce the actual causes of a particular
-event, rather than a conservative overapproximation.
+\defword{\Watprovenance{}} unifies the benefits of causality and data
+provenance. Borrowing from causality, \watprovenance{} is a general-purpose
+mechanism that can be applied to arbitrary state machines. Borrowing from
+\whyprovenance{}, \watprovenance{} incorporates system semantics to produce the
+causes of an event, rather than a conservative overapproximation.
 
 More formally, we consider a deterministic state machine $M = (S, s_0, \Sigma,
 \Lambda, \delta, \epsilon)$, a trace $T \in \Sigma^*$, and a particular input
@@ -96,17 +95,17 @@ of a sequence of examples, ultimately leading to the definition of
     T = \kvset(x, 1); \kvset(y, 2)
   \]
   that consists of two requests: one that sets the value of $x$ to $1$ and one
-  that sets the value of $y$ to $2$. Consider request $i = \kvget(x)$ which
+  that sets the value of $y$ to $2$. Consider request $i = \kvget(x)$ that
   requests the value of $x$. When $M$ processes trace $T$ and then input $i$,
   it expectedly outputs $1$ (i.e.\ $o = \epsilon^*(s_0, Ti) = 1$).
 
-  Why did $M$ output $1$? Well, in this trivial example, the reason is
-  abundantly clear. $M$ returned $1$ as the value of $x$ because the first
-  request in $T$ set $x$'s value to $1$. More formally, the subtrace $T' =
-  \kvset(x, 1)$ of $T$ suffices to generate the output of $1$ (i.e.
-  $\epsilon^*(s_0, T'i) = o$). The lesson here is that \textbf{the cause of an
-  output $o$ is a subtrace of the input that is sufficient to generate $o$}. We
-  call such a subtrace a \defword{witness} of $o$.
+  Why did $M$ output $1$? In this trivial example, $M$ returned $1$ as the
+  value of $x$ because the first request in $T$ set $x$'s value to $1$. More
+  formally, the subtrace $T' = \kvset(x, 1)$ of $T$ suffices to generate the
+  output of $1$ (i.e.  $\epsilon^*(s_0, T'i) = o$). The lesson here is that
+  \textbf{the cause of an output $o$ is a subtrace of the input that is
+  sufficient to generate $o$}. We call such a subtrace a \defword{witness} of
+  $o$.
 
   However, the entire trace $T$ is also a witness. That is, $T$ also suffices
   to generate an output of $1$. But, the $\kvset(y, 2)$ request is not relevant
@@ -180,13 +179,14 @@ with respect to $M$ and $T$, abbreviated $\Wat{M, T, i}$, is the set of minimal
 elements of $\Wit{M, T, i}$. That is, $\Wat{M, T, i}$ consists of every witness
 $T'$ of $o$ such that (1) $T'$ is closed under supertrace in $T$, and (2) no
 proper subtrace of $T'$ is also a witness of $o$ that satisfies (1)\footnote{%
-  Note the subtlety that in order to compute $\Wat{M, T, i}$, we first compute
-  all the witnesses of $o$ that are closed under supertrace and then remove the
-  non-minimal elements. We do \emph{not} compute all the minimal witnesses and
+  Note the subtlety that to find $\Wat{M, T, i}$, we first list all the
+  witnesses of $o$ that are closed under supertrace and then remove the
+  non-minimal elements. We do \emph{not} list all the minimal witnesses and
   then remove the ones that are not closed under supertrace in $T$.
-  Informally, we compute minimal(closed\_under\_supertrace(witnesses)), not
-  closed\_under\_supertrace(minimal(witnesses)).
-  These two are not the same. See \exampleref{WatExampleAdds}, for example.
+  Informally, \watprovenance{} is
+  minimal(closed\_under\_supertrace(witnesses)), not
+  closed\_under\_supertrace(minimal(witnesses)). These two are not the same.
+  See \exampleref{WatExampleAdds}, for example.
 }. Note that we formally define \watprovenance{} with respect to an input $i$,
 but colloquially discuss \watprovenance{} with respect to the corresponding
 output $o$.
@@ -284,7 +284,7 @@ realistic services such as Redis, Zookeeper, and S3.
 
 \subsection{\WatProvenance{} Properties}
 \exampleref{WatExampleKvs} through \exampleref{WatExampleSetDiff} demonstrate
-that our definition of \watprovenance{} accurately models out intuition about
+that our definition of \watprovenance{} accurately models our intuition about
 data provenance for state machines. We now discuss how \watprovenance{} relates
 to \whyprovenance{} and causality.
 

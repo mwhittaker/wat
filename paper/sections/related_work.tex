@@ -3,10 +3,6 @@
 %
 % \jmh{Would be good to give a nod to Bailis' SoCC paper and also the refs in it on explicit causality~\cite{bailis2012potential}}
 %
-Provenance is a broad and far-reaching concept that has been researched by the
-database, distributed systems, and scientific workflow communities. In this
-section, we summarize the most relevant research from these fields.
-
 \paragraph{Black Box Provenance}
 RDataTracker \cite{lerner2014collecting}, noWorkflow
 \cite{murta2014noworkflow}, and SPADE \cite{gehani2012spade} are frameworks
@@ -22,13 +18,13 @@ produce a large amount of low-level implementation-specific provenance
 information that can be challenging to interpret.
 
 \paragraph{Data-Dependent Process Provenance}
-A data-dependent process (DDP) is a finite state machine in which certain
-transitions are determined by the result of evaluating a query against an
-accompanying relational database while other transitions are triggered by
-external requests~\cite{deutch2014provenance, deutch2015provenance}. In
-\cite{deutch2014provenance} and \cite{deutch2015provenance}, Deutch et al.\
-extend provenance semirings~\cite{green2007provenance} to linear temporal logic
-formulas issued against a DDP.
+A data-dependent process (DDP) is a finite state machine that evaluates queries
+against a relational database to determine some transitions and uses external
+requests to trigger other transitions~\cite{deutch2014provenance,
+deutch2015provenance}. In \cite{deutch2014provenance} and
+\cite{deutch2015provenance}, Deutch et al.\ extend provenance
+semirings~\cite{green2007provenance} to linear temporal logic formulas issued
+against a DDP.
 %
 Both DDP provenance and \watprovenance{} aim to extend traditional data
 provenance to state machines, but they do so in very different ways. DDP
@@ -37,8 +33,8 @@ provenance is used to explain how particular execution traces may arise.
 % For example, DDP provenance might inform us about the database contents under
 % which a particular state in the DDP can be reached.
 %
-\Watprovenance{}, on the other hand, aims to explain why a particular output
-was generated with respect to a fixed trace of inputs.
+\Watprovenance{}, on the other hand, aims to explain why a state machine
+generates a particular output with respect to a fixed trace of inputs.
 % DDPs are also assumed to be finite and backed by relational databases, while
 % \watprovenance{} targets arbitrary (even infinite) deterministic state
 % machines.
@@ -76,12 +72,13 @@ Hadoop~\cite{shvachko2010hadoop} and Apache Spark~\cite{zaharia2010spark} can
 execute data-parallel programs on massive amounts of data both efficiently and
 with fault tolerance. Work on GMRW provenance~\cite{ikeda2011provenance} and
 systems like BigDebug~\cite{gulzar2016bigdebug},
-Titian~\cite{interlandi2015titian}, and RAMP~\cite{park2011ramp} augment DISC
-frameworks like Hadoop and Spark with data provenance. DISC provenance is
-similar to the provenance produced by scientific workflow systems. It is
-restricted to the domain of data intensive computations over static data.
-Unlike \watprovenance{}, it cannot be applied to other distributed systems
-components like storage systems, coordination services, load balancers, etc.
+Titian~\cite{interlandi2015titian}, RAMP~\cite{park2011ramp}, and
+Newt~\cite{logothetis2013scalable} augment DISC frameworks with data
+provenance. DISC provenance is similar to the provenance produced by scientific
+workflow systems. It is restricted to the domain of data intensive computations
+over static data. Unlike \watprovenance{}, it cannot be applied to other
+distributed systems components like storage systems, coordination services,
+load balancers, etc.
 
 \paragraph{Distributed Tracing Tools}
 Distributed tracing tools like Dapper~\cite{sigelman2010dapper},

@@ -5,13 +5,13 @@ Now that we have defined \watprovenance{}, we turn to the matter of computing it
 Automatically computing the \watprovenance{} for an \emph{arbitrary}
 distributed system component, which we dub a \defword{black box}, is often
 intractable and sometimes impossible. Computing the \watprovenance{} of a black
-box requires that we analyze the black box's implementation in order to extract
-the relationships between the inputs and outputs of the black box. Because
-black box implementations can be large and complex, this program analysis is
-almost always intractable. Worse, we may not have access to the source code of
-the black box at all. For example, cloud services like Amazon S3 or Google
-Cloud Spanner have proprietary implementations. In this case,
-automatically computing \watprovenance{} is impossible.
+box requires that we analyze the black box's implementation to extract the
+relationships between the inputs and outputs of the black box. Because black
+box implementations can be large and complex, this program analysis is almost
+always intractable. Worse, we may not have access to the source code of the
+black box at all. For example, cloud services like Amazon S3 or Google Cloud
+Spanner have proprietary implementations. In this case, automatically computing
+\watprovenance{} is impossible.
 
 \newcommand{\kvget}{\texttt{get}}
 \newcommand{\kvset}{\texttt{set}}
@@ -28,8 +28,8 @@ function that---given a trace $T$ and request $i$---directly returns the
 
 For example, if we restrict our attention to the \kvget{} and \kvset{} API of
 Redis, then the \watprovenance{} specification of a \kvget{} request is
-trivial: \textbf{the \watprovenance{} of a \kvget{} request for key $k$
-includes only the most recent \kvset{} to $k$}. Redis is implemented in over
+trivial: the \watprovenance{} of a \kvget{} request for key $k$
+includes only the most recent \kvset{} to $k$. Redis is implemented in over
 50,000 lines of C. Analyzing this body of code and inferring the
 \watprovenance{} of a \kvget{} request is infeasible using modern program
 analysis techniques. \Watprovenance{} specification avoids this issue entirely
@@ -60,10 +60,9 @@ witness.
 {\input{figures/redis_prov_spec}}
 
 In \secref{Fluent}, we present a prototype implementation of a system for
-writing \watprovenance{} specifications and describe the details of concretely
-how traces are collected and how \watprovenance{} specifications are written.
-In this section, we omit these details and focus on the concepts behind
-\watprovenance{} specifications.
+writing \watprovenance{} specifications and describe the details of how the
+system collects traces. In this section, we omit these details and focus on
+the concepts behind \watprovenance{} specifications.
 
 \subsection{Examples}
 The \watprovenance{} specification of a Redis \kvget{} request is particularly
@@ -107,7 +106,7 @@ provenance of the file that was moved.
 Systems use coordination services like Apache
 Zookeeper~\cite{hunt2010zookeeper} and Chubby~\cite{burrows2006chubby} for
 leader election, mutual exclusion, etc. Take Zookeeper as an example.
-Zookeeper's API resembles that a of a file system; users can create, delete,
+Zookeeper's API resembles that of a file system; users can create, delete,
 write, and read file-like objects called znodes. Though the implementation of
 Zookeeper and HDFS are radically different, their APIs (and thus their
 \watprovenance{} specifications) are similar. For example, the \watprovenance{}
@@ -122,16 +121,16 @@ five minutes. Whenever the load balancer receives a message from a client, it
 forwards the message to the server $s_i$ that is least loaded. Modelling the
 forwarding decision $s_i$ as the output of the load balancer, the
 \watprovenance{} specification for the forwarding decision includes the most
-recent heartbeat message from the least loaded server.
+recent heartbeat message from the least-loaded server.
 
 \paragraph{Stateless Services}
-A \defword{stateless service} is a service that can be modelled as a state
-machine with a single state. Given a request, a stateless service always
-produces the same reply, no matter what other requests it has already serviced.
-For example, a web server serving a static website is stateless; it replies to
-all requests with the same website. \Watprovenance{} specifications of a
-stateless service are trivial. Requests are completely independent, so the
-\watprovenance{} of any request consists only of the empty witness.
+A stateless service is a service that can be modelled as a state machine with a
+single state. Given a request, a stateless service always produces the same
+reply, no matter what other requests it has already serviced.  For example, a
+web server serving a static website is stateless; it replies to all requests
+with the same website. \Watprovenance{} specifications of a stateless service
+are trivial. Requests are completely independent, so the \watprovenance{} of
+any request consists only of the empty witness.
 
 % \subsection{Discussion}
 % These examples show that many popular black boxes have simple \watprovenance{}
