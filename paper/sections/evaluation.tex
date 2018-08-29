@@ -19,13 +19,13 @@ We answer question $1$ in \secref{EvalWatProvSpecs} and question $2$ in
 \begin{table*}[t]
   \caption{\fluent{} \watprovenance{} specifications}
   \tablabel{ProvSpecLengths}
-  \begin{tabular}{llll}
+  \begin{tabular}{lllll}
     \toprule
-    System    & Language & LOC & Supported API                                                         \\\midrule
-    Redis     & SQL      & 30  & get, set, del, append, incr, decr, incrby, decrby, strlen             \\
-    POSIX     & Python   & 88  & reading and writing byte ranges                                       \\
-    Amazon S3 & Python   & 200 & creating, copying, catting, removing, and listing objects and buckets \\
-    Zookeeper & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
+    System    & Language & LOC & Number of APIs & Supported API                                                         \\\midrule
+    Redis     & SQL      & 30  & 9              & get, set, del, append, incr, decr, incrby, decrby, strlen             \\
+    POSIX     & Python   & 88  & 2              & reading and writing byte ranges                                       \\
+    Amazon S3 & Python   & 200 & 5              & creating, copying, catting, removing, and listing objects and buckets \\
+    Zookeeper & SQL      & 70  & 4              & creating, reading, writing, and listing znodes                        \\
     \bottomrule
   \end{tabular}
 \end{table*}
@@ -38,22 +38,22 @@ Zookeeper.
 %
 We implemented these \watprovenance{} specifications using \fluent{}.
 \tabref{ProvSpecLengths} lists the language in which we wrote each provenance
-specification, the lines of code required to write each specification, and the
-API supported by each specification.
+specification, the lines of code required to write each specification, the
+number of APIs supported by each specification, and the API supported by each
+specification.
 
-Redis' and Zookeeper's \watprovenance{} specifications were expectedly
-straightforward.
+We found it simple to write \watprovenance{} specifications for 17 of the 20
+APIs. We found specifying three of the APIs slightly more challenging, but
+still relatively straightforward.
 %
-The POSIX file system's \watprovenance{} specification was a bit more
-challenging.  Given a byte range in a file, we walked backwards through the
-trace to find the most recent write to each segment of the byte range. This
-required maintaining a disjoint set of byte ranges, something we found simple
-to implement in Python but challenging to implement in SQL.
+First, specifying the read of a byte range in a file system required us to find
+the most recent write to each segment of the byte range. This required us to
+scan backwards through the trace, maintaining a disjoint set of byte ranges.
 %
-Amazon S3's \watprovenance{} specification was complicated by the fact that
-objects could be moved across buckets. Thus, computing the \watprovenance{}
-catting or listing objects required computing the transitive \watprovenance{}
-of objects that have been moved and copied.
+Second, specifying the catting and listing of objects in Amazon S3 was
+complicated by the fact that objects could be moved across buckets. Thus,
+computing the \watprovenance{} required computing the transitive
+\watprovenance{} of objects that have been moved and copied.
 
 % For Redis' \watprovenance{} specification, we categorize each operation as a
 % ``write'' (i.e.\ set, del), a ``modification'' (i.e.\ append, incr, decr,
@@ -61,11 +61,11 @@ of objects that have been moved and copied.
 % request for a key involves the most recent write and all subsequent
 % modifications of the key.
 
-All of the provenance specifications are relatively short, and we found writing
-the specifications straightforward. As we discussed in
-\secref{WatProvSpecsLimitations}, this does not mean that \emph{all}
-black boxes have simple \watprovenance{} specifications, but many commonly used
-black boxes do.
+% All of the provenance specifications are relatively short, and we found writing
+% the specifications straightforward.
+As we discussed in \secref{WatProvSpecsLimitations}, this does not mean that
+\emph{all} black boxes have simple \watprovenance{} specifications, but it
+corroborates the claim that many commonly used black boxes do.
 
 % What was the "width" of the various APIs you wrapped in terms of #API endpoints (you should report this),
 % what was the work proportional to each API call?
