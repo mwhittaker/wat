@@ -2,7 +2,26 @@
 % \jmh{Adrian Colyer did a week on distributed tracing back in 10/6/2015. See https://blog.acolyer.org/2015/10/page/2/}
 %
 % \jmh{Would be good to give a nod to Bailis' SoCC paper and also the refs in it on explicit causality~\cite{bailis2012potential}}
+
+\paragraph{Data Provenance}
+When discussing data provenance, we have focused primarily on \whyprovenance{},
+as \watprovenance{} is a generalization of \whyprovenance{}. However, there are
+other forms of data provenance. \Whyprovenance{}~\cite{green2007provenance}
+formalizes not only why a particular output is produced by a relational query,
+but also how. \whereprovenance{}~\cite{buneman2001and} formalizes the set of
+input \emph{attributes} that contribute to an output \emph{attribute}.
 %
+In \cite{cui2003lineage}, Cui et al.\ provide algorithms for computing the
+provenance of more generic data transformation operators that satisfy certain
+properties (e.g., homomorphisms, aggregators). In
+\cite{woodruff1997supporting}, Woodruff et al.\ use weak inverse functions to
+compute the provenance of generic operators.
+%
+Why-, how-, and \whereprovenance{} are all limited to the domain of relational
+queries, and all five forms of provenance are limited to the domain of data
+transformations applied to static data. \Watprovenance{} is applicable to state
+machines with state that varies over time.
+
 \paragraph{Black Box Provenance}
 RDataTracker \cite{lerner2014collecting}, noWorkflow
 \cite{murta2014noworkflow}, and SPADE \cite{gehani2012spade} are frameworks
@@ -74,11 +93,10 @@ with fault tolerance. Work on GMRW provenance~\cite{ikeda2011provenance} and
 systems like BigDebug~\cite{gulzar2016bigdebug},
 Titian~\cite{interlandi2015titian}, RAMP~\cite{park2011ramp}, and
 Newt~\cite{logothetis2013scalable} augment DISC frameworks with data
-provenance. DISC provenance is similar to the provenance produced by scientific
-workflow systems. It is restricted to the domain of data intensive computations
-over static data. Unlike \watprovenance{}, it cannot be applied to other
-distributed systems components like storage systems, coordination services,
-load balancers, etc.
+provenance. DISC provenance is restricted to the domain of data intensive
+computations over static data. Unlike \watprovenance{}, it cannot be applied to
+other distributed systems components like storage systems, coordination
+services, load balancers, etc.
 
 \paragraph{Distributed Tracing Tools}
 Distributed tracing tools like Dapper~\cite{sigelman2010dapper},

@@ -53,9 +53,7 @@ was sent to the Postgres database, that is only one small piece of the puzzle.
 Understanding why Bob saw Ava's mean comment requires us to reason about
 messages that travel through our application servers, our Redis servers, and
 our load balancer. But, these are not relational databases, so we cannot apply
-\whyprovenance{} to them\footnote{Note that there are other forms of lineage
-(e.g.,~\cite{cui2003lineage}) that can be applied to more generic data
-transformation operators.}. Second and more fundamental is \whyprovenance{}'s
+\whyprovenance{} to them. Second and more fundamental is \whyprovenance{}'s
 inability to reflect any notion of state change over time. In particular, the
 real ``why'' question we want to answer here is ``why was the provenance of
 Bob's query unaffected by Ava's unfriend request?'' The \whyprovenance{} of
