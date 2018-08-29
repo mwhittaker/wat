@@ -1,7 +1,15 @@
 \documentclass[sigconf, 10pt]{acmart}
-\setcopyright{none}
-\settopmatter{printacmref=false}
-\settopmatter{printccs=false}
+
+\setcopyright{acmcopyright}
+\acmDOI{10.1145/3267809.3267839}
+\acmISBN{978-1-4503-6011-1/18/10}
+\acmConference[SoCC '18]%
+  {ACM Symposium on Cloud Computing}%
+  {October 11--13, 2018}%
+  {Carlsbad, CA, USA}
+\acmYear{2018}
+\copyrightyear{2018}
+\acmPrice{15.00}
 
 \usepackage{booktabs}
 \usepackage{colortbl}
@@ -15,16 +23,9 @@
 \usetikzlibrary{shapes.multipart}
 \usetikzlibrary{snakes}
 
-%%%% comments
-\newcommand{\jmh}[1]{\textcolor{red}{#1}}
-
-
 \begin{document}
+
 \title{Debugging Distributed Systems with\\Why-Across-Time Provenance}
-\acmConference[SOCC'18]%
-              {ACM Symposium on Cloud Computing}%
-              {October 2018}%
-              {Carlsbad, California, USA}
 
 \author{Michael Whittaker}
 \affiliation{%
@@ -52,6 +53,40 @@
 \renewcommand{\shortauthors}{M. Whittaker, C. Teodoropol, P. Alvaro, J. Hellerstein}
 
 {\input{sections/abstract}}
+
+% See http://dl.acm.org/ccs.cfm.
+\begin{CCSXML}
+<ccs2012>
+<concept>
+<concept_id>10002951.10002952.10002953.10010820.10003623</concept_id>
+<concept_desc>Information systems~Data provenance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10003752.10010070.10010111.10003623</concept_id>
+<concept_desc>Theory of computation~Data provenance</concept_desc>
+<concept_significance>500</concept_significance>
+</concept>
+<concept>
+<concept_id>10011007.10011074.10011099.10011102.10011103</concept_id>
+<concept_desc>Software and its engineering~Software testing and debugging</concept_desc>
+<concept_significance>300</concept_significance>
+</concept>
+<concept>
+<concept_id>10003752.10003766</concept_id>
+<concept_desc>Theory of computation~Formal languages and automata theory</concept_desc>
+<concept_significance>100</concept_significance>
+</concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Information systems~Data provenance}
+\ccsdesc[500]{Theory of computation~Data provenance}
+\ccsdesc[300]{Software and its engineering~Software testing and debugging}
+\ccsdesc[100]{Theory of computation~Formal languages and automata theory}
+
+\keywords{data provenance, state machines, distributed systems}
+
 \maketitle
 {\input{sections/introduction}}
 {\input{sections/background}}
