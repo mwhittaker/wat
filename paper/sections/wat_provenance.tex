@@ -190,9 +190,9 @@ but colloquially discuss \watprovenance{} with respect to the corresponding
 output $o$.
 
 \subsection{Can I Get a Witness?}
-We now provide a few more simple examples of \watprovenance{} to illustrate
-the definition. In \secref{WatProvSpecs}, we describe the \watprovenance{} of
-realistic services such as Redis, Zookeeper, and S3.
+We now provide a few more simple examples involving \watprovenance{} to
+illustrate the definition. In \secref{WatProvSpecs}, we describe the
+\watprovenance{} of realistic services such as Redis, Zookeeper, and S3.
 
 \begin{example}\examplelabel{WatExampleXyx}
   \newcommand{\Mget}{\text{get}}
@@ -220,7 +220,7 @@ realistic services such as Redis, Zookeeper, and S3.
   is the second $\Mset(x, 1)$ command, not the first, that causes the value of
   $x$ to ultimately be $1$.
 
-  All other subtraces of $T$ are not witnesses of $o$, so $\Wit{M, T, i} =
+  All other subtraces of $T$ are not witnesses of $o$. Thus, $\Wit{M, T, i} =
   \set{a_3, a_1a_3, a_2a_3, a_1a_2a_3}$ which has unique minimal element $a_3$.
   Thus, $\Wat{M, T, i} = \set{a_3}$.
 \end{example}

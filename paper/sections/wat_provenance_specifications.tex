@@ -94,13 +94,13 @@ most recent creation of the bucket, the most recent creation of every object in
 the bucket, and the deletion of any object that was previously in the bucket.
 
 \paragraph{Distributed File Systems}
-We can also specify the \watprovenance{} of a distributed file system like NFS
-or HDFS. A \watprovenance{} specification of a request to read a byte range
-from a file includes the most recent creation of the file, the most recent
-creation of the parent directories of the file, and the most recent writes that
-overlap with the requested byte range. If the file was created by moving
-another file, then the \watprovenance{} specification also includes the
-provenance of the file that was moved.
+We can specify the \watprovenance{} of a distributed file system like HDFS. A
+\watprovenance{} specification of a request to read a byte range from a file
+includes the most recent creation of the file, the most recent creation of the
+parent directories of the file, and the most recent writes that overlap with
+the requested byte range. If the file was created by moving another file, then
+the \watprovenance{} specification also includes the provenance of the file
+that was moved.
 
 \paragraph{Coordination Services}
 Systems use coordination services like Apache
