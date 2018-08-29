@@ -22,7 +22,7 @@ We answer question $1$ in \secref{EvalWatProvSpecs} and question $2$ in
   \begin{tabular}{llll}
     \toprule
     System    & Language & LOC & Supported API                                                         \\\midrule
-    Redis     & SQL      & 30  & set, del, append, incr, decr, incrby, decrby, strlen                  \\
+    Redis     & SQL      & 30  & get, set, del, append, incr, decr, incrby, decrby, strlen             \\
     POSIX     & Python   & 88  & reading and writing byte ranges                                       \\
     Amazon S3 & Python   & 200 & creating, copying, catting, removing, and listing objects and buckets \\
     Zookeeper & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
@@ -34,15 +34,45 @@ In \secref{WatProvSpecs}, we argued that many commonly used distributed system
 components have relatively simple \watprovenance{} specifications. In this
 subsection, we substantiate our argument with concrete \watprovenance{}
 specifications for Redis, a subset of the POSIX file system API, Amazon S3, and
-Zookeeper. We implemented these \watprovenance{} specifications using
-\fluent{}. \tabref{ProvSpecLengths} lists the language in which each provenance
-specification is written, the lines of code required to write each
-specification, and the API supported by each specification. All of the
-provenance specifications are relatively short, and we found writing the
-specifications straightforward. As we discussed in
+Zookeeper.
+%
+We implemented these \watprovenance{} specifications using \fluent{}.
+\tabref{ProvSpecLengths} lists the language in which we wrote each provenance
+specification, the lines of code required to write each specification, and the
+API supported by each specification.
+
+Redis' and Zookeeper's \watprovenance{} specifications were expectedly
+straightforward.
+%
+The POSIX file system's \watprovenance{} specification was a bit more
+challenging.  Given a byte range in a file, we walked backwards through the
+trace to find the most recent write to each segment of the byte range. This
+required maintaining a disjoint set of byte ranges, something we found simple
+to implement in Python but challenging to implement in SQL.
+%
+Amazon S3's \watprovenance{} specification was complicated by the fact that
+objects could be moved across buckets. Thus, computing the \watprovenance{}
+catting or listing objects required computing the transitive \watprovenance{}
+of objects that have been moved and copied.
+
+% For Redis' \watprovenance{} specification, we categorize each operation as a
+% ``write'' (i.e.\ set, del), a ``modification'' (i.e.\ append, incr, decr,
+% incrby, decrby), or a ``read'' (i.e. get, strlen). The \watprovenance{} of a
+% request for a key involves the most recent write and all subsequent
+% modifications of the key.
+
+All of the provenance specifications are relatively short, and we found writing
+the specifications straightforward. As we discussed in
 \secref{WatProvSpecsLimitations}, this does not mean that \emph{all}
-distributed system components have simple \watprovenance{} specifications, but
-it does mean that many commonly used components do.
+black boxes have simple \watprovenance{} specifications, but many commonly used
+black boxes do.
+
+% What was the "width" of the various APIs you wrapped in terms of #API endpoints (you should report this),
+% what was the work proportional to each API call?
+% Is it kind of a constant effort per API call?
+% Any anecdotes about where things got tricky?
+% Any intuition regarding things that you would expect to be tricky even though you didn't see them?
+
 
 \subsection{Debugging with \WatProvenance}\seclabel{EvalWatProvRedis}
 How do \watprovenance{} and \watprovenance{} specifications compare to other
@@ -59,12 +89,12 @@ summarized in \tabref{DebugComparison}.
   \tablabel{DebugComparison}
   \begin{tabular}{lllp{3cm}p{3cm}}
     \toprule
-    Debugging Technique          & Ease Of Adoption & Runtime Overheads & Ease of High-Level Debugging & Ease of Low-Level Debugging \\\midrule
-    SPADE (Audit Logs)           & easy             & low               & hard                         & hard \\
-    SPADE (LLVM Instrumentation) & easy             & high              & hard                         & medium \\
-    \texttt{printf} Debugging    & easy--impossible & low               & medium--hard                 & easy--hard \\
-    \fluent{}                    & easy--hard       & medium            & easy                         & impossible \\
-    % GDB                        & easy             & low               & hard                         & easy \\
+    Debugging Technique       & Ease Of Adoption & Runtime Overheads & Ease of High-Level Debugging & Ease of Low-Level Debugging \\\midrule
+    SPADE (Audit Logs)        & easy             & low               & hard                         & hard \\
+    SPADE (LLVM)              & easy             & high              & hard                         & medium \\
+    \texttt{printf} Debugging & easy--impossible & low               & medium--hard                 & easy--hard \\
+    \fluent{}                 & easy--hard       & medium            & easy                         & impossible \\
+    % GDB                     & easy             & low               & hard                         & easy \\
     \bottomrule
   \end{tabular}
 \end{table*}
@@ -166,7 +196,7 @@ multiple logs.
 
 \subsubsection{\fluent{}}
 \paragraph{Ease of Adoption}
-In order to adopt \fluent{}, a developer must first write \watprovenance{}
+To adopt \fluent{}, a developer must first write \watprovenance{}
 specifications for each component in the system. As we discussed, many
 distributed system components have relatively simple \watprovenance{}
 specifications for which adopting Watermelon is relatively easy, while some
