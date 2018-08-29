@@ -93,10 +93,18 @@ with fault tolerance. Work on GMRW provenance~\cite{ikeda2011provenance} and
 systems like BigDebug~\cite{gulzar2016bigdebug},
 Titian~\cite{interlandi2015titian}, RAMP~\cite{park2011ramp}, and
 Newt~\cite{logothetis2013scalable} augment DISC frameworks with data
-provenance. DISC provenance is restricted to the domain of data intensive
-computations over static data. Unlike \watprovenance{}, it cannot be applied to
-other distributed systems components like storage systems, coordination
-services, load balancers, etc.
+provenance.
+%
+Unlike \watprovenance{}, DISC provenance is restricted to the domain of data
+intensive computations over static data and cannot be applied to other
+distributed systems components like storage systems, coordination services,
+load balancers, etc.
+%
+DISC provenance frameworks take advantage of operator interfaces (e.g., map,
+filter, aggregate) to construct lineage of arbitrary operator implementations
+similar to how \watprovenance{} specifications are written against high-level
+interfaces instead of implementations.
+
 
 \paragraph{Distributed Tracing Tools}
 Distributed tracing tools like Dapper~\cite{sigelman2010dapper},
