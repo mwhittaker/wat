@@ -204,7 +204,7 @@ illustrate the definition. In \secref{WatProvSpecs}, we describe the
   \]
   and the input $i = \Mget(x)$. $o = \epsilon^*(s_0, Ti) = 1$. To compute
   $\Wat{M, T, i}$ (the \watprovenance{} of $o$), we first compute $\Wit{M, T,
-  i}$ (the witnesses of $o$ that are closed under supertrace in $T$).
+  i}$: the witnesses of $o$ that are closed under supertrace in $T$.
 
 
   $T_3 = a_3 = \Mset(x, 1)$ suffices to generate $o$ and is closed under
@@ -328,7 +328,7 @@ suffices to generate $t$. Moreover, because $Q$ is monotone and $T$ does not
 contain any deletions, every witness $T'$ is closed under supertrace in $T$.
 Thus, $T'$ (and hence $I'$) is a minimal witness. The proof of the
 converse---showing that every $I' \in \MWhy{Q, I, t}$ has a corresponding
-subtrace $T' \in \Wat{M, I, t}$---is almost identical.
+subtrace $T' \in \Wat{M, I, t}$---is symmetric.
 
 Unfortunately, \watprovenance{}'s generality does not come for free. Given a
 query $Q$, tuple $t$, and instance $I$, it is possible to automatically compute

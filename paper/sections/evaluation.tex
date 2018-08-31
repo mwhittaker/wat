@@ -153,7 +153,7 @@ We ran SPADE---with audit logging and LLVM instrumentation enabled---against a
 trivial workload consisting of a single set and get to Redis. SPADE produced
 1,087 audit log provenance entries and 1,118,764 LLVM instrumentation
 provenance entries. High-level debugging with either of these sources of
-provenance is difficult due the provenance's size and detailed nature.
+provenance is difficult due to the provenance's size and detailed nature.
 Understanding the reported provenance requires either an understanding of how
 particular syscalls relate to Redis' source code (for audit logs) or a detailed
 understanding of Redis' implementation (for LLVM instrumentation). Low-level
@@ -220,7 +220,7 @@ allow a developer to codify these intuitions and automatically use them to
 filter irrelevant information when debugging. By refining causality,
 \watprovenance{} also allows developers to reason about the ordering of events
 in a distributed system without having to manually trace events through a set
-of machine logs. Conversely, \fluent{} must be paired with another system to
+of logs. Conversely, \fluent{} must be paired with another system to
 support low-level debugging.
 
 As a simple experiment, we again ran our trivial workload consisting of a
