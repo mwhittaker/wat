@@ -80,8 +80,8 @@ debugging techniques? We answer this question by comparing \fluent{}, our
 prototype \watprovenance{} debugger, against two other debugging techniques:
 SPADE~\cite{gehani2012spade} and \texttt{printf} debugging. We qualitatively
 evaluate the three debugging techniques using four metrics---ease of adoption,
-runtime overhead, ease high-level debugging, and ease of low-level
-debugging---which we will explain momentarily. This qualitative analysis is
+runtime overhead, high-level debugging support, and low-level debugging
+support---which we will explain momentarily. This qualitative analysis is
 summarized in \tabref{DebugComparison}.
 
 \begin{table*}[t]
@@ -89,12 +89,12 @@ summarized in \tabref{DebugComparison}.
   \tablabel{DebugComparison}
   \begin{tabular}{lllp{3cm}p{3cm}}
     \toprule
-    Debugging Technique       & Ease Of Adoption & Runtime Overheads & Ease of High-Level Debugging & Ease of Low-Level Debugging \\\midrule
-    SPADE (Audit Logs)        & easy             & low               & hard                         & hard \\
-    SPADE (LLVM)              & easy             & high              & hard                         & medium \\
-    \texttt{printf} Debugging & easy--impossible & low               & medium--hard                 & easy--hard \\
-    \fluent{}                 & easy--hard       & medium            & easy                         & impossible \\
-    % GDB                     & easy             & low               & hard                         & easy \\
+    Debugging Technique       & Ease Of Adoption & Runtime Overheads & Supports High-Level Debugging & Supports Low-Level Debugging \\\midrule
+    SPADE (Audit Logs)        & easy             & low               & no                            & some \\
+    SPADE (LLVM)              & easy             & high              & no                            & yes \\
+    \texttt{printf} Debugging & easy--impossible & low               & some                          & yes \\
+    \fluent{}                 & easy--hard       & medium            & yes                           & no \\
+    % GDB                     & easy             & low               & hard                          & easy \\
     \bottomrule
   \end{tabular}
 \end{table*}
@@ -140,10 +140,10 @@ operations to a default configured Redis server running on the same machine.
 When we compiled the Redis server with LLVM instrumentation, the client
 required 29.76 seconds, an order of magnitude decrease in throughput.
 
-\paragraph{Ease of High- and Low-Level Debugging}
-Our third and fourth metrics, \defword{ease of high-level debugging} and
-\defword{ease of low-level debugging}, are measures of how difficult it is to
-perform high-level and low-level debugging. As we described in
+\paragraph{High- and Low-Level Debugging Support}
+Our third and fourth metrics, \defword{high-level debugging support} and
+\defword{low-level debugging support}, are measures of whether a debugging
+technique facilitates high-level and low-level debugging. As we described in
 \secref{WatProvLimitations}, high-level debugging involves understanding which
 events in a distributed system cause each other, how events are ordered with
 respect to one another, etc. Conversely, low-level debugging involves reasoning
@@ -184,15 +184,15 @@ impossible.
 The overheads of logging are typically negligible compared to heavier weight
 techniques like LLVM instrumentation or \fluent{} shims.
 
-\paragraph{Ease of High- and Low-Level Debugging}
-The ease of high- and low-level \printf{} debugging is challenging to
-characterize. It varies from easy to difficult based on the complexity of the
-bug being debugged, the quantity and quality of logs, etc. Still, for
-high-level debugging, there is an unavoidable burden imposed by \printf{}
-debugging. Developers have to make sure enough information is logged, collect
-logs from a number of machines (some of which might have crashed), filter out
-irrelevant entries from the potentially voluminous logs, and trace data across
-multiple logs.
+\paragraph{High- and Low-Level Debugging Support}
+The ability to perform high- and low-level debugging with log statements is
+challenging to characterize. It varies from easy to difficult based on the
+complexity of the bug being debugged, the quantity and quality of logs, etc.
+Still, for high-level debugging, there is an unavoidable burden imposed by
+\printf{} debugging. Developers have to make sure enough information is logged,
+collect logs from a number of machines (some of which might have crashed),
+filter out irrelevant entries from the potentially voluminous logs, and trace
+data across multiple logs.
 
 \subsubsection{\fluent{}}
 \paragraph{Ease of Adoption}
@@ -212,7 +212,7 @@ server. \fluent{} shims decreased the system's throughput by 41.4\%. While some
 of this performance degradation is an artifact of our prototype, some is
 inherent to shims.
 
-\paragraph{Ease of High- and Low-Level Debugging}
+\paragraph{High- and Low-Level Debugging Support}
 \fluent{}'s greatest strength is that it makes high-level debugging easy.
 \Watprovenance{} formalizes the intuitive notion of which inputs in a
 distributed system cause a particular output. \Watprovenance{} specifications
@@ -222,3 +222,9 @@ filter irrelevant information when debugging. By refining causality,
 in a distributed system without having to manually trace events through a set
 of machine logs. Conversely, \fluent{} must be paired with another system to
 support low-level debugging.
+
+As a simple experiment, we again ran our trivial workload consisting of a
+single set and get to Redis. Whereas SPADE produced 1,089 audit log provenance
+entries and 1,118,764 LLVM instrumentation provenance entries, \fluent{}
+produced 8 provenance entries: the get and set request and response recorded on
+the client and the server.
