@@ -7,15 +7,15 @@ framework that leverages the theoretical foundations of \watprovenance{} and
 % \secref{WatProvenanceExample}.
 
 % \subsection{\WatProvenance{} Specifications}
-{\input{figures/shims}}
+% {\input{figures/shims}}
 
 \fluent{} uses \watprovenance{} specifications to generate the provenance of
 data as it transits through the black box components of a distributed system.
 To write a \watprovenance{} specification for a black box, a developer must
-first wrap the black box in a \fluent{} shim, as illustrated in
-\figref{FluentShim}. A shim acts as proxy, intercepting all inbound requests
-sent to a black box and all outbound replies produced by a black box. \fluent{}
-shims provide two key pieces of functionality.
+first wrap the black box in a \fluent{} shim. A shim acts as proxy,
+intercepting all inbound requests sent to a black box and all outbound replies
+produced by a black box. \fluent{} shims provide two key pieces of
+functionality.
 
 First, \fluent{} shims are responsible for recording the trace $T$ of requests
 that are sent to a black box, as well as the corresponding replies produced by
