@@ -1,14 +1,4 @@
 \section{Evaluation}\seclabel{Evaluation}
-% \todo{%
-%   Revise evaluation section:
-%     - show fluent output.
-%     - show throughput of redis and S3 when traced by SPADE.
-%     - emphasize prototype nature of shim overheads.
-%     - reduce size of evaluation.
-%     - run spade on a hand-written KVS to show that spade can produce smaller
-%       output.
-% }
-
 In this section, we answer two questions: (1) How difficult is it to write
 \watprovenance{} specifications? and (2) How do \watprovenance{} and
 \watprovenance{} specifications compare to other debugging techniques?
@@ -55,24 +45,9 @@ complicated by the fact that objects could be moved across buckets. Thus,
 computing the \watprovenance{} required computing the transitive
 \watprovenance{} of objects that have been moved and copied.
 
-% For Redis' \watprovenance{} specification, we categorize each operation as a
-% ``write'' (i.e.\ set, del), a ``modification'' (i.e.\ append, incr, decr,
-% incrby, decrby), or a ``read'' (i.e. get, strlen). The \watprovenance{} of a
-% request for a key involves the most recent write and all subsequent
-% modifications of the key.
-
-% All of the provenance specifications are relatively short, and we found writing
-% the specifications straightforward.
 As we discussed in \secref{WatProvSpecsLimitations}, this does not mean that
 \emph{all} black boxes have simple \watprovenance{} specifications, but it
 corroborates the claim that many commonly used black boxes do.
-
-% What was the "width" of the various APIs you wrapped in terms of #API endpoints (you should report this),
-% what was the work proportional to each API call?
-% Is it kind of a constant effort per API call?
-% Any anecdotes about where things got tricky?
-% Any intuition regarding things that you would expect to be tricky even though you didn't see them?
-
 
 \subsection{Debugging with \WatProvenance}\seclabel{EvalWatProvRedis}
 How do \watprovenance{} and \watprovenance{} specifications compare to other

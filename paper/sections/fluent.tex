@@ -2,12 +2,6 @@
 In this section, we present \fluent{}: a prototype distributed debugging
 framework that leverages the theoretical foundations of \watprovenance{} and
 \watprovenance{} specifications.
-%
-% We also describe how to use \fluent{} to debug our motivating example from
-% \secref{WatProvenanceExample}.
-
-% \subsection{\WatProvenance{} Specifications}
-% {\input{figures/shims}}
 
 \fluent{} uses \watprovenance{} specifications to generate the provenance of
 data as it transits through the black box components of a distributed system.
@@ -43,88 +37,3 @@ simple scripts written in a developer's choice of either SQL or Python. Given a
 particular black box request, a \watprovenance{}  script computes the
 corresponding \watprovenance{} with respect to the black box's trace (which is
 persisted in a relational database by the black box's shim).
-%
-% For example, a SQL \watprovenance{} specification for Redis get requests is
-% listed in \figref{ConcreteRedisProvSpec}. The \watprovenance{} specification
-% consists of a single SQL query parameterized by the get request's key
-% \texttt{KEY} and logical time \texttt{TIME}. As with \figref{RedisProvSpec},
-% this \watprovenance{} specification returns the most recent set to the key
-% \texttt{KEY}. The \texttt{redis\_set\_req} relation is a view over the trace
-% that only includes set requests.
-
-% \begin{figure}[ht]
-%   \begin{Verbatim}
-%     -- Return the most recent set to key $KEY.
-%     SELECT *
-%       FROM redis_set_req
-%      WHERE key = $KEY AND time <= $TIME
-%      ORDER BY time DESC
-%      LIMIT 1
-%   \end{Verbatim}
-%   \caption{\Watprovenance{} specification for Redis get requests}
-%   \figlabel{ConcreteRedisProvSpec}
-% \end{figure}
-
-% \subsection{Our Motivating Example}
-% \newcommand{\systemname}{ZardozBook}
-% We now return to the motivating example from \secref{WatProvenanceExample} and
-% explore how \fluent{} enables us to diagnose why Bob was able to see Ava's mean
-% comment. We assume that we have already written \fluent{} shims and
-% \watprovenance{} specifications for all the components in \figref{MeanComment}.
-%
-% \begin{itemize}
-%   \item
-%     We begin by inspecting the trace of Bob's \systemname{} client. The trace
-%     includes a message with Ava's mean comment. Inspecting the source address
-%     stored alongside the message, we find that the message was sent by the load
-%     balancer.
-%   \item
-%     We then examine the load balancer's trace. The load balancer's
-%     \watprovenance{} specification informs us that the load balancer sent Ava's
-%     mean comment to Bob's \systemname{} client as a response to receiving the
-%     mean comment from application server $s_3$. Note that the load balancer's
-%     \watprovenance{} may also include other requests (e.g., load reports from
-%     the application servers) that caused the load balancer to forward to $s_3$,
-%     but they are not important for debugging this scenario.
-%   \item
-%     We then look at the application server $s_3$'s trace. The application
-%     server sent the mean comment to the load balancer as a reply to a
-%     \texttt{GET} request that was previously sent by Bob's \systemname{}
-%     client. The application server's \watprovenance{} specification informs us
-%     that the application server produced the mean comment because it previously
-%     received it from the centralized Postgres database.
-%   \item
-%     We then inspect the Postgres database's trace. We find that the centralized
-%     database sent the mean comment to the application server as a reply to a
-%     cache refresh request that was previously sent to the Postgres database by
-%     application server $s_3$. The \watprovenance{} of the Postgres database
-%     reveals that the Postgres database produced the mean comment because it was
-%     previously inserted into the database by application server $s_2$.
-%   \item
-%     We then review application server $s_2$'s trace. $s_2$'s \watprovenance{}
-%     specification shows that $s_2$ sent the mean comment to the Postgres
-%     database because it previously received the mean comment from the load
-%     balancer.
-%   \item
-%     We again examine the load balancer's trace and follow the mean comment back
-%     to Ava's \systemname{} client.
-%   \item
-%     Ava's trace shows that Ava issued a request to unfriend Bob before she
-%     posted the mean comment. Following the network trace of the unfriend
-%     request, we find that it was forwarded to application server $s_1$ by the
-%     load balancer and that application server $s_1$ later propagated the
-%     request to Postgres.
-%   \item
-%     Examining the Postgres trace, we find that it received the unfriend request
-%     \emph{after} the mean comment, even though Ava issued the unfriend request
-%     \emph{before} the mean comment.
-% \end{itemize}
-%
-% From this analysis, we discover that because the load balancer can forward
-% requests from a single client to different application servers and because
-% application servers lazily synchronize with the centralized Postgres
-% repository, client requests can be effectively reordered. Using this insight, a
-% \systemname{} engineer can enable sticky sessions in the load balancer,
-% ensuring that the load balancer forwards requests within a single session to a
-% single application server. This fixes the bug and prevents Bob from
-% experiencing any future race condition woes.

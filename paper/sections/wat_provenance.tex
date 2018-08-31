@@ -286,17 +286,6 @@ that our definition of \watprovenance{} accurately models our intuition about
 data provenance for state machines. We now discuss how \watprovenance{} relates
 to \whyprovenance{} and causality.
 
-% \begin{claim}\clmlabel{Existence}
-% For every state machine $M$, trace $T$, and input $i$, $\Wat{M, T, i}$ is
-% non-empty.
-% \end{claim}
-%
-% \clmref{Existence} is a simple sanity check for our definition of
-% \watprovenance{}. It would be odd if something had no provenance at all! The
-% proof is trivial. $T$ is always a witness of $o$ that is closed under
-% supertrace in $T$. Thus, $\Wit{M, T, i}$ (and hence $\Wat{M, T, i}$) is
-% non-empty.
-
 \begin{claim}\clmlabel{WatSubsumesWhy}
   \Watprovenance{} subsumes \whyprovenance{}.
 \end{claim}

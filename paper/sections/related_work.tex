@@ -1,8 +1,4 @@
 \section{Related Work}\seclabel{RelatedWork}
-% \jmh{Adrian Colyer did a week on distributed tracing back in 10/6/2015. See https://blog.acolyer.org/2015/10/page/2/}
-%
-% \jmh{Would be good to give a nod to Bailis' SoCC paper and also the refs in it on explicit causality~\cite{bailis2012potential}}
-
 \paragraph{Data Provenance}
 When discussing data provenance, we have focused primarily on \whyprovenance{},
 as \watprovenance{} is a generalization of \whyprovenance{}. However, there are
@@ -48,15 +44,8 @@ against a DDP.
 Both DDP provenance and \watprovenance{} aim to extend traditional data
 provenance to state machines, but they do so in very different ways. DDP
 provenance is used to explain how particular execution traces may arise.
-%
-% For example, DDP provenance might inform us about the database contents under
-% which a particular state in the DDP can be reached.
-%
 \Watprovenance{}, on the other hand, aims to explain why a state machine
 generates a particular output with respect to a fixed trace of inputs.
-% DDPs are also assumed to be finite and backed by relational databases, while
-% \watprovenance{} targets arbitrary (even infinite) deterministic state
-% machines.
 
 \paragraph{Network Provenance}
 Network provenance was originally introduced in~\cite{zhou2010efficient} as a
@@ -112,9 +101,6 @@ X-trace~\cite{fonseca2007x}, Magpie~\cite{barham2003magpie},
 Stardust~\cite{thereska2006stardust}, and lprof~\cite{zhao2014lprof} allow
 programmers to trace messages through large and complex distributed systems
 that span multiple nodes and administrative domains.
-% These traces enable programmers to answer many useful debugging questions
-% (e.g.\ ``When a client issues a request, which nodes are contacted before a
-% reply is returned?'').
 The fundamental distinction between distributed traces and \watprovenance{} is
 that distributed traces do not carry historical information that link prior
 inputs to present outputs. For example, traces may show you which clients
