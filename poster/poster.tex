@@ -8,26 +8,27 @@
   Joseph M. Hellerstein%
 }
 
+\usepackage{colortbl}
+\usepackage{pervasives}
 \usepackage{riseposter}
+\usepackage{wat_pervasives}
+\usetikzlibrary{snakes}
 
 \begin{document}
 \maketitle
 
 \begin{columns}
 \column{0.33333}
-\block{Causality}{}
-\block{Why Provenance}{}
-\block{State Machines}{}
+\block{Causality}{\input{sections/causality.tex}}
+\block{Why Provenance}{\input{sections/why_provenance.tex}}
+\block{State Machines}{\input{sections/state_machines.tex}}
 
 \column{0.33333}
-\block{Wat-Provenance}{}
-% Examples
-% Definition
-% Examples
+\block{Wat-Provenance}{\input{sections/wat_provenance.tex}}
 
-\column{0.33333} % See Section 4.4
-\block{Wat-Provenance Specifications}{}
-\block{Watermelon}{}
-\block{Evaluation}{}
+\column{0.33333}
+\block{Wat-Provenance Specifications}{\input{sections/wat_provenance_specs.tex}}
+\block{Watermelon}{\input{sections/watermelon.tex}}
+\block{Evaluation}{\input{sections/evaluation.tex}}
 \end{columns}
 \end{document}

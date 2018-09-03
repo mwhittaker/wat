@@ -1,0 +1,41 @@
+\begin{center}
+  \begin{tikzpicture}[yscale=4, xscale=7]
+    \tikzstyle{timeline}=[-latex, draw, flatdarkgray, line width=6pt]
+    \tikzstyle{serial}=[-latex, draw, black, line width=8pt]
+    \tikzstyle{netmsg}=[draw, black, snake=snake, line width=8pt,
+                        segment amplitude=4pt, segment length=22pt]
+
+    \tikzstyle{event}=[shape=circle, inner sep=12pt]
+    \tikzstyle{aevent}=[event, fill=flatred]
+    \tikzstyle{bevent}=[event, fill=flatgreen]
+    \tikzstyle{cevent}=[event, fill=flatblue]
+    \tikzstyle{labelshift}=[shift={(0, -0.1)}]
+
+    % Process labels.
+    \node (a) at (0, 2) {Server $a$};
+    \node (b) at (0, 1) {Server $b$};
+    \node (c) at (0, 0) {Server $c$};
+
+    % Time lines.
+    \draw[timeline] (a) to +(4.25, 0);
+    \draw[timeline] (b) to +(4.25, 0);
+    \draw[timeline] (c) to +(4.25, 0);
+
+    % Events.
+    \node[aevent, label={[labelshift]$a_1$}] (a1) at ($(a.east) + (0.25, 0)$) {};
+    \node[aevent, label={[labelshift]$a_2$}] (a2) at ($(a1)     + (0.75, 0)$) {};
+    \node[aevent, label={[labelshift]$a_3$}] (a3) at ($(a2)     + (1.25, 0)$) {};
+    \node[bevent, label={[labelshift]$b_1$}] (b1) at ($(b.east) + (0.25, 0)$) {};
+    \node[bevent, label={[labelshift]$b_2$}] (b2) at ($(b1)     + (1.5, 0)$) {};
+    \node[bevent, label={[labelshift]$b_3$}] (b3) at ($(b2)     + (0.75, 0)$) {};
+    \node[cevent, label={[labelshift]$c_1$}] (c1) at ($(c.east) + (0.5, 0)$) {};
+    \node[cevent, label={[labelshift]$c_2$}] (c2) at ($(c1)     + (2.75, 0)$) {};
+
+    % Arrows.
+    \draw[serial] (a1) edge (a2) (a2) edge (a3);
+    \draw[serial] (b1) edge (b2) (b2) edge (b3);
+    \draw[serial] (c1) edge (c2);
+    \draw[netmsg] (a2) to (b2);
+    \draw[netmsg] (b3) to (c2);
+  \end{tikzpicture}
+\end{center}

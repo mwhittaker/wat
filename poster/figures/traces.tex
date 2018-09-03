@@ -1,0 +1,65 @@
+\begin{center}
+  \begin{tikzpicture}[yscale=5, xscale=6]
+    \newcommand{\lw}{0pt}
+    \newcommand{\rightof}[1]{($(#1.east) - (\lw, 0)$)}
+
+    \tikzstyle{input}=[draw, minimum width=0.75in, minimum height=0.75in,
+      anchor=west, inner sep=0pt, fill opacity=0.4,
+      text opacity=1, line width=\lw]
+    \tikzstyle{hiddeninput}=[input, dashed, dash pattern=on 0.5cm off 0.5cm]
+    \tikzstyle{a1}=[input, fill=flatred]
+    \tikzstyle{a2}=[input, fill=flatgreen]
+    \tikzstyle{a3}=[input, fill=flatblue]
+    \tikzstyle{a4}=[input, fill=flatpurple]
+
+    \newcommand{\trace}[1]{
+      \node[hiddeninput] (a1hidden) at (#1) {};
+      \node[hiddeninput] (a2hidden) at \rightof{a1hidden} {};
+      \node[hiddeninput] (a3hidden) at \rightof{a2hidden} {};
+      \node[hiddeninput] (a4hidden) at \rightof{a3hidden} {};
+    }
+    \newcommand{\ai}{\node[a1] (a1) at (a1hidden.west) {$a_1$};}
+    \newcommand{\aii}{\node[a2] (a2) at (a2hidden.west) {$a_2$};}
+    \newcommand{\aiii}{\node[a3] (a3) at (a3hidden.west) {$a_3$};}
+    \newcommand{\aiv}{\node[a4] (a4) at (a4hidden.west) {$a_4$};}
+    \newcommand{\centertext}[1]{%
+      \node[anchor=south] at (a2hidden.north east) {#1};
+    }
+
+    % Trace.
+    \begin{scope}
+      \trace{0, 0} \ai{} \aii{} \aiii{} \aiv{}
+      % The phantom p's are here to vertically align all the text at the top of
+      % this figure.
+      \centertext{\phantom{p}trace $T$\phantom{p}};
+    \end{scope}
+
+    % Subtrace.
+    \begin{scope}[shift={(0, -1)}]
+      \trace{0, 0} \ai{} \aiii{}
+      \centertext{subtrace $T'$};
+    \end{scope}
+
+    % Subtraces.
+    \begin{scope}[shift={(2, 0)}]
+      \trace{0, 0}
+      % The phantom p's are here to vertically align all the text at the top of
+      % this figure.
+      \centertext{\phantom{p}subtraces of $T'$\phantom{p}};
+      \trace{0, 0} \ai{} \aiii{}
+      \trace{0, -0.5}  \aiii{}
+      \trace{0, -1} \ai{}
+      \trace{0, -1.5}
+    \end{scope}
+
+    % Supertraces.
+    \begin{scope}[shift={(4, 0)}]
+      \trace{0, 0}
+      \centertext{supertraces of $T'$ in $T$};
+      \trace{0, 0} \ai{} \aiii{}
+      \trace{0, -0.5} \ai{} \aii{} \aiii{}
+      \trace{0, -1} \ai{} \aiii{} \aiv{}
+      \trace{0, -1.5} \ai{} \aii{} \aiii{} \aiv{}
+    \end{scope}
+  \end{tikzpicture}
+\end{center}

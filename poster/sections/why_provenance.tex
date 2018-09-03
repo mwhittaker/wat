@@ -1,0 +1,17 @@
+Given a relational algebra query $Q$, a database instance $I$, and a tuple $t
+\in Q(I)$, a witness of $t$ is a subinstance $J \subseteq I$ such that $t \in
+Q(J)$. The \whyprovenance{} of $t$, \Why{Q, I, t}, is the set of minimal
+witnesses of $t$.
+%
+\[
+  Q \defeq \pi_{\texttt{name}}(
+    \sigma_{\texttt{friend1=ecodd}}(
+      \texttt{Users} \join_{\texttt{username=friend2}} \texttt{Friends}
+    )
+  )
+\]
+%
+\input{figures/why_provenance.tex}
+
+\Whyprovenance{} returns the precise causes of an event, but it is limited to
+static relational databases.
