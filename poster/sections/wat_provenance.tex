@@ -1,0 +1,70 @@
+\begin{example}\examplelabel{WatExampleKvs}
+  \newcommand{\kvset}{\text{set}}
+  \newcommand{\kvget}{\text{get}}
+  Consider a key-value server state machine $M$ with an input alphabet that
+  consists of sets and gets to integer-valued variables that are initially $0$.
+  \begin{align*}
+    T &= \kvset(x, 1); \kvset(y, 2) \\
+    i &= \kvget(x) \\
+    o &= 1
+  \end{align*}
+\end{example}
+
+\begin{example}\examplelabel{WatExampleFormulas}
+  \newcommand{\Mset}{\text{set}}
+  \newcommand{\Meval}{\text{eval}}
+  Consider a state machine $M$ that stores a set of boolean-valued variables
+  that are initially false. Users can set variables to true or false and can
+  request that $M$ evaluate a formula over these variables.
+  \begin{align*}
+    T &= \Mset(a); \Mset(b); \Mset(c); \Mset(d) \\
+    i &= \Meval((a \land d) \lor (b \land c)) \\
+    o &= \text{true}
+  \end{align*}
+\end{example}
+
+\begin{example}\examplelabel{WatExampleAnotbc}
+  \newcommand{\Mset}{\text{set}}
+  \newcommand{\Meval}{\text{eval}}
+  Consider again the state machine $M$ from the previous example.
+  \begin{align*}
+    T &= \Mset(a); \Mset(b); \Mset(c) \\
+    i &= \Meval((a \land \lnot b) \lor c) \\
+    o &= \text{true}
+  \end{align*}
+\end{example}
+
+Given a state machine $M$, an input
+trace $T$, an input $i$, and the corresponding output $o = \epsilon^*(s_0,
+Ti)$, we say that a subtrace $T'$ of $T$ is a \defword{witness} of $o$ if
+$\epsilon^*(s_0, T'i) = o$. We say that a witness $T'$ of $o$ is
+\defword{closed under supertrace in $T$} if every supertrace of $T'$ in $T$ is
+also a witness of $o$. Let $\Wit{M, T, i}$ be the set of witnesses of $o$ that
+are closed under supertrace in $T$. The \defword{\watprovenance{}} of input $i$
+with respect to $M$ and $T$, abbreviated $\Wat{M, T, i}$, is the set of minimal
+elements of $\Wit{M, T, i}$.
+
+\begin{example}\examplelabel{WatExampleXyx}
+  \newcommand{\Mget}{\text{get}}
+  \newcommand{\Mset}{\text{set}}
+  Consider again the key-value server state machine from
+  \exampleref{WatExampleKvs}.
+  \begin{align*}
+    T &= a_1 a_2 a_3 = \Mset(x, 1); \Mset(x, 2); \Mset(x, 1) \\
+    i &= \Mget(x) \\
+    o &= 1
+  \end{align*}
+\end{example}
+
+\begin{example}\examplelabel{WatExampleSetDiff}
+  \newcommand{\Mins}{\text{insert}}
+  \newcommand{\Mquery}{\text{query}}
+  Consider a relational database state machine $M$. The input alphabet of $M$
+  includes commands to insert a tuple into $M$ and to execute a relational
+  algebra query against $M$. Initially, all relations are empty.
+  \begin{align*}
+    T &= a_1 a_2 a_3 = \Mins(R, t); \Mins(R, u); \Mins(S, u) \\
+    i &= \Mquery(R - S) \\
+    o &= \set{t}
+  \end{align*}
+\end{example}
