@@ -1,0 +1,31 @@
+\begin{center}
+  \tikzstyle{minw}=[minimum width=2in]
+  \tikzstyle{minh}=[minimum height=2in]
+  \tikzstyle{wb}=[align=center, draw=black, fill=white, text=black]
+  \tikzstyle{bb}=[align=center, draw=black, fill=black, text=white]
+
+  \begin{tikzpicture}[scale=4]
+    \node[wb, minw, minh] (wb) at (0, 0) {Client};
+    \node[wb, minw, rotate=90] (shim) at (2.5, 0) {Shim};
+    \node[bb, minw, minh] (bb) at (4, 0) {Server};
+
+    \tikzstyle{e}=[thick, -latex]
+    \tikzstyle{n}=[inner sep=0, semithick]
+    \draw[e]
+      ($(wb.north east)!0.25!(wb.south east)$)
+      to node[n, above=0.1cm] {1}
+      ($(shim.north west)!0.75!(shim.north east)$);
+    \draw[e]
+      ($(shim.south west)!0.75!(shim.south east)$)
+      to node[n, above=0.1cm] {2}
+      ($(bb.north west)!0.25!(bb.south west)$);
+    \draw[e]
+      ($(bb.north west)!0.75!(bb.south west)$)
+      to node[n, below=0.1cm] {3}
+      ($(shim.south west)!0.25!(shim.south east)$);
+    \draw[e]
+      ($(shim.north west)!0.25!(shim.north east)$)
+      to node[n, below=0.1cm] {4}
+      ($(wb.north east)!0.75!(wb.south east)$);
+  \end{tikzpicture}
+\end{center}

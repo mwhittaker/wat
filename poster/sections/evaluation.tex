@@ -1,0 +1,27 @@
+\begin{center}
+  \small
+
+  \begin{tabular}{lllp{8.5in}}
+    \toprule
+    System    & Language & LOC & Supported API                                                         \\\midrule
+    Redis     & SQL      & 30  & get, set, del, append, incr, decr, incrby, decrby, strlen             \\
+    POSIX     & Python   & 88  & reading and writing byte ranges                                       \\
+    Amazon S3 & Python   & 200 & creating, copying, catting, removing, and listing objects and buckets \\
+    Zookeeper & SQL      & 70  & creating, reading, writing, and listing znodes                        \\
+    \bottomrule
+  \end{tabular}
+\end{center}
+
+\begin{center}
+  \small
+
+  \begin{tabular}{lp{3in}p{2in}p{2in}p{2in}}
+    \toprule
+    Debugging Technique       & Ease Of Adoption & Runtime Overheads & Supports High-Level Debugging & Supports Low-Level Debugging \\\midrule
+    SPADE (Audit Logs)        & easy             & low               & no                            & some \\
+    SPADE (LLVM)              & easy             & high              & no                            & yes \\
+    \texttt{printf} Debugging & easy--impossible & low               & some                          & yes \\
+    \fluent{}                 & easy--hard       & medium            & yes                           & no \\
+    \bottomrule
+  \end{tabular}
+\end{center}
